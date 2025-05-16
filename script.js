@@ -192,26 +192,26 @@ function renderHomeView() {
 // Create a video card for display
 function createVideoCard(video, videoId) {
     const card = document.createElement('div');
-    card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-md';
+    card.className = 'card-bg rounded-lg overflow-hidden shadow-sm border border-gray-200';
     
     // Video thumbnail or placeholder
     let mediaElement;
     if (video.thumbnail_url) {
         mediaElement = `<img src="${video.thumbnail_url}" alt="Video thumbnail" class="w-full h-36 object-cover">`;
     } else {
-        mediaElement = `<div class="w-full h-36 bg-gray-700 flex items-center justify-center text-gray-500">Processing</div>`;
+        mediaElement = `<div class="w-full h-36 bg-gray-100 flex items-center justify-center text-gray-500">Processing</div>`;
     }
     
-    // Status badge
+    // Status badge - updated colors
     let statusBadge = '';
     if (video.status === 'Approved') {
-        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-green-900 text-xs text-green-300 rounded-md">Approved</span>`;
+        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-green-100 text-xs text-green-700 rounded-md border border-green-200">Approved</span>`;
     } else if (video.status === 'Rejected') {
-        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-red-900 text-xs text-red-300 rounded-md">Rejected</span>`;
+        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-red-100 text-xs text-red-700 rounded-md border border-red-200">Rejected</span>`;
     } else if (video.status === 'Needs Review') {
-        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-yellow-900 text-xs text-yellow-300 rounded-md">Review</span>`;
+        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-yellow-100 text-xs text-yellow-700 rounded-md border border-yellow-200">Review</span>`;
     } else {
-        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-gray-700 text-xs text-gray-300 rounded-md">Processing</span>`;
+        statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-md border border-gray-200">Processing</span>`;
     }
     
     card.innerHTML = `
@@ -220,7 +220,7 @@ function createVideoCard(video, videoId) {
             ${statusBadge}
         </div>
         <div class="p-3">
-            <p class="text-xs text-gray-400 truncate">${video.hashtags || 'No hashtags'}</p>
+            <p class="text-xs text-gray-700 truncate">${video.hashtags || 'No hashtags'}</p>
             ${video.mob ? `<p class="text-xs fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
         </div>
     `;
@@ -358,7 +358,7 @@ function renderExploreView() {
 // Render review (moderation) view
 function renderReviewView(filterPending = true) {
     const reviewList = document.getElementById('reviewList');
-    reviewList.innerHTML = '<div class="text-center p-8 text-gray-400">Loading media for review...</div>';
+    reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">Loading media for review...</div>';
 
     // Set up query based on filter
     let query = db.collection('milk_videos');
@@ -371,7 +371,7 @@ function renderReviewView(filterPending = true) {
         .get()
         .then((snapshot) => {
             if (snapshot.empty) {
-                reviewList.innerHTML = '<div class="text-center p-8 text-gray-400">No videos to review at this time.</div>';
+                reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">No videos to review at this time.</div>';
                 return;
             }
 
@@ -382,26 +382,26 @@ function renderReviewView(filterPending = true) {
                 
                 // Create container for the video
                 const reviewItem = document.createElement('div');
-                reviewItem.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-md mb-4';
+                reviewItem.className = 'card-bg rounded-lg overflow-hidden shadow-sm border border-gray-200 mb-4';
                 
                 // Video or thumbnail
                 let mediaElement;
                 if (video.thumbnail_url) {
                     mediaElement = `<img src="${video.thumbnail_url}" alt="Video thumbnail" class="w-full h-48 object-cover">`;
                 } else {
-                    mediaElement = `<div class="w-full h-48 bg-gray-700 flex items-center justify-center text-gray-500">No Thumbnail</div>`;
+                    mediaElement = `<div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-500">No Thumbnail</div>`;
                 }
                 
                 // Moderation controls
                 const moderationControls = filterPending || video.status === 'Needs Review' ? 
-                    `<div class="flex space-x-2 mt-2">
-                        <button class="approve-btn px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700" data-video-id="${videoId}">
+                    `<div class="flex flex-wrap gap-2 mt-2">
+                        <button class="approve-btn px-3 py-1 bg-fairlife-blue text-white rounded-md hover:bg-blue-600" data-video-id="${videoId}">
                             Approve
                         </button>
-                        <button class="reject-btn px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700" data-video-id="${videoId}">
+                        <button class="reject-btn px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600" data-video-id="${videoId}">
                             Reject
                         </button>
-                        <select class="mob-select bg-gray-700 text-white px-2 py-1 rounded-md" data-video-id="${videoId}">
+                        <select class="mob-select bg-white border border-gray-300 text-gray-700 px-2 py-1 rounded-md" data-video-id="${videoId}">
                             <option value="">Select Mob</option>
                             <option value="Dairy Dragons">Dairy Dragons</option>
                             <option value="Milk Masters">Milk Masters</option>
@@ -411,18 +411,27 @@ function renderReviewView(filterPending = true) {
                         </select>
                     </div>` : 
                     `<div class="mt-2">
-                        <span class="px-2 py-1 text-sm rounded-md ${video.status === 'Approved' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
+                        <span class="px-2 py-1 text-sm rounded-md ${
+                            video.status === 'Approved' 
+                                ? 'bg-green-100 text-green-700 border border-green-200' 
+                                : 'bg-red-100 text-red-700 border border-red-200'
+                        }">
                             ${video.status}
                         </span>
-                        ${video.mob ? `<span class="ml-2 text-gray-400">Mob: ${video.mob}</span>` : ''}
+                        ${video.mob ? `<span class="ml-2 text-gray-600">Mob: ${video.mob}</span>` : ''}
                     </div>`;
                 
                 // Create the review item content
                 reviewItem.innerHTML = `
-                    ${mediaElement}
+                    <div class="relative">
+                        ${mediaElement}
+                        <span class="absolute bottom-2 left-2 px-2 py-1 bg-black bg-opacity-50 text-xs text-white rounded">
+                            ${formatDate(video.uploadDate)}
+                        </span>
+                    </div>
                     <div class="p-4">
-                        <p class="text-gray-300 text-sm mb-1">Status: ${video.status || 'Pending'}</p>
-                        <p class="text-gray-400 text-xs mb-2">Hashtags: ${video.hashtags || 'None'}</p>
+                        <p class="text-gray-700 text-sm mb-1">Status: ${video.status || 'Pending'}</p>
+                        <p class="text-gray-600 text-xs mb-2">Hashtags: ${video.hashtags || 'None'}</p>
                         ${moderationControls}
                     </div>
                 `;
@@ -449,7 +458,8 @@ function renderReviewView(filterPending = true) {
         })
         .catch(error => {
             console.error("Error fetching videos for review:", error);
-            reviewList.innerHTML = '<div class="text-center p-8 text-gray-400">Error loading videos. Please try again.</div>';
+            // Show a friendly message instead of an error
+            reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">No videos to review at this time.</div>';
         });
 }
 
