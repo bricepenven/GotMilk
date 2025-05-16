@@ -480,6 +480,7 @@ function renderNotificationsView() {
                 const video = doc.data();
                 const item = document.createElement('div');
                 item.className = 'border-b border-gray-200 p-4';
+                item.setAttribute('data-video-id', doc.id);
                 
                 // Create notification item
                 item.innerHTML = `
@@ -487,7 +488,9 @@ function renderNotificationsView() {
                         <div class="w-20 h-20 bg-gray-100 rounded overflow-hidden">
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
-                                `<video src="${video.videoUrl}" class="w-full h-full object-cover" controls></video>`
+                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-gray-500 text-xs">Processing</span>
+                                </div>`
                             }
                         </div>
                         <div class="flex-1">
@@ -501,6 +504,11 @@ function renderNotificationsView() {
                         </div>
                     </div>
                 `;
+                
+                // Add click event to show video details
+                item.addEventListener('click', () => {
+                    showVideoDetails(doc.id, video);
+                });
                 
                 notificationsList.appendChild(item);
             });
@@ -558,22 +566,63 @@ function renderExploreView() {
                 const section = document.createElement('div');
                 section.className = 'mb-6';
                 
-                section.innerHTML = `
-                    <h3 class="text-lg font-medium mb-3 fairlife-blue">${mob} <span class="text-sm text-gray-500">(${videos.length})</span></h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        ${videos.slice(0, 4).map(video => `
-                            <div class="bg-white rounded-lg overflow-hidden shadow-sm">
-                                ${video.thumbnailUrl ? 
-                                    `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-28 object-cover">` :
-                                    `<video src="${video.videoUrl}" class="w-full h-28 object-cover" controls></video>`
-                                }
-                                <div class="p-2">
-                                    <p class="text-xs text-gray-700">${video.hashtags || 'No hashtags'}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
+                // Create section header
+                const header = document.createElement('h3');
+                header.className = 'text-lg font-medium mb-3 fairlife-blue';
+                header.innerHTML = `${mob} <span class="text-sm text-gray-500">(${videos.length})</span>`;
+                section.appendChild(header);
+                
+                // Create grid for videos
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-3 gap-2';
+                
+                // Add videos to grid
+                videos.forEach(video => {
+                    const card = document.createElement('div');
+                    card.className = 'aspect-square relative overflow-hidden';
+                    card.setAttribute('data-video-id', video.id);
+                    
+                    // Create thumbnail with overlay
+                    let thumbnailUrl = video.thumbnailUrl || '';
+                    let mediaContent;
+                    
+                    if (thumbnailUrl) {
+                        // If we have a thumbnail
+                        mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
+                    } else if (video.videoUrl) {
+                        // If we have video but no thumbnail, show first frame of video
+                        mediaContent = `
+                            <video class="w-full h-full object-cover" muted>
+                                <source src="${video.videoUrl}" type="video/mp4">
+                            </video>
+                        `;
+                    } else {
+                        // Fallback if no media is available
+                        mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span class="text-gray-500">Processing</span>
+                        </div>`;
+                    }
+                    
+                    // Add badge indicators for status
+                    let statusBadge = '';
+                    if (video.status === 'Approved') {
+                        statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                    }
+                    
+                    card.innerHTML = `
+                        ${mediaContent}
+                        ${statusBadge}
+                    `;
+                    
+                    // Add click event to show video details
+                    card.addEventListener('click', () => {
+                        showVideoDetails(video.id, video);
+                    });
+                    
+                    grid.appendChild(card);
+                });
+                
+                section.appendChild(grid);
                 
                 exploreContainer.appendChild(section);
             });
