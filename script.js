@@ -1037,8 +1037,10 @@ function showVideoDetailsWithModeration(videoId, videoData) {
             }
             
             try {
+                // Update both mob and recommendedMob fields
                 await db.collection('milk_videos').doc(videoId).update({
-                    mob: selectedMob
+                    mob: selectedMob,
+                    recommendedMob: selectedMob
                 });
                 
                 // Update the UI to show the edit mode instead of select
@@ -1096,7 +1098,8 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         
                         try {
                             await db.collection('milk_videos').doc(videoId).update({
-                                mob: newMob
+                                mob: newMob,
+                                recommendedMob: newMob
                             });
                             
                             // Update the display
@@ -1394,10 +1397,11 @@ async function approveVideo(videoId, mob) {
     try {
         console.log(`Approving video ${videoId} for mob ${mob}`);
         
-        // Update Firestore
+        // Update Firestore - set both mob and recommendedMob
         await db.collection('milk_videos').doc(videoId).update({
             status: 'Approved',
             mob: mob,
+            recommendedMob: mob,
             needsReview: false,
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
