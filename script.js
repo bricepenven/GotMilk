@@ -432,10 +432,9 @@ function showVideoDetails(videoId, videoData) {
                         <div>
                             <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
                             <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
-                            ${videoData.mob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Mob:</strong> ${videoData.mob}</p>` : ''}
                         </div>
                         <div>
-                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Recommended Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
                             ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
@@ -876,7 +875,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     <div class="mb-3">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
                         <div class="px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
-                            ${videoData.mob || 'None assigned'}
+                            ${videoData.recommendedMob || 'None assigned'}
                         </div>
                     </div>
                     
@@ -998,8 +997,8 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
-            // Use existing mob or default to "General"
-            const mob = videoData.mob || videoData.recommendedMob || "General";
+            // Use recommendedMob or default to "General"
+            const mob = videoData.recommendedMob || "General";
             
             try {
                 await approveVideo(videoId, mob);
@@ -1064,7 +1063,7 @@ async function approveVideo(videoId, mob) {
         // Update Firestore
         await db.collection('milk_videos').doc(videoId).update({
             status: 'Approved',
-            mob: mob,
+            recommendedMob: mob,
             needsReview: false,
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
