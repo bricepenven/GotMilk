@@ -435,7 +435,7 @@ function showVideoDetails(videoId, videoData) {
                             ${videoData.mob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Mob:</strong> ${videoData.mob}</p>` : ''}
                         </div>
                         <div>
-                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Recommended Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
                             ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
@@ -874,14 +874,21 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-3">
-                        <label for="mobSelect" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                        <select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            <option value="">Select Mob</option>
-                            <option value="Dairy Dragons" ${videoData.mob === 'Dairy Dragons' ? 'selected' : ''}>Dairy Dragons</option>
-                            <option value="Milk Masters" ${videoData.mob === 'Milk Masters' ? 'selected' : ''}>Milk Masters</option>
-                            <option value="Calcium Crew" ${videoData.mob === 'Calcium Crew' ? 'selected' : ''}>Calcium Crew</option>
-                            <option value="Lactose Legion" ${videoData.mob === 'Lactose Legion' ? 'selected' : ''}>Lactose Legion</option>
-                        </select>
+                        <label for="mobInput" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                        ${videoData.mob ? 
+                            `<div class="flex space-x-2">
+                                <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${videoData.mob}">
+                                <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
+                             </div>` 
+                            : 
+                            `<select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                <option value="">Select Mob</option>
+                                <option value="Dairy Dragons">Dairy Dragons</option>
+                                <option value="Milk Masters">Milk Masters</option>
+                                <option value="Calcium Crew">Calcium Crew</option>
+                                <option value="Lactose Legion">Lactose Legion</option>
+                             </select>`
+                        }
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-3">
@@ -1001,11 +1008,19 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
+            // Get mob from either input or select
+            const mobInput = document.getElementById('mobInput');
             const mobSelect = document.getElementById('mobSelect');
-            const mob = mobSelect ? mobSelect.value : '';
+            
+            let mob = '';
+            if (mobInput) {
+                mob = mobInput.value.trim();
+            } else if (mobSelect) {
+                mob = mobSelect.value;
+            }
             
             if (!mob) {
-                alert('Please select a mob before approving.');
+                alert('Please enter or select a mob before approving.');
                 return;
             }
             
@@ -1030,6 +1045,43 @@ function showVideoDetailsWithModeration(videoId, videoData) {
             } catch (error) {
                 console.error("Error approving video:", error);
                 alert("Failed to approve video. Please try again.");
+            }
+        });
+    }
+    
+    // Add update mob button handler
+    const updateMobBtn = document.getElementById('updateMobBtn');
+    if (updateMobBtn) {
+        updateMobBtn.addEventListener('click', async () => {
+            const mobInput = document.getElementById('mobInput');
+            const newMob = mobInput ? mobInput.value.trim() : '';
+            
+            if (!newMob) {
+                alert('Please enter a valid mob name.');
+                return;
+            }
+            
+            try {
+                await db.collection('milk_videos').doc(videoId).update({
+                    mob: newMob
+                });
+                
+                // Show success feedback
+                updateMobBtn.textContent = "Updated!";
+                updateMobBtn.classList.add('bg-green-500');
+                
+                // Update the videoData object
+                videoData.mob = newMob;
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    updateMobBtn.textContent = "Update";
+                    updateMobBtn.classList.remove('bg-green-500');
+                }, 2000);
+                
+            } catch (error) {
+                console.error("Error updating mob:", error);
+                alert("Failed to update mob. Please try again.");
             }
         });
     }
