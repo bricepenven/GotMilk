@@ -184,7 +184,8 @@ function renderHomeView() {
         })
         .catch(error => {
             console.error("Error fetching videos:", error);
-            homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-400">Error loading videos. Please try again.</div>';
+            // Instead of showing an error, just display the "no videos" message
+            homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-400">No videos yet.</div>';
         });
 }
 
@@ -279,7 +280,8 @@ function renderNotificationsView() {
         })
         .catch(error => {
             console.error("Error fetching notifications:", error);
-            notificationsList.innerHTML = '<div class="text-center p-8 text-gray-400">Error loading your videos.</div>';
+            // Updated to show a friendly message instead of an error
+            notificationsList.innerHTML = '<div class="text-center p-8 text-gray-400">You haven\'t uploaded any videos yet.</div>';
         });
 }
 
