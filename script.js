@@ -435,7 +435,7 @@ function showVideoDetails(videoId, videoData) {
                             ${videoData.mob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Mob:</strong> ${videoData.mob}</p>` : ''}
                         </div>
                         <div>
-                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Recommended Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
                             ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
@@ -874,41 +874,14 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-3">
-                        <label for="${videoData.mob ? 'mobDisplay' : 'mobSelect'}" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                        ${videoData.status === 'Rejected' ? 
-                            `<div class="px-3 py-2 bg-gray-100 rounded-md text-gray-500 text-sm italic">
-                                No mob assigned (rejected)
-                             </div>` 
-                            : 
-                            videoData.mob ? 
-                                `<div class="flex items-center space-x-2">
-                                    <div id="mobDisplay" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
-                                        ${videoData.mob}
-                                    </div>
-                                    <button id="editMobBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div id="mobEditForm" class="hidden mt-2">
-                                    <div class="flex space-x-2">
-                                        <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${videoData.mob}">
-                                        <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
-                                    </div>
-                                </div>` 
-                                : 
-                                `<div class="flex space-x-2">
-                                    <select id="mobSelect" class="flex-1 px-3 py-2 border border-gray-300 rounded-md">
-                                        <option value="">Select Mob</option>
-                                        <option value="Dairy Dragons">Dairy Dragons</option>
-                                        <option value="Milk Masters">Milk Masters</option>
-                                        <option value="Calcium Crew">Calcium Crew</option>
-                                        <option value="Lactose Legion">Lactose Legion</option>
-                                    </select>
-                                    <button id="saveMobSelectBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md">Save</button>
-                                 </div>`
-                        }
+                        <label for="mobSelect" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                        <select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">Select Mob</option>
+                            <option value="Dairy Dragons" ${videoData.mob === 'Dairy Dragons' ? 'selected' : ''}>Dairy Dragons</option>
+                            <option value="Milk Masters" ${videoData.mob === 'Milk Masters' ? 'selected' : ''}>Milk Masters</option>
+                            <option value="Calcium Crew" ${videoData.mob === 'Calcium Crew' ? 'selected' : ''}>Calcium Crew</option>
+                            <option value="Lactose Legion" ${videoData.mob === 'Lactose Legion' ? 'selected' : ''}>Lactose Legion</option>
+                        </select>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-3">
@@ -1024,149 +997,17 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         });
     }
     
-    // Add save mob select button handler
-    const saveMobSelectBtn = document.getElementById('saveMobSelectBtn');
-    if (saveMobSelectBtn) {
-        saveMobSelectBtn.addEventListener('click', async () => {
-            const mobSelect = document.getElementById('mobSelect');
-            const selectedMob = mobSelect ? mobSelect.value : '';
-            
-            if (!selectedMob) {
-                alert('Please select a mob first.');
-                return;
-            }
-            
-            try {
-                // Update both mob and recommendedMob fields
-                await db.collection('milk_videos').doc(videoId).update({
-                    mob: selectedMob,
-                    recommendedMob: selectedMob
-                });
-                
-                // Update the UI to show the edit mode instead of select
-                const mobContainer = document.querySelector('[for="mobSelect"]').parentNode;
-                mobContainer.innerHTML = `
-                    <label for="mobDisplay" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                    <div class="flex items-center space-x-2">
-                        <div id="mobDisplay" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
-                            ${selectedMob}
-                            <span class="text-xs text-green-500 ml-2">✓ Saved</span>
-                        </div>
-                        <button id="editMobBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="mobEditForm" class="hidden mt-2">
-                        <div class="flex space-x-2">
-                            <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${selectedMob}">
-                            <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
-                        </div>
-                    </div>
-                `;
-                
-                // Update the videoData object
-                videoData.mob = selectedMob;
-                
-                // Add event listeners for the new edit button
-                const editMobBtn = document.getElementById('editMobBtn');
-                if (editMobBtn) {
-                    editMobBtn.addEventListener('click', () => {
-                        const editForm = document.getElementById('mobEditForm');
-                        if (editForm.classList.contains('hidden')) {
-                            editForm.classList.remove('hidden');
-                            editMobBtn.classList.add('bg-gray-300');
-                        } else {
-                            editForm.classList.add('hidden');
-                            editMobBtn.classList.remove('bg-gray-300');
-                        }
-                    });
-                }
-                
-                // Add event listener for the update button
-                const updateMobBtn = document.getElementById('updateMobBtn');
-                if (updateMobBtn) {
-                    updateMobBtn.addEventListener('click', async () => {
-                        const newMobInput = document.getElementById('mobInput');
-                        const newMob = newMobInput ? newMobInput.value.trim() : '';
-                        
-                        if (!newMob) {
-                            alert('Please enter a valid mob name.');
-                            return;
-                        }
-                        
-                        try {
-                            await db.collection('milk_videos').doc(videoId).update({
-                                mob: newMob,
-                                recommendedMob: newMob
-                            });
-                            
-                            // Update the display
-                            const mobDisplay = document.getElementById('mobDisplay');
-                            if (mobDisplay) {
-                                mobDisplay.innerHTML = `
-                                    ${newMob}
-                                    <span class="text-xs text-green-500 ml-2">✓ Saved</span>
-                                `;
-                            }
-                            
-                            // Show success feedback
-                            updateMobBtn.textContent = "Saved!";
-                            updateMobBtn.classList.add('bg-green-500');
-                            
-                            // Update the videoData object
-                            videoData.mob = newMob;
-                            
-                            // Reset after 2 seconds
-                            setTimeout(() => {
-                                updateMobBtn.textContent = "Update";
-                                updateMobBtn.classList.remove('bg-green-500');
-                                
-                                // Hide the edit form
-                                document.getElementById('mobEditForm').classList.add('hidden');
-                                document.getElementById('editMobBtn').classList.remove('bg-gray-300');
-                                
-                                // Remove saved indicator after 3 seconds
-                                const savedIndicator = mobDisplay.querySelector('.text-xs.text-green-500');
-                                if (savedIndicator) {
-                                    setTimeout(() => {
-                                        savedIndicator.remove();
-                                    }, 1000);
-                                }
-                            }, 2000);
-                            
-                        } catch (error) {
-                            console.error("Error updating mob:", error);
-                            alert("Failed to update mob. Please try again.");
-                        }
-                    });
-                }
-                
-            } catch (error) {
-                console.error("Error saving mob:", error);
-                alert("Failed to save mob. Please try again.");
-            }
-        });
-    }
     
     // Add approve button handler
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
-            // Get mob from either input or select
-            const mobInput = document.getElementById('mobInput');
+            // Get mob from select
             const mobSelect = document.getElementById('mobSelect');
-            
-            let mob = '';
-            if (mobInput) {
-                mob = mobInput.value.trim();
-            } else if (mobSelect) {
-                mob = mobSelect.value;
-            }
+            const mob = mobSelect ? mobSelect.value : '';
             
             if (!mob) {
-                alert('Please enter or select a mob before approving.');
+                alert('Please select a mob before approving.');
                 return;
             }
             
@@ -1188,90 +1029,6 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 videoData.status = 'Approved';
                 videoData.mob = mob;
                 
-                // Update the mob display to show edit mode instead of dropdown
-                const mobContainer = document.querySelector('[for="mobInput"], [for="mobSelect"]').parentNode;
-                mobContainer.innerHTML = `
-                    <label for="mobDisplay" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                    <div class="flex items-center space-x-2">
-                        <div id="mobDisplay" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
-                            ${mob}
-                        </div>
-                        <button id="editMobBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="mobEditForm" class="hidden mt-2">
-                        <div class="flex space-x-2">
-                            <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${mob}">
-                            <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
-                        </div>
-                    </div>
-                `;
-                    
-                // Add event listeners for the mob editing
-                const editMobBtn = document.getElementById('editMobBtn');
-                if (editMobBtn) {
-                    editMobBtn.addEventListener('click', () => {
-                        const editForm = document.getElementById('mobEditForm');
-                        if (editForm.classList.contains('hidden')) {
-                            editForm.classList.remove('hidden');
-                            editMobBtn.classList.add('bg-gray-300');
-                        } else {
-                            editForm.classList.add('hidden');
-                            editMobBtn.classList.remove('bg-gray-300');
-                        }
-                    });
-                }
-                
-                // Add event listener for the update button
-                const updateMobBtn = document.getElementById('updateMobBtn');
-                if (updateMobBtn) {
-                    updateMobBtn.addEventListener('click', async () => {
-                        const newMobInput = document.getElementById('mobInput');
-                        const newMob = newMobInput ? newMobInput.value.trim() : '';
-                        
-                        if (!newMob) {
-                            alert('Please enter a valid mob name.');
-                            return;
-                        }
-                        
-                        try {
-                            await db.collection('milk_videos').doc(videoId).update({
-                                mob: newMob
-                            });
-                            
-                            // Update the display
-                            const mobDisplay = document.getElementById('mobDisplay');
-                            if (mobDisplay) {
-                                mobDisplay.textContent = newMob;
-                            }
-                            
-                            // Show success feedback
-                            updateMobBtn.textContent = "Updated!";
-                            updateMobBtn.classList.add('bg-green-500');
-                            
-                            // Update the videoData object
-                            videoData.mob = newMob;
-                            
-                            // Reset after 2 seconds
-                            setTimeout(() => {
-                                updateMobBtn.textContent = "Update";
-                                updateMobBtn.classList.remove('bg-green-500');
-                                
-                                // Hide the edit form
-                                document.getElementById('mobEditForm').classList.add('hidden');
-                                document.getElementById('editMobBtn').classList.remove('bg-gray-300');
-                            }, 2000);
-                            
-                        } catch (error) {
-                            console.error("Error updating mob:", error);
-                            alert("Failed to update mob. Please try again.");
-                        }
-                    });
-                }
-                
             } catch (error) {
                 console.error("Error approving video:", error);
                 alert("Failed to approve video. Please try again.");
@@ -1279,80 +1036,6 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         });
     }
     
-    // Add edit mob button handler
-    const editMobBtn = document.getElementById('editMobBtn');
-    if (editMobBtn) {
-        editMobBtn.addEventListener('click', () => {
-            const editForm = document.getElementById('mobEditForm');
-            if (editForm.classList.contains('hidden')) {
-                editForm.classList.remove('hidden');
-                editMobBtn.classList.add('bg-gray-300');
-            } else {
-                editForm.classList.add('hidden');
-                editMobBtn.classList.remove('bg-gray-300');
-            }
-        });
-    }
-    
-    // Add update mob button handler
-    const updateMobBtn = document.getElementById('updateMobBtn');
-    if (updateMobBtn) {
-        updateMobBtn.addEventListener('click', async () => {
-            const mobInput = document.getElementById('mobInput');
-            const newMob = mobInput ? mobInput.value.trim() : '';
-            
-            if (!newMob) {
-                alert('Please enter a valid mob name.');
-                return;
-            }
-            
-            try {
-                await db.collection('milk_videos').doc(videoId).update({
-                    mob: newMob
-                });
-                
-                // Update the display
-                const mobDisplay = document.getElementById('mobDisplay');
-                if (mobDisplay) {
-                    mobDisplay.textContent = newMob;
-                }
-                
-                // Show success feedback
-                updateMobBtn.textContent = "Saved!";
-                updateMobBtn.classList.add('bg-green-500');
-                
-                // Add a saved indicator next to the mob display
-                const savedIndicator = document.createElement('span');
-                savedIndicator.className = 'text-xs text-green-500 ml-2';
-                savedIndicator.textContent = '✓ Saved';
-                mobDisplay.appendChild(savedIndicator);
-                
-                // Update the videoData object
-                videoData.mob = newMob;
-                
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    updateMobBtn.textContent = "Update";
-                    updateMobBtn.classList.remove('bg-green-500');
-                    
-                    // Hide the edit form
-                    document.getElementById('mobEditForm').classList.add('hidden');
-                    document.getElementById('editMobBtn').classList.remove('bg-gray-300');
-                    
-                    // Remove saved indicator after 3 seconds
-                    setTimeout(() => {
-                        if (savedIndicator.parentNode) {
-                            savedIndicator.parentNode.removeChild(savedIndicator);
-                        }
-                    }, 1000);
-                }, 2000);
-                
-            } catch (error) {
-                console.error("Error updating mob:", error);
-                alert("Failed to update mob. Please try again.");
-            }
-        });
-    }
     
     // Add reject button handler
     const rejectBtn = document.getElementById('rejectBtn');
@@ -1375,15 +1058,6 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 // Update the videoData object
                 videoData.status = 'Rejected';
                 
-                // Remove mob display since rejected videos shouldn't have a mob
-                const mobContainer = document.querySelector('[for="mobInput"], [for="mobSelect"], [for="mobDisplay"]').parentNode;
-                mobContainer.innerHTML = `
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                    <div class="px-3 py-2 bg-gray-100 rounded-md text-gray-500 text-sm italic">
-                        No mob assigned (rejected)
-                    </div>
-                `;
-                
             } catch (error) {
                 console.error("Error rejecting video:", error);
                 alert("Failed to reject video. Please try again.");
@@ -1397,11 +1071,10 @@ async function approveVideo(videoId, mob) {
     try {
         console.log(`Approving video ${videoId} for mob ${mob}`);
         
-        // Update Firestore - set both mob and recommendedMob
+        // Update Firestore
         await db.collection('milk_videos').doc(videoId).update({
             status: 'Approved',
             mob: mob,
-            recommendedMob: mob,
             needsReview: false,
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -1438,11 +1111,10 @@ async function rejectVideo(videoId) {
     try {
         console.log(`Rejecting video ${videoId}`);
         
-        // Update Firestore - remove mob when rejecting
+        // Update Firestore
         await db.collection('milk_videos').doc(videoId).update({
             status: 'Rejected',
             needsReview: false,
-            mob: firebase.firestore.FieldValue.delete(), // Remove mob field
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
         
