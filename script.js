@@ -119,7 +119,31 @@ function showUploadStatus(message, type) {
         uploadStatus.classList.add('text-blue-500');
     }
 }
-
+// Tab navigation functionality
+document.addEventListener('DOMContentLoaded', () => {
+    // Get all tab buttons and views
+    const tabButtons = document.querySelectorAll('.tab');
+    const views = document.querySelectorAll('.view');
+    
+    // Add click event to each tab
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const viewId = button.getAttribute('data-view');
+            
+            // Hide all views and deactivate all tabs
+            views.forEach(view => view.classList.add('hidden'));
+            tabButtons.forEach(tab => {
+                tab.classList.remove('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
+                tab.classList.add('text-gray-600');
+            });
+            
+            // Show the selected view and activate the clicked tab
+            document.getElementById(viewId).classList.remove('hidden');
+            button.classList.remove('text-gray-600');
+            button.classList.add('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
+        });
+    });
+});
 // Hide upload status message
 function hideUploadStatus() {
     uploadStatus.classList.add('hidden');
