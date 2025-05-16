@@ -4,9 +4,10 @@ const firebaseConfig = {
     apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
     authDomain: "chokaj-4dcae.firebaseapp.com",
     projectId: "chokaj-4dcae",
-    storageBucket: "chokaj-4dcae.appspot.com",
-    messagingSenderId: "628147483032",
-    appId: "1:628147483032:web:2cea7a3dd553b8922d7398"
+    storageBucket: "chokaj-4dcae.appspot.com", // Fixed from .firebasestorage.app
+    messagingSenderId: "516228224797", // Using the correct ID from requirements
+    appId: "1:516228224797:web:6bdf08edb5962aad5633f4", // Using the correct appId
+    measurementId: "G-9QVCF19J2W"
 };
 
 // Initialize Firebase
