@@ -579,6 +579,8 @@ function renderNotificationsView() {
                         <div class="w-20 h-20 bg-gray-100 rounded overflow-hidden">
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
+                                video.videoUrl ?
+                                `<video src="${video.videoUrl}" class="w-full h-full object-cover"></video>` :
                                 `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <span class="text-gray-500 text-xs">Processing</span>
                                 </div>`
