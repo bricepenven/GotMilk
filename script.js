@@ -412,7 +412,7 @@ function showVideoDetails(videoId, videoData) {
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-medium">${formatDate(videoData.uploadDate)}</h3>
+                    <h3 class="text-lg font-medium">Video Details</h3>
                     <button id="closeModal" class="text-gray-500 hover:text-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -427,10 +427,26 @@ function showVideoDetails(videoId, videoData) {
                 <div class="mt-4">
                     <span class="inline-block px-2 py-1 text-xs rounded ${statusClass} mb-2">${videoData.status || 'Processing'}</span>
                     
-                    <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                            <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
+                            <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                            ${videoData.mob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Mob:</strong> ${videoData.mob}</p>` : ''}
+                        </div>
+                        <div>
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Recommended Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
+                        </div>
+                    </div>
                     
-                    ${videoData.mob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Mob:</strong> ${videoData.mob}</p>` : ''}
-                    ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
+                    <div class="mb-3">
+                        <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="mediaName" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                value="${videoData.mediaName || ''}" placeholder="Enter a name for this media">
+                            <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -450,6 +466,35 @@ function showVideoDetails(videoId, videoData) {
             document.body.removeChild(modal);
         }
     });
+    
+    // Add save media name handler
+    const saveButton = document.getElementById('saveMediaName');
+    if (saveButton) {
+        saveButton.addEventListener('click', async () => {
+            const mediaName = document.getElementById('mediaName').value.trim();
+            const videoId = saveButton.getAttribute('data-id');
+            
+            try {
+                await db.collection('milk_videos').doc(videoId).update({
+                    mediaName: mediaName
+                });
+                
+                // Show success feedback
+                saveButton.textContent = "Saved!";
+                saveButton.classList.add('bg-green-500');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    saveButton.textContent = "Save";
+                    saveButton.classList.remove('bg-green-500');
+                }, 2000);
+                
+            } catch (error) {
+                console.error("Error saving media name:", error);
+                alert("Failed to save media name. Please try again.");
+            }
+        });
+    }
 }
 
 // Render notifications view (user's own videos)
@@ -817,11 +862,20 @@ async function rejectVideo(videoId) {
 }
 
 // Format date
-function formatDate(timestamp) {
+function formatDate(timestamp, detailed = false) {
     if (!timestamp) return 'Just now';
     
     try {
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        if (detailed) {
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } catch (e) {
         return 'Invalid date';
