@@ -874,14 +874,10 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-3">
-                        <label for="mobSelect" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                        <select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            <option value="">Select Mob</option>
-                            <option value="Dairy Dragons" ${videoData.mob === 'Dairy Dragons' ? 'selected' : ''}>Dairy Dragons</option>
-                            <option value="Milk Masters" ${videoData.mob === 'Milk Masters' ? 'selected' : ''}>Milk Masters</option>
-                            <option value="Calcium Crew" ${videoData.mob === 'Calcium Crew' ? 'selected' : ''}>Calcium Crew</option>
-                            <option value="Lactose Legion" ${videoData.mob === 'Lactose Legion' ? 'selected' : ''}>Lactose Legion</option>
-                        </select>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                        <div class="px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
+                            ${videoData.mob || 'None assigned'}
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-3">
@@ -1002,14 +998,8 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
-            // Get mob from select
-            const mobSelect = document.getElementById('mobSelect');
-            const mob = mobSelect ? mobSelect.value : '';
-            
-            if (!mob) {
-                alert('Please select a mob before approving.');
-                return;
-            }
+            // Use existing mob or default to "General"
+            const mob = videoData.mob || videoData.recommendedMob || "General";
             
             try {
                 await approveVideo(videoId, mob);
