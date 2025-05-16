@@ -42,20 +42,26 @@
             border-color: #00a3e0; /* Bright blue from bottle */
         }
         
-        /* Updated header styles */
-    .header-blue {
-        background-color: #00a3e0;
-        box-shadow: 0 2px 6px rgba(0, 163, 224, 0.15);
-    }
-    .blue-tint {
-        background: linear-gradient(to bottom, rgba(0, 163, 224, 0.05), rgba(0, 163, 224, 0));
-        height: 8px;
-        position: fixed;
-        top: 20px;
-        left: 0;
-        right: 0;
-        z-index: 5;
-    }
+        /* Enhanced header styles with prettier blue gradient */
+        .header-blue {
+            background-color: #00a3e0;
+            background-image: linear-gradient(to right, #00a3e0, #0085c7);
+            box-shadow: 0 2px 10px rgba(0, 131, 224, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Add subtle animated wave effect to header */
+        .header-blue::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background-image: linear-gradient(120deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+        }
         
         /* Update the theme to be closer to Fairlife site */
         .bg-app {
@@ -69,36 +75,32 @@
             background-color: #ffffff;
             border: 1px solid #e5e7eb;
         }
-        
-        .fairlife-logo {
-            /* Logo styles to match website */
-            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
-            font-weight: bold;
-            letter-spacing: -0.5px;
-            color: #00a3e0; /* Blue text for the logo since header is white */
+
+        /* Logo image enhancements */
+        .logo-img {
+            height: 40px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            transition: transform 0.2s ease;
+        }
+        .logo-img:hover {
+            transform: scale(1.05);
         }
     </style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥛</text></svg>" />
 </head>
 <body class="bg-app text-gray-800">
-    <!-- White top bar -->
-    <div class="header-top fixed top-0 left-0 right-0 z-10"></div>
-    
-    <!-- Blue tint between bars -->
-    <div class="blue-tint"></div>
-    
-<!-- Replace the SVG logo with your custom logo.png -->
-<header class="header-blue shadow-md fixed top-3 left-0 right-0 z-10">
-    <div class="max-w-screen-md mx-auto flex justify-center items-center h-16 px-4">
-        <!-- Logo container with custom styling -->
-        <div class="flex items-center">
-            <!-- Use your custom logo image instead of SVG -->
-            <img src="logo.png" alt="Fairlife Logo" class="h-10 mr-2">
+    <!-- Enhanced blue header - without any white top bar -->
+    <header class="header-blue fixed top-0 left-0 right-0 z-10">
+        <div class="max-w-screen-md mx-auto flex justify-center items-center h-16 px-4">
+            <!-- Logo container with custom styling -->
+            <div class="flex items-center">
+                <!-- Using your custom logo with enhanced styling -->
+                <img src="logo.png" alt="Fairlife Logo" class="logo-img">
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
-    <main class="max-w-screen-md mx-auto pt-24 pb-16">
+    <main class="max-w-screen-md mx-auto pt-20 pb-16">
         <!-- Home View -->
         <div id="homeView" class="view px-4 py-6">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">All Milk Media</h2>
