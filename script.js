@@ -322,7 +322,7 @@ function renderHomeView() {
                 const video = doc.data();
                 const videoId = doc.id;
                 const card = document.createElement('div');
-                card.className = 'aspect-square relative overflow-hidden';
+                card.className = 'aspect-square relative overflow-hidden max-h-32';
                 card.setAttribute('data-video-id', videoId);
                 
                 // Create thumbnail with overlay
@@ -537,16 +537,17 @@ function renderExploreView() {
             const mobs = {};
             snapshot.forEach(doc => {
                 const video = doc.data();
-                if (video.mob) {
-                    if (!mobs[video.mob]) {
-                        mobs[video.mob] = [];
-                    }
-                    mobs[video.mob].push({ ...video, id: doc.id });
+                // Check if mob exists, if not use hashtags as fallback
+                const mobName = video.mob || (video.hashtags ? video.hashtags.split(' ')[0] : 'General');
+                
+                if (!mobs[mobName]) {
+                    mobs[mobName] = [];
                 }
+                mobs[mobName].push({ ...video, id: doc.id });
             });
 
             if (Object.keys(mobs).length === 0) {
-                exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
+                exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No approved videos found.</div>';
                 return;
             }
 
