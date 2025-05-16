@@ -13,8 +13,58 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// Add the webhook URL
-const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook-test/188f3bac-7c25-4d92-a1ba-020b6878607d";
+// Add the webhook URL - Using the URL from your n8n screenshot
+const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook-test/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
+// CORS proxy URL to use as a fallback if direct webhook fails
+const corsProxyUrl = "https://corsproxy.io/?";
+
+// Helper function for webhook API calls with CORS handling
+async function callWebhook(data) {
+    // First try direct request
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Origin': 'https://bricepenven.github.io'
+            },
+            mode: 'cors',
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            console.log("Webhook call successful");
+            return true;
+        }
+        
+        throw new Error(`Webhook returned status ${response.status}`);
+    } catch (directError) {
+        console.warn("Direct webhook call failed, trying with CORS proxy:", directError);
+        
+        // Fall back to CORS proxy
+        try {
+            const response = await fetch(corsProxyUrl + encodeURIComponent(webhookUrl), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                console.log("Webhook call via proxy successful");
+                return true;
+            }
+            
+            throw new Error(`Proxy webhook returned status ${response.status}`);
+        } catch (proxyError) {
+            console.error("All webhook attempts failed:", proxyError);
+            // Fail gracefully - app will continue working without webhook
+            return false;
+        }
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     // Setup tab navigation
@@ -199,25 +249,24 @@ async function handleUpload(e) {
                     });
                     console.log("Document saved with ID:", docRef.id);
                     
-                    // Try to notify webhook
-                    try {
-                        fetch(webhookUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ 
-                                videoId: docRef.id,
-                                action: 'new_video',
-                                videoUrl: videoUrl,
-                                hashtags: hashtags
-                            }),
+                    // Notify webhook using our helper function
+                    const webhookData = {
+                        videoId: docRef.id,
+                        action: 'new_video',
+                        videoUrl: videoUrl,
+                        hashtags: hashtags,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Don't await this - let it run in background
+                    callWebhook(webhookData)
+                        .then(success => {
+                            if (success) {
+                                console.log("Webhook notification processed");
+                            } else {
+                                console.warn("Webhook notification failed but app continues");
+                            }
                         });
-                        console.log("Webhook notification sent");
-                    } catch (webhookError) {
-                        console.error("Failed to notify webhook:", webhookError);
-                        // Continue even if webhook fails
-                    }
                     
                     showUploadStatus('Video uploaded successfully!', 'success');
                     
@@ -546,22 +595,23 @@ async function approveVideo(videoId, mob) {
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // Notify webhook
-        try {
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'approve_video',
-                    videoId: videoId,
-                    mob: mob
-                }),
+        // Notify webhook with our new helper function
+        const webhookData = {
+            action: 'approve_video',
+            videoId: videoId,
+            mob: mob,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Don't await this - let it run in background
+        callWebhook(webhookData)
+            .then(success => {
+                if (success) {
+                    console.log("Approval webhook notification processed");
+                } else {
+                    console.warn("Approval webhook notification failed but app continues");
+                }
             });
-        } catch (webhookError) {
-            console.error("Failed to notify webhook of approval:", webhookError);
-        }
         
         // Refresh the view
         const pendingBtn = document.getElementById('pendingReviewBtn');
@@ -584,21 +634,22 @@ async function rejectVideo(videoId) {
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // Notify webhook
-        try {
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'reject_video',
-                    videoId: videoId
-                }),
+        // Notify webhook with our new helper function
+        const webhookData = {
+            action: 'reject_video',
+            videoId: videoId,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Don't await this - let it run in background
+        callWebhook(webhookData)
+            .then(success => {
+                if (success) {
+                    console.log("Rejection webhook notification processed");
+                } else {
+                    console.warn("Rejection webhook notification failed but app continues");
+                }
             });
-        } catch (webhookError) {
-            console.error("Failed to notify webhook of rejection:", webhookError);
-        }
         
         // Refresh the view
         const pendingBtn = document.getElementById('pendingReviewBtn');
