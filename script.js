@@ -441,10 +441,13 @@ function showVideoDetails(videoId, videoData) {
                     </div>
                     
                     <div class="mb-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Original File Name</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
                             <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
-                                ${videoData.originalFileName || 'Unknown'}
+                                ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
+                                ${videoData.mediaName ? 
+                                    `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
+                                    ''}
                             </div>
                             <button id="editMediaNameBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
                                 Edit
@@ -506,6 +509,18 @@ function showVideoDetails(videoId, videoData) {
                 await db.collection('milk_videos').doc(videoId).update({
                     mediaName: mediaName
                 });
+                
+                // Update the display with the new name
+                const nameDisplay = modal.querySelector('.flex-1.px-3.py-2.bg-gray-100');
+                if (nameDisplay) {
+                    nameDisplay.innerHTML = `
+                        ${mediaName || videoData.originalFileName || 'Unknown'}
+                        <div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>
+                    `;
+                }
+                
+                // Update the videoData object
+                videoData.mediaName = mediaName;
                 
                 // Show success feedback
                 saveButton.textContent = "Saved!";
