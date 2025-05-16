@@ -14,7 +14,7 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
 // Add the webhook URL - Using the URL from your n8n screenshot
-const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook-test/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
+const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
 // CORS proxy URL to use as a fallback if direct webhook fails
 const corsProxyUrl = "https://corsproxy.io/?";
 
