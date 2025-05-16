@@ -897,7 +897,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                             <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
                         </div>
                         <div>
-                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Recommended Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
                             ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
@@ -1041,6 +1041,53 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 // Update the videoData object
                 videoData.status = 'Approved';
                 videoData.mob = mob;
+                
+                // Convert the select to an input field if we just approved
+                const mobContainer = document.querySelector('[for="mobInput"]').parentNode;
+                if (mobSelect && !mobInput) {
+                    mobContainer.innerHTML = `
+                        <label for="mobInput" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${mob}">
+                            <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
+                        </div>
+                    `;
+                    
+                    // Add event listener to the new update button
+                    document.getElementById('updateMobBtn').addEventListener('click', async () => {
+                        const newMobInput = document.getElementById('mobInput');
+                        const newMob = newMobInput ? newMobInput.value.trim() : '';
+                        
+                        if (!newMob) {
+                            alert('Please enter a valid mob name.');
+                            return;
+                        }
+                        
+                        try {
+                            await db.collection('milk_videos').doc(videoId).update({
+                                mob: newMob
+                            });
+                            
+                            // Show success feedback
+                            const updateBtn = document.getElementById('updateMobBtn');
+                            updateBtn.textContent = "Updated!";
+                            updateBtn.classList.add('bg-green-500');
+                            
+                            // Update the videoData object
+                            videoData.mob = newMob;
+                            
+                            // Reset after 2 seconds
+                            setTimeout(() => {
+                                updateBtn.textContent = "Update";
+                                updateBtn.classList.remove('bg-green-500');
+                            }, 2000);
+                            
+                        } catch (error) {
+                            console.error("Error updating mob:", error);
+                            alert("Failed to update mob. Please try again.");
+                        }
+                    });
+                }
                 
             } catch (error) {
                 console.error("Error approving video:", error);
