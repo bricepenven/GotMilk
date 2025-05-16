@@ -538,8 +538,8 @@ function renderExploreView() {
             const mobs = {};
             snapshot.forEach(doc => {
                 const video = doc.data();
-                // Check if mob exists, if not use hashtags as fallback
-                const mobName = video.mob || (video.hashtags ? video.hashtags.split(' ')[0] : 'General');
+                // Use recommendedMob if available, otherwise use mob or fallback to General
+                const mobName = video.recommendedMob || video.mob || 'General';
                 
                 if (!mobs[mobName]) {
                     mobs[mobName] = [];
