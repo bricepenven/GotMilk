@@ -335,6 +335,7 @@ function renderHomeView() {
                         <p class="text-xs text-gray-700 mb-1">${formatDate(video.uploadDate)}</p>
                         <p class="text-sm text-gray-800">${video.hashtags || 'No hashtags'}</p>
                         ${video.mob ? `<p class="text-xs text-fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
+                        ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
                         <span class="inline-block px-2 py-1 text-xs rounded mt-2 ${getStatusClass(video.status)}">${video.status || 'Processing'}</span>
                     </div>
                 `;
@@ -393,6 +394,7 @@ function renderNotificationsView() {
                             </div>
                             <p class="text-sm mt-1">${video.hashtags || 'No hashtags'}</p>
                             ${video.mob ? `<p class="text-xs text-fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
+                            ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
                         </div>
                     </div>
                 `;
@@ -546,6 +548,7 @@ function renderReviewView(pendingOnly = true) {
                         <p class="text-gray-600 text-sm">${formatDate(video.uploadDate)}</p>
                         <p class="text-gray-800 mt-1">${video.hashtags || 'No hashtags'}</p>
                         ${video.mob ? `<p class="text-sm text-fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
+                        ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
                         ${actionButtons}
                     </div>
                 `;
