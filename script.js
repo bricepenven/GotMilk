@@ -1,4 +1,4 @@
-// Firebase configuration
+// Firebase configuration - this is where all the magic happens, don't fuck with these keys
 const firebaseConfig = {
     apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
     authDomain: "chokaj-4dcae.firebaseapp.com",
@@ -8,19 +8,20 @@ const firebaseConfig = {
     appId: "1:628147483032:web:2cea7a3dd553b8922d7398"
 };
 
-// Initialize Firebase
+// Initialize Firebase - setting up our database and storage connections
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
+const db = firebase.firestore();  // for storing all the video metadata
+const storage = firebase.storage();  // for storing the actual video files
 
-// Add the webhook URL - Using the URL from your n8n screenshot
+// Add the webhook URL - this connects to our n8n workflow for video processing
 const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
-// CORS proxy URL to use as a fallback if direct webhook fails
+// CORS proxy URL as a fallback because browsers are bitchy about cross-origin requests
 const corsProxyUrl = "https://corsproxy.io/?";
 
 // Helper function for webhook API calls with CORS handling
+// This shit is complicated because browsers block cross-origin requests
 async function callWebhook(data) {
-    // First try direct request
+    // First try direct request - this usually fails but worth a shot
     try {
         const response = await fetch(webhookUrl, {
             method: 'POST',
@@ -42,7 +43,7 @@ async function callWebhook(data) {
     } catch (directError) {
         console.warn("Direct webhook call failed, trying with CORS proxy:", directError);
         
-        // Fall back to CORS proxy
+        // Fall back to CORS proxy - this usually works when direct fails
         try {
             const response = await fetch(corsProxyUrl + encodeURIComponent(webhookUrl), {
                 method: 'POST',
@@ -66,8 +67,9 @@ async function callWebhook(data) {
     }
 }
 
+// Main initialization when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Setup tab navigation
+    // Setup tab navigation - handles switching between different views
     const tabs = document.querySelectorAll('.tab');
     const views = document.querySelectorAll('.view');
     
@@ -75,15 +77,15 @@ document.addEventListener('DOMContentLoaded', function() {
         tab.addEventListener('click', function() {
             const targetView = this.getAttribute('data-view');
             
-            // Hide all views
+            // Hide all views - we only show one at a time
             views.forEach(view => {
                 view.classList.add('hidden');
             });
             
-            // Show target view
+            // Show target view - the one the user clicked on
             document.getElementById(targetView).classList.remove('hidden');
             
-            // Update active tab styling
+            // Update active tab styling - make the selected tab blue
             tabs.forEach(t => {
                 t.classList.remove('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
                 t.classList.add('text-gray-600');
@@ -92,66 +94,71 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.remove('text-gray-600');
             this.classList.add('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
             
-            // Load content based on selected tab
+            // Load content based on selected tab - each view needs different data
             if (targetView === 'homeView') {
-                renderHomeView();
+                renderHomeView();  // Load all videos for home grid
             } else if (targetView === 'notificationsView') {
-                renderNotificationsView();
+                renderNotificationsView();  // Load user's activity/videos
             } else if (targetView === 'exploreView') {
-                renderExploreView();
+                renderExploreView();  // Load milk mobs
             } else if (targetView === 'reviewView') {
-                renderReviewView(true);
+                renderReviewView(true);  // Load videos needing review
             }
         });
     });
 
-    // Setup upload form
+    // Setup upload form - handle the video upload process
     const uploadForm = document.getElementById('uploadForm');
     if (uploadForm) {
-        uploadForm.addEventListener('submit', handleUpload);
+        uploadForm.addEventListener('submit', handleUpload);  // Process form submission
     }
     
-    // Setup review buttons if they exist
+    // Setup review buttons for moderation panel - toggle between pending and all videos
     const pendingReviewBtn = document.getElementById('pendingReviewBtn');
     const allVideosBtn = document.getElementById('allVideosBtn');
     
     if (pendingReviewBtn && allVideosBtn) {
+        // Show only videos that need review
         pendingReviewBtn.addEventListener('click', function() {
             this.classList.add('bg-fairlife-blue');
             this.classList.remove('bg-gray-200');
             allVideosBtn.classList.remove('bg-fairlife-blue');
             allVideosBtn.classList.add('bg-gray-200');
-            renderReviewView(true);
+            renderReviewView(true);  // true = only show pending videos
         });
         
+        // Show all videos regardless of status
         allVideosBtn.addEventListener('click', function() {
             this.classList.add('bg-fairlife-blue');
             this.classList.remove('bg-gray-200');
             pendingReviewBtn.classList.remove('bg-fairlife-blue');
             pendingReviewBtn.classList.add('bg-gray-200');
-            renderReviewView(false);
+            renderReviewView(false);  // false = show all videos
         });
     }
     
-    // Load initial content for home view
+    // Load initial content for home view - this runs when the page first loads
     renderHomeView();
     
-    // Setup real-time updates
+    // Setup real-time updates - this is the magic that refreshes the UI when data changes
     try {
         db.collection('milk_videos').onSnapshot(snapshot => {
             snapshot.docChanges().forEach(change => {
+                // Figure out which view is currently visible
                 const homeView = document.getElementById('homeView');
                 const notificationsView = document.getElementById('notificationsView');
                 const exploreView = document.getElementById('exploreView');
                 const reviewView = document.getElementById('reviewView');
                 
+                // Only refresh the view that's currently visible
                 if (homeView && !homeView.classList.contains('hidden')) {
-                    renderHomeView();
+                    renderHomeView();  // Refresh home grid
                 } else if (notificationsView && !notificationsView.classList.contains('hidden')) {
-                    renderNotificationsView();
+                    renderNotificationsView();  // Refresh activity feed
                 } else if (exploreView && !exploreView.classList.contains('hidden')) {
-                    renderExploreView();
+                    renderExploreView();  // Refresh milk mobs
                 } else if (reviewView && !reviewView.classList.contains('hidden')) {
+                    // Check if we're showing pending or all videos
                     const pendingBtn = document.getElementById('pendingReviewBtn');
                     renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
                 }
@@ -162,37 +169,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Helper function to show upload status
+// Helper function to show upload status - gives user feedback during upload
 function showUploadStatus(message, type) {
     const statusElement = document.getElementById('uploadStatus');
-    if (!statusElement) return;
+    if (!statusElement) return;  // Bail if element doesn't exist
     
+    // Set the message text
     statusElement.textContent = message;
+    
+    // Reset all status colors
     statusElement.classList.remove('hidden', 'text-green-500', 'text-red-500', 'text-blue-500');
     
+    // Set color based on message type
     switch(type) {
         case 'success':
-            statusElement.classList.add('text-green-500');
+            statusElement.classList.add('text-green-500');  // Green for success
             break;
         case 'error':
-            statusElement.classList.add('text-red-500');
+            statusElement.classList.add('text-red-500');  // Red for errors
             break;
         case 'info':
-            statusElement.classList.add('text-blue-500');
+            statusElement.classList.add('text-blue-500');  // Blue for info/progress
             break;
     }
     
+    // Make sure it's visible
     statusElement.classList.remove('hidden');
 }
 
-// Upload handler
+// Upload handler - processes the video upload form submission
 async function handleUpload(e) {
-    e.preventDefault();
+    e.preventDefault();  // Stop the form from doing a regular submit
     console.log("Upload form submitted");
     
+    // Get the file and hashtags from the form
     const videoFile = document.getElementById('videoFile').files[0];
     const hashtags = document.getElementById('hashtags').value;
     
+    // Make sure they actually selected a file
     if (!videoFile) {
         showUploadStatus('Please select a video file.', 'error');
         return;
@@ -201,13 +215,13 @@ async function handleUpload(e) {
     try {
         showUploadStatus('Uploading video...', 'info');
         
-        // Generate a unique ID for the video
+        // Generate a unique ID for the video based on timestamp
         const videoId = Date.now().toString();
         
-        // Create storage reference
+        // Create storage reference - where the file will be stored in Firebase
         const storageRef = storage.ref(`videos/${videoId}`);
         
-        // Set metadata
+        // Set metadata - includes content type and hashtags
         const metadata = {
             contentType: videoFile.type,
             customMetadata: {
@@ -215,42 +229,42 @@ async function handleUpload(e) {
             }
         };
         
-        // Start upload with metadata
+        // Start upload with metadata - this is where the file actually gets sent
         const uploadTask = storageRef.put(videoFile, metadata);
         
         uploadTask.on('state_changed', 
-            // Progress function
+            // Progress function - updates as the file uploads
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 console.log(`Upload progress: ${Math.round(progress)}%`);
                 showUploadStatus(`Upload progress: ${Math.round(progress)}%`, 'info');
             },
-            // Error function
+            // Error function - called if upload fails
             (error) => {
                 console.error('Upload error:', error);
                 showUploadStatus(`Upload failed: ${error.message}`, 'error');
             },
-            // Complete function
+            // Complete function - called when upload finishes successfully
             async () => {
                 try {
                     showUploadStatus('Saving to database...', 'info');
                     
-                    // Get download URL
+                    // Get download URL - this is the public URL for the video
                     const videoUrl = await uploadTask.snapshot.ref.getDownloadURL();
                     console.log("Got download URL:", videoUrl);
                     
-                    // Save to Firestore
+                    // Save to Firestore - create a database record for the video
                     const docRef = await db.collection('milk_videos').add({
                         videoUrl: videoUrl,
                         hashtags: hashtags,
-                        status: 'Pending Review',
-                        needsReview: true,
-                        uploadDate: firebase.firestore.FieldValue.serverTimestamp(),
-                        originalFileName: videoFile.name
+                        status: 'Pending Review',  // All videos start as pending
+                        needsReview: true,  // Flag for videos that need moderation
+                        uploadDate: firebase.firestore.FieldValue.serverTimestamp(),  // Server timestamp
+                        originalFileName: videoFile.name  // Store original filename
                     });
                     console.log("Document saved with ID:", docRef.id);
                     
-                    // Notify webhook using our helper function
+                    // Notify webhook using our helper function - this triggers the n8n workflow
                     const webhookData = {
                         videoId: docRef.id,
                         action: 'new_video',
@@ -259,7 +273,7 @@ async function handleUpload(e) {
                         timestamp: new Date().toISOString()
                     };
                     
-                    // Don't await this - let it run in background
+                    // Don't await this - let it run in background so we don't block the UI
                     callWebhook(webhookData)
                         .then(success => {
                             if (success) {
@@ -269,13 +283,16 @@ async function handleUpload(e) {
                             }
                         });
                     
+                    // Show success message
                     showUploadStatus('Video uploaded successfully!', 'success');
                     
+                    // Reset form and navigate to activity view after 2 seconds
                     setTimeout(() => {
+                        // Clear the form fields
                         document.getElementById('videoFile').value = '';
                         document.getElementById('hashtags').value = '';
                         
-                        // Navigate to Notifications view
+                        // Navigate to Activity view to see the uploaded video
                         const notificationsTab = document.getElementById('notificationsTab');
                         if (notificationsTab) {
                             notificationsTab.click();
@@ -293,7 +310,7 @@ async function handleUpload(e) {
     }
 }
 
-// Render home view with Instagram-style grid layout
+// Render home view with Instagram-style grid layout - main landing page
 function renderHomeView() {
     console.log("Rendering home view");
     const homeGrid = document.getElementById('homeGrid');
@@ -302,37 +319,40 @@ function renderHomeView() {
         return;
     }
     
+    // Show loading message while we fetch the videos
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
-    // Get all videos
+    // Get all videos sorted by upload date (newest first)
     db.collection('milk_videos')
         .orderBy('uploadDate', 'desc')
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos`);
             
+            // If no videos, show empty state
             if (snapshot.empty) {
                 homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">No videos yet.</div>';
                 return;
             }
 
-            // Update the HTML to use a 3-column grid
+            // Update the HTML to use a 3-column grid - Instagram style
             homeGrid.className = 'grid grid-cols-3 gap-2';
-            homeGrid.innerHTML = '';
+            homeGrid.innerHTML = '';  // Clear loading message
             
+            // Loop through each video and create a card for it
             snapshot.forEach(doc => {
                 const video = doc.data();
                 const videoId = doc.id;
                 const card = document.createElement('div');
-                card.className = 'aspect-square relative overflow-hidden';
+                card.className = 'aspect-square relative overflow-hidden';  // Square aspect ratio
                 card.setAttribute('data-video-id', videoId);
                 
-                // Create thumbnail with overlay
+                // Create thumbnail with overlay - figure out what to display
                 let thumbnailUrl = video.thumbnailUrl || '';
                 let mediaContent;
                 
                 if (thumbnailUrl) {
-                    // If we have a thumbnail
+                    // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
                     // If we have video but no thumbnail, show first frame of video
@@ -342,38 +362,40 @@ function renderHomeView() {
                         </video>
                     `;
                 } else {
-                    // Fallback if no media is available
+                    // Fallback if no media is available - shouldn't happen but just in case
                     mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                         <span class="text-gray-500">Processing</span>
                     </div>`;
                 }
                 
-                // Add badge indicators for status
+                // Add badge indicators for status - visual cue about video state
                 let statusBadge = '';
                 if (video.status === 'Approved') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';  // Green checkmark
                 } else if (video.status === 'Pending Review') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
+                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';  // Yellow hourglass
                 } else if (video.status === 'Rejected') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';
+                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';  // Red X
                 }
                 
+                // Combine the media and badge into the card
                 card.innerHTML = `
                     ${mediaContent}
                     ${statusBadge}
                 `;
                 
-                // Add click event to show video details
+                // Add click event to show video details when clicked
                 card.addEventListener('click', () => {
                     showVideoDetails(videoId, video);
                 });
                 
+                // Add the card to the grid
                 homeGrid.appendChild(card);
             });
             
-            // Initialize video elements if needed
+            // Initialize video elements if needed - make sure they show the first frame
             document.querySelectorAll('#homeGrid video').forEach(video => {
-                // Show first frame of video
+                // Show first frame of video instead of black screen
                 video.currentTime = 0;
             });
         })
@@ -383,16 +405,17 @@ function renderHomeView() {
         });
 }
 
-// Function to show video details in a modal
+// Function to show video details in a modal - used when clicking a video in home/explore
 function showVideoDetails(videoId, videoData) {
-    // Create modal overlay
+    // Create modal overlay - full screen semi-transparent background
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
     modal.id = 'videoModal';
     
-    // Create modal content
+    // Create modal content - figure out what to display
     let videoElement = '';
     if (videoData.videoUrl) {
+        // If we have a video URL, show the video player
         videoElement = `
             <video controls autoplay class="max-h-[70vh] max-w-full rounded-lg">
                 <source src="${videoData.videoUrl}" type="video/mp4">
@@ -400,15 +423,17 @@ function showVideoDetails(videoId, videoData) {
             </video>
         `;
     } else {
+        // Fallback if video isn't available
         videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
     }
     
-    // Status indicator with appropriate color
-    let statusClass = 'bg-gray-100 text-gray-800';
-    if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';
-    if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
-    if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
+    // Status indicator with appropriate color - visual cue about video state
+    let statusClass = 'bg-gray-100 text-gray-800';  // Default gray
+    if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';  // Green for approved
+    if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';  // Red for rejected
+    if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';  // Yellow for pending
     
+    // Build the modal HTML
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
@@ -439,6 +464,7 @@ function showVideoDetails(videoId, videoData) {
                         </div>
                     </div>
                     
+                    <!-- Media name section with edit functionality -->
                     <div class="mb-3">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
@@ -453,6 +479,7 @@ function showVideoDetails(videoId, videoData) {
                             </button>
                         </div>
                         
+                        <!-- Hidden form that appears when Edit is clicked -->
                         <div id="mediaNameEditForm" class="hidden">
                             <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
                             <div class="flex space-x-2">
@@ -467,37 +494,39 @@ function showVideoDetails(videoId, videoData) {
         </div>
     `;
     
-    // Add to body
+    // Add modal to the page
     document.body.appendChild(modal);
     
-    // Add close handler
+    // Add close button handler
     document.getElementById('closeModal').addEventListener('click', () => {
-        document.body.removeChild(modal);
+        document.body.removeChild(modal);  // Remove the modal when X is clicked
     });
     
-    // Close when clicking outside the content
+    // Close when clicking outside the content (on the dark overlay)
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            document.body.removeChild(modal);
+            document.body.removeChild(modal);  // Remove modal when clicking outside
         }
     });
     
-    // Add edit button handler
+    // Add edit button handler for media name
     const editButton = document.getElementById('editMediaNameBtn');
     if (editButton) {
         editButton.addEventListener('click', () => {
             const editForm = document.getElementById('mediaNameEditForm');
             if (editForm.classList.contains('hidden')) {
+                // Show the edit form
                 editForm.classList.remove('hidden');
-                editButton.textContent = "Cancel";
+                editButton.textContent = "Cancel";  // Change button to Cancel
             } else {
+                // Hide the edit form
                 editForm.classList.add('hidden');
-                editButton.textContent = "Edit";
+                editButton.textContent = "Edit";  // Change button back to Edit
             }
         });
     }
     
-    // Add save media name handler
+    // Add save media name handler - saves the custom name to the database
     const saveButton = document.getElementById('saveMediaName');
     if (saveButton) {
         saveButton.addEventListener('click', async () => {
@@ -505,6 +534,7 @@ function showVideoDetails(videoId, videoData) {
             const videoId = saveButton.getAttribute('data-id');
             
             try {
+                // Update the media name in Firestore
                 await db.collection('milk_videos').doc(videoId).update({
                     mediaName: mediaName
                 });
@@ -518,10 +548,10 @@ function showVideoDetails(videoId, videoData) {
                     `;
                 }
                 
-                // Update the videoData object
+                // Update the videoData object so it's current
                 videoData.mediaName = mediaName;
                 
-                // Show success feedback
+                // Show success feedback - change button color and text
                 saveButton.textContent = "Saved!";
                 saveButton.classList.add('bg-green-500');
                 
@@ -543,7 +573,7 @@ function showVideoDetails(videoId, videoData) {
     }
 }
 
-// Render notifications view (user's own videos)
+// Render notifications view (user's own videos) - this is the Activity tab
 function renderNotificationsView() {
     console.log("Rendering notifications view");
     const notificationsList = document.getElementById('notificationsList');
@@ -552,30 +582,35 @@ function renderNotificationsView() {
         return;
     }
     
+    // Show loading message
     notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">Loading your videos...</div>';
 
-    // Get all videos (would filter by user in a real app)
+    // Get all videos (would filter by user in a real app with authentication)
     db.collection('milk_videos')
-        .orderBy('uploadDate', 'desc')
+        .orderBy('uploadDate', 'desc')  // Newest first
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos for notifications`);
             
+            // If no videos, show empty state
             if (snapshot.empty) {
                 notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">You haven\'t uploaded any videos yet.</div>';
                 return;
             }
 
+            // Clear loading message
             notificationsList.innerHTML = '';
+            // Loop through each video and create an activity item
             snapshot.forEach(doc => {
                 const video = doc.data();
                 const item = document.createElement('div');
-                item.className = 'border-b border-gray-200 p-4';
+                item.className = 'border-b border-gray-200 p-4';  // List item with bottom border
                 item.setAttribute('data-video-id', doc.id);
                 
-                // Create notification item
+                // Create notification item with thumbnail and details
                 item.innerHTML = `
                     <div class="flex items-start space-x-3">
+                        <!-- Thumbnail section -->
                         <div class="w-20 h-20 bg-gray-100 rounded overflow-hidden">
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
@@ -586,6 +621,7 @@ function renderNotificationsView() {
                                 </div>`
                             }
                         </div>
+                        <!-- Details section -->
                         <div class="flex-1">
                             <div class="flex justify-between items-start">
                                 <span class="inline-block px-2 py-1 text-xs rounded ${getStatusClass(video.status)}">${video.status || 'Processing'}</span>
@@ -598,11 +634,12 @@ function renderNotificationsView() {
                     </div>
                 `;
                 
-                // Add click event to show video details
+                // Add click event to show video details when clicked
                 item.addEventListener('click', () => {
                     showVideoDetails(doc.id, video);
                 });
                 
+                // Add the item to the list
                 notificationsList.appendChild(item);
             });
         })
@@ -612,7 +649,7 @@ function renderNotificationsView() {
         });
 }
 
-// Render explore view (mobs)
+// Render explore view (mobs) - this is the Milk Mobs tab
 function renderExploreView() {
     console.log("Rendering explore view");
     const exploreContainer = document.getElementById('exploreContainer');
@@ -621,66 +658,72 @@ function renderExploreView() {
         return;
     }
     
+    // Show loading message
     exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">Loading milk mobs...</div>';
 
-    // Get approved videos
+    // Get approved videos only - rejected or pending videos don't show in mobs
     db.collection('milk_videos')
         .where('status', '==', 'Approved')
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} approved videos for mobs`);
             
+            // If no approved videos, show empty state
             if (snapshot.empty) {
                 exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
                 return;
             }
 
-            // Group videos by mob
+            // Group videos by mob - organize videos into their respective mobs
             const mobs = {};
             snapshot.forEach(doc => {
                 const video = doc.data();
                 // Use recommendedMob if available, otherwise use mob or fallback to General
                 const mobName = video.recommendedMob || video.mob || 'General';
                 
+                // Create array for this mob if it doesn't exist yet
                 if (!mobs[mobName]) {
                     mobs[mobName] = [];
                 }
+                
+                // Add this video to its mob
                 mobs[mobName].push({ ...video, id: doc.id });
             });
 
+            // Double-check we actually have mobs (shouldn't happen but just in case)
             if (Object.keys(mobs).length === 0) {
                 exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No approved videos found.</div>';
                 return;
             }
 
-            // Display mobs
+            // Display mobs - create a section for each mob
             exploreContainer.innerHTML = '';
             Object.entries(mobs).forEach(([mob, videos]) => {
                 const section = document.createElement('div');
-                section.className = 'mb-6';
+                section.className = 'mb-6';  // Add margin bottom for spacing
                 
-                // Create section header
+                // Create section header with mob name and count
                 const header = document.createElement('h3');
                 header.className = 'text-lg font-medium mb-3 fairlife-blue';
                 header.innerHTML = `${mob} <span class="text-sm text-gray-500">(${videos.length})</span>`;
                 section.appendChild(header);
                 
-                // Create grid for videos
+                // Create grid for videos - 3 columns like Instagram
                 const grid = document.createElement('div');
                 grid.className = 'grid grid-cols-3 gap-2';
                 
-                // Add videos to grid
+                // Add videos to grid - create a card for each video
                 videos.forEach(video => {
                     const card = document.createElement('div');
-                    card.className = 'aspect-square relative overflow-hidden';
+                    card.className = 'aspect-square relative overflow-hidden';  // Square aspect ratio
                     card.setAttribute('data-video-id', video.id);
                     
-                    // Create thumbnail with overlay
+                    // Create thumbnail with overlay - figure out what to display
                     let thumbnailUrl = video.thumbnailUrl || '';
                     let mediaContent;
                     
                     if (thumbnailUrl) {
-                        // If we have a thumbnail
+                        // If we have a thumbnail from TwelveLabs, use it
                         mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                     } else if (video.videoUrl) {
                         // If we have video but no thumbnail, show first frame of video
@@ -690,33 +733,37 @@ function renderExploreView() {
                             </video>
                         `;
                     } else {
-                        // Fallback if no media is available
+                        // Fallback if no media is available - shouldn't happen but just in case
                         mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <span class="text-gray-500">Processing</span>
                         </div>`;
                     }
                     
-                    // Add badge indicators for status
+                    // Add badge indicators for status - all should be approved here
                     let statusBadge = '';
                     if (video.status === 'Approved') {
                         statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
                     }
                     
+                    // Combine the media and badge into the card
                     card.innerHTML = `
                         ${mediaContent}
                         ${statusBadge}
                     `;
                     
-                    // Add click event to show video details
+                    // Add click event to show video details when clicked
                     card.addEventListener('click', () => {
                         showVideoDetails(video.id, video);
                     });
                     
+                    // Add the card to the grid
                     grid.appendChild(card);
                 });
                 
+                // Add the grid to the section
                 section.appendChild(grid);
                 
+                // Add the section to the container
                 exploreContainer.appendChild(section);
             });
         })
@@ -726,7 +773,7 @@ function renderExploreView() {
         });
 }
 
-// Render review view
+// Render review view - this is the Moderation tab
 function renderReviewView(pendingOnly = true) {
     console.log(`Rendering review view (pendingOnly: ${pendingOnly})`);
     const reviewList = document.getElementById('reviewList');
@@ -735,45 +782,48 @@ function renderReviewView(pendingOnly = true) {
         return;
     }
     
+    // Show loading message
     reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">Loading videos for review...</div>';
 
-    // Build query based on filter
+    // Build query based on filter - either show pending only or all videos
     let query = db.collection('milk_videos');
     if (pendingOnly) {
-        query = query.where('needsReview', '==', true);
+        query = query.where('needsReview', '==', true);  // Only videos needing review
     }
     
-    // Get videos for review
+    // Get videos for review, newest first
     query.orderBy('uploadDate', 'desc')
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos for review`);
             
+            // If no videos to review, show empty state
             if (snapshot.empty) {
                 reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">No videos to review at this time.</div>';
                 return;
             }
 
-            // Create a grid layout for the videos
+            // Create a grid layout for the videos - 3 columns like other views
             const grid = document.createElement('div');
             grid.className = 'grid grid-cols-3 gap-3';
-            reviewList.innerHTML = '';
+            reviewList.innerHTML = '';  // Clear loading message
             reviewList.appendChild(grid);
             
+            // Loop through each video and create a card for it
             snapshot.forEach(doc => {
                 const video = doc.data();
                 const videoId = doc.id;
                 
                 const card = document.createElement('div');
-                card.className = 'aspect-square relative overflow-hidden bg-white rounded-lg shadow-sm';
+                card.className = 'aspect-square relative overflow-hidden bg-white rounded-lg shadow-sm';  // Square with shadow
                 card.setAttribute('data-video-id', videoId);
                 
-                // Create thumbnail with overlay
+                // Create thumbnail with overlay - figure out what to display
                 let thumbnailUrl = video.thumbnailUrl || '';
                 let mediaContent;
                 
                 if (thumbnailUrl) {
-                    // If we have a thumbnail
+                    // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
                     // If we have video but no thumbnail, show first frame of video
@@ -783,22 +833,23 @@ function renderReviewView(pendingOnly = true) {
                         </video>
                     `;
                 } else {
-                    // Fallback if no media is available
+                    // Fallback if no media is available - shouldn't happen but just in case
                     mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                         <span class="text-gray-500">Processing</span>
                     </div>`;
                 }
                 
-                // Add status badge
+                // Add status badge - visual cue about video state
                 let statusBadge = '';
                 if (video.status === 'Approved') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';  // Green checkmark
                 } else if (video.status === 'Pending Review') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
+                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';  // Yellow hourglass
                 } else if (video.status === 'Rejected') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';
+                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';  // Red X
                 }
                 
+                // Combine the media and badge into the card
                 card.innerHTML = `
                     ${mediaContent}
                     ${statusBadge}
@@ -806,9 +857,10 @@ function renderReviewView(pendingOnly = true) {
                 
                 // Add click event to show video details with moderation options
                 card.addEventListener('click', () => {
-                    showVideoDetailsWithModeration(videoId, video);
+                    showVideoDetailsWithModeration(videoId, video);  // Special modal with approve/reject buttons
                 });
                 
+                // Add the card to the grid
                 grid.appendChild(card);
             });
         })
@@ -818,16 +870,17 @@ function renderReviewView(pendingOnly = true) {
         });
 }
 
-// Function to show video details with moderation options
+// Function to show video details with moderation options - special modal for the Moderate tab
 function showVideoDetailsWithModeration(videoId, videoData) {
-    // Create modal overlay
+    // Create modal overlay - full screen semi-transparent background
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
     modal.id = 'videoModal';
     
-    // Create modal content
+    // Create modal content - figure out what to display
     let videoElement = '';
     if (videoData.videoUrl) {
+        // If we have a video URL, show the video player
         videoElement = `
             <video controls autoplay class="max-h-[50vh] max-w-full rounded-lg">
                 <source src="${videoData.videoUrl}" type="video/mp4">
@@ -835,15 +888,17 @@ function showVideoDetailsWithModeration(videoId, videoData) {
             </video>
         `;
     } else {
+        // Fallback if video isn't available
         videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
     }
     
-    // Status indicator with appropriate color
-    let statusClass = 'bg-gray-100 text-gray-800';
-    if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';
-    if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
-    if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
+    // Status indicator with appropriate color - visual cue about video state
+    let statusClass = 'bg-gray-100 text-gray-800';  // Default gray
+    if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';  // Green for approved
+    if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';  // Red for rejected
+    if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';  // Yellow for pending
     
+    // Build the modal HTML - includes moderation controls
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
@@ -861,6 +916,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 ${videoElement}
                 
                 <div class="mt-4">
+                    <!-- Status and action buttons -->
                     <div class="flex items-center justify-between mb-3">
                         <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
                         
@@ -874,7 +930,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                     </div>
                     
-                    
+                    <!-- Video metadata -->
                     <div class="grid grid-cols-2 gap-2 mb-3">
                         <div>
                             <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
@@ -886,6 +942,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                     </div>
                     
+                    <!-- Media name section with edit functionality -->
                     <div class="mb-3">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
@@ -900,6 +957,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                             </button>
                         </div>
                         
+                        <!-- Hidden form that appears when Edit is clicked -->
                         <div id="mediaNameEditForm" class="hidden">
                             <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
                             <div class="flex space-x-2">
@@ -914,43 +972,46 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         </div>
     `;
     
-    // Add to body
+    // Add modal to the page
     document.body.appendChild(modal);
     
-    // Add close handler
+    // Add close button handler
     document.getElementById('closeModal').addEventListener('click', () => {
-        document.body.removeChild(modal);
+        document.body.removeChild(modal);  // Remove the modal when X is clicked
     });
     
-    // Close when clicking outside the content
+    // Close when clicking outside the content (on the dark overlay)
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            document.body.removeChild(modal);
+            document.body.removeChild(modal);  // Remove modal when clicking outside
         }
     });
     
-    // Add edit button handler
+    // Add edit button handler for media name
     const editButton = document.getElementById('editMediaNameBtn');
     if (editButton) {
         editButton.addEventListener('click', () => {
             const editForm = document.getElementById('mediaNameEditForm');
             if (editForm.classList.contains('hidden')) {
+                // Show the edit form
                 editForm.classList.remove('hidden');
-                editButton.textContent = "Cancel";
+                editButton.textContent = "Cancel";  // Change button to Cancel
             } else {
+                // Hide the edit form
                 editForm.classList.add('hidden');
-                editButton.textContent = "Edit";
+                editButton.textContent = "Edit";  // Change button back to Edit
             }
         });
     }
     
-    // Add save media name handler
+    // Add save media name handler - saves the custom name to the database
     const saveButton = document.getElementById('saveMediaName');
     if (saveButton) {
         saveButton.addEventListener('click', async () => {
             const mediaName = document.getElementById('mediaName').value.trim();
             
             try {
+                // Update the media name in Firestore
                 await db.collection('milk_videos').doc(videoId).update({
                     mediaName: mediaName
                 });
@@ -964,10 +1025,10 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     `;
                 }
                 
-                // Update the videoData object
+                // Update the videoData object so it's current
                 videoData.mediaName = mediaName;
                 
-                // Show success feedback
+                // Show success feedback - change button color and text
                 saveButton.textContent = "Saved!";
                 saveButton.classList.add('bg-green-500');
                 
@@ -988,29 +1049,29 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         });
     }
     
-    
-    // Add approve button handler
+    // Add approve button handler - approves the video and assigns it to a mob
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
-            // Use recommendedMob or default to "General"
+            // Use recommendedMob or default to "General" if none exists
             const mob = videoData.recommendedMob || "General";
             
             try {
+                // Call the approve function to update the database
                 await approveVideo(videoId, mob);
                 
-                // Update UI to reflect the change
+                // Update UI to reflect the change - change status badge
                 const statusBadge = modal.querySelector('.inline-block.px-2.py-1.text-xs.rounded');
                 if (statusBadge) {
                     statusBadge.className = 'inline-block px-2 py-1 text-xs rounded bg-green-100 text-green-800';
                     statusBadge.textContent = 'Approved';
                 }
                 
-                // Update buttons
-                approveBtn.classList.add('opacity-50');
-                document.getElementById('rejectBtn').classList.remove('opacity-50');
+                // Update buttons - disable approve, enable reject
+                approveBtn.classList.add('opacity-50');  // Dim the approve button
+                document.getElementById('rejectBtn').classList.remove('opacity-50');  // Un-dim the reject button
                 
-                // Update the videoData object
+                // Update the videoData object so it's current
                 videoData.status = 'Approved';
                 videoData.mob = mob;
                 
@@ -1021,26 +1082,26 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         });
     }
     
-    
-    // Add reject button handler
+    // Add reject button handler - rejects the video
     const rejectBtn = document.getElementById('rejectBtn');
     if (rejectBtn) {
         rejectBtn.addEventListener('click', async () => {
             try {
+                // Call the reject function to update the database
                 await rejectVideo(videoId);
                 
-                // Update UI to reflect the change
+                // Update UI to reflect the change - change status badge
                 const statusBadge = modal.querySelector('.inline-block.px-2.py-1.text-xs.rounded');
                 if (statusBadge) {
                     statusBadge.className = 'inline-block px-2 py-1 text-xs rounded bg-red-100 text-red-800';
                     statusBadge.textContent = 'Rejected';
                 }
                 
-                // Update buttons
-                rejectBtn.classList.add('opacity-50');
-                document.getElementById('approveBtn').classList.remove('opacity-50');
+                // Update buttons - disable reject, enable approve
+                rejectBtn.classList.add('opacity-50');  // Dim the reject button
+                document.getElementById('approveBtn').classList.remove('opacity-50');  // Un-dim the approve button
                 
-                // Update the videoData object
+                // Update the videoData object so it's current
                 videoData.status = 'Rejected';
                 
             } catch (error) {
@@ -1051,20 +1112,20 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     }
 }
 
-// Approve video
+// Approve video - marks a video as approved and assigns it to a mob
 async function approveVideo(videoId, mob) {
     try {
         console.log(`Approving video ${videoId} for mob ${mob}`);
         
-        // Update Firestore
+        // Update Firestore - change status, set mob, mark as not needing review
         await db.collection('milk_videos').doc(videoId).update({
-            status: 'Approved',
-            recommendedMob: mob,
-            needsReview: false,
-            reviewDate: firebase.firestore.FieldValue.serverTimestamp()
+            status: 'Approved',  // Set status to Approved
+            recommendedMob: mob,  // Assign to the specified mob
+            needsReview: false,  // No longer needs review
+            reviewDate: firebase.firestore.FieldValue.serverTimestamp()  // Record when it was approved
         });
         
-        // Notify webhook with our new helper function
+        // Notify webhook with our helper function - triggers n8n workflow
         const webhookData = {
             action: 'approve_video',
             videoId: videoId,
@@ -1072,7 +1133,7 @@ async function approveVideo(videoId, mob) {
             timestamp: new Date().toISOString()
         };
         
-        // Don't await this - let it run in background
+        // Don't await this - let it run in background so we don't block the UI
         callWebhook(webhookData)
             .then(success => {
                 if (success) {
@@ -1082,7 +1143,7 @@ async function approveVideo(videoId, mob) {
                 }
             });
         
-        // Refresh the view
+        // Refresh the view - check if we're showing pending only or all videos
         const pendingBtn = document.getElementById('pendingReviewBtn');
         renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
     } catch (error) {
@@ -1091,26 +1152,26 @@ async function approveVideo(videoId, mob) {
     }
 }
 
-// Reject video
+// Reject video - marks a video as rejected
 async function rejectVideo(videoId) {
     try {
         console.log(`Rejecting video ${videoId}`);
         
-        // Update Firestore
+        // Update Firestore - change status, mark as not needing review
         await db.collection('milk_videos').doc(videoId).update({
-            status: 'Rejected',
-            needsReview: false,
-            reviewDate: firebase.firestore.FieldValue.serverTimestamp()
+            status: 'Rejected',  // Set status to Rejected
+            needsReview: false,  // No longer needs review
+            reviewDate: firebase.firestore.FieldValue.serverTimestamp()  // Record when it was rejected
         });
         
-        // Notify webhook with our new helper function
+        // Notify webhook with our helper function - triggers n8n workflow
         const webhookData = {
             action: 'reject_video',
             videoId: videoId,
             timestamp: new Date().toISOString()
         };
         
-        // Don't await this - let it run in background
+        // Don't await this - let it run in background so we don't block the UI
         callWebhook(webhookData)
             .then(success => {
                 if (success) {
@@ -1120,7 +1181,7 @@ async function rejectVideo(videoId) {
                 }
             });
         
-        // Refresh the view
+        // Refresh the view - check if we're showing pending only or all videos
         const pendingBtn = document.getElementById('pendingReviewBtn');
         renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
     } catch (error) {
@@ -1129,13 +1190,16 @@ async function rejectVideo(videoId) {
     }
 }
 
-// Format date
+// Format date - converts timestamps to readable format
 function formatDate(timestamp, detailed = false) {
-    if (!timestamp) return 'Just now';
+    if (!timestamp) return 'Just now';  // Handle missing timestamp
     
     try {
+        // Convert Firebase timestamp to JS Date if needed
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        
         if (detailed) {
+            // Detailed format for modals - includes time
             return date.toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'short', 
@@ -1144,22 +1208,24 @@ function formatDate(timestamp, detailed = false) {
                 minute: '2-digit'
             });
         }
+        
+        // Simple format for list views - just month and day
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } catch (e) {
-        return 'Invalid date';
+        return 'Invalid date';  // Fallback for invalid dates
     }
 }
 
-// Get CSS class for status
+// Get CSS class for status - returns Tailwind classes for status badges
 function getStatusClass(status) {
     switch(status) {
         case 'Approved':
-            return 'bg-green-100 text-green-800';
+            return 'bg-green-100 text-green-800';  // Green for approved
         case 'Rejected':
-            return 'bg-red-100 text-red-800';
+            return 'bg-red-100 text-red-800';  // Red for rejected
         case 'Pending Review':
-            return 'bg-yellow-100 text-yellow-800';
+            return 'bg-yellow-100 text-yellow-800';  // Yellow for pending
         default:
-            return 'bg-gray-100 text-gray-800';
+            return 'bg-gray-100 text-gray-800';  // Gray for unknown/processing
     }
 }
