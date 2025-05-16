@@ -1189,8 +1189,14 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 }
                 
                 // Show success feedback
-                updateMobBtn.textContent = "Updated!";
+                updateMobBtn.textContent = "Saved!";
                 updateMobBtn.classList.add('bg-green-500');
+                
+                // Add a saved indicator next to the mob display
+                const savedIndicator = document.createElement('span');
+                savedIndicator.className = 'text-xs text-green-500 ml-2';
+                savedIndicator.textContent = '✓ Saved';
+                mobDisplay.appendChild(savedIndicator);
                 
                 // Update the videoData object
                 videoData.mob = newMob;
@@ -1203,6 +1209,13 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     // Hide the edit form
                     document.getElementById('mobEditForm').classList.add('hidden');
                     document.getElementById('editMobBtn').classList.remove('bg-gray-300');
+                    
+                    // Remove saved indicator after 3 seconds
+                    setTimeout(() => {
+                        if (savedIndicator.parentNode) {
+                            savedIndicator.parentNode.removeChild(savedIndicator);
+                        }
+                    }, 1000);
                 }, 2000);
                 
             } catch (error) {
