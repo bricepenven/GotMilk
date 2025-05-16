@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Milk Challenge</title>
+    <title>Fairlife Challenge</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
@@ -13,19 +13,28 @@
             min-height: calc(100vh - 64px);
             padding-bottom: 80px;
         }
+        .fairlife-blue {
+            color: #0067b1;
+        }
+        .bg-fairlife-blue {
+            background-color: #0067b1;
+        }
+        .border-fairlife-blue {
+            border-color: #0067b1;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
     <header class="bg-gray-800 shadow-md fixed top-0 left-0 right-0 z-10">
         <div class="max-w-screen-md mx-auto flex justify-center items-center h-14 px-4">
-            <h1 class="text-2xl font-bold text-blue-400">Fairlife</h1>
+            <img src="logo.png" alt="Fairlife" class="h-10">
         </div>
     </header>
 
     <main class="max-w-screen-md mx-auto pt-16 pb-16">
         <!-- Home View -->
         <div id="homeView" class="view px-4 py-6">
-            <h2 class="text-xl font-bold mb-4">All Milk Media</h2>
+            <h2 class="text-xl font-bold mb-4 fairlife-blue">All Milk Media</h2>
             <div id="homeGrid" class="grid grid-cols-2 gap-4">
                 <!-- Video cards will be dynamically inserted here -->
                 <div class="col-span-2 text-center p-8 text-gray-400">
@@ -36,7 +45,7 @@
 
         <!-- Upload View -->
         <div id="uploadView" class="view px-4 py-6 hidden">
-            <h2 class="text-xl font-bold mb-4">Upload Your Milk Video</h2>
+            <h2 class="text-xl font-bold mb-4 fairlife-blue">Upload Your Milk Video</h2>
             <form id="uploadForm" class="bg-gray-800 rounded-lg shadow-md p-6">
                 <div class="mb-4">
                     <label for="videoFile" class="block text-sm font-medium text-gray-300 mb-1">
@@ -45,20 +54,20 @@
                     <input type="file" id="videoFile" accept="video/*" 
                         class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4
                         file:rounded-full file:border-0 file:text-sm file:font-semibold
-                        file:bg-blue-900 file:text-blue-300 hover:file:bg-blue-800">
+                        file:bg-fairlife-blue file:text-white hover:file:bg-blue-700">
                 </div>
                 
                 <div class="mb-6">
                     <label for="hashtags" class="block text-sm font-medium text-gray-300 mb-1">
                         Hashtags
                     </label>
-                    <input type="text" id="hashtags" placeholder="#gotmilk #milkchallenge" 
+                    <input type="text" id="hashtags" placeholder="#fairlife #milkchallenge" 
                         class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm text-gray-200 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     <p class="mt-1 text-xs text-gray-400">Add multiple hashtags separated by spaces</p>
                 </div>
                 
                 <button id="uploadBtn" type="submit" 
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    class="w-full bg-fairlife-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Upload Media
                 </button>
                 
@@ -66,19 +75,19 @@
             </form>
             
             <div class="mt-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
-                <h3 class="text-sm font-medium text-blue-400 mb-2">🥛 Challenge Guidelines</h3>
+                <h3 class="text-sm font-medium fairlife-blue mb-2">🥛 Challenge Guidelines</h3>
                 <ul class="text-xs text-gray-300 space-y-1">
-                    <li>• Record yourself enjoying a glass of milk</li>
+                    <li>• Record yourself enjoying Fairlife milk</li>
                     <li>• Add creative hashtags to join a Milk Mob</li>
                     <li>• Videos are analyzed automatically</li>
-                    <li>• See where you rank in the Explore tab</li>
+                    <li>• See where you rank in the Milk Mobs tab</li>
                 </ul>
             </div>
         </div>
 
         <!-- Notifications View -->
         <div id="notificationsView" class="view px-4 py-6 hidden">
-            <h2 class="text-xl font-bold mb-4">Your Videos</h2>
+            <h2 class="text-xl font-bold mb-4 fairlife-blue">Your Videos</h2>
             <div id="notificationsList" class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
                 <!-- Notifications will be dynamically inserted here -->
                 <div class="text-center p-8 text-gray-400">
@@ -89,7 +98,7 @@
 
         <!-- Explore View -->
         <div id="exploreView" class="view px-4 py-6 hidden">
-            <h2 class="text-xl font-bold mb-4">Explore Milk Mobs</h2>
+            <h2 class="text-xl font-bold mb-4 fairlife-blue">Explore Milk Mobs</h2>
             <div id="exploreContainer">
                 <!-- Mob sections will be dynamically inserted here -->
                 <div class="text-center p-8 text-gray-400">
@@ -100,7 +109,11 @@
 
         <!-- Moderation View -->
         <div id="reviewView" class="view px-4 py-6 hidden">
-            <h2 class="text-xl font-bold mb-4">Moderation Panel</h2>
+            <h2 class="text-xl font-bold mb-4 fairlife-blue">Moderation Panel</h2>
+            <div class="flex space-x-4 mb-4">
+                <button id="pendingReviewBtn" class="px-4 py-2 bg-fairlife-blue rounded-md text-white">Pending Review</button>
+                <button id="allVideosBtn" class="px-4 py-2 bg-gray-700 rounded-md text-white">All Media</button>
+            </div>
             <div id="reviewList" class="space-y-4">
                 <!-- Videos to review will be dynamically inserted here -->
                 <div class="text-center p-8 text-gray-400">
@@ -113,7 +126,7 @@
     <!-- Fixed Bottom Navigation -->
     <nav class="bg-gray-800 shadow-lg fixed bottom-0 left-0 right-0 z-10">
         <div class="max-w-screen-md mx-auto flex items-center justify-around h-16">
-            <button id="homeTab" class="tab text-blue-400 flex flex-col items-center justify-center w-full h-full border-t-2 border-blue-400" data-view="homeView">
+            <button id="homeTab" class="tab text-fairlife-blue flex flex-col items-center justify-center w-full h-full border-t-2 border-fairlife-blue" data-view="homeView">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
