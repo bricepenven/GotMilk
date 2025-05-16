@@ -1,4 +1,3 @@
-// filepath: /Users/bpenven/Documents/Projects/Got_Milk/script.js
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
@@ -14,8 +13,67 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// Update the upload task to use proper error handling
-uploadForm.addEventListener('submit', async (e) => {
+// Tab navigation setup
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup tab navigation
+    const tabs = document.querySelectorAll('.tab');
+    const views = document.querySelectorAll('.view');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetView = this.getAttribute('data-view');
+            
+            // Hide all views
+            views.forEach(view => {
+                view.classList.add('hidden');
+            });
+            
+            // Show target view
+            document.getElementById(targetView).classList.remove('hidden');
+            
+            // Update active tab styling
+            tabs.forEach(t => {
+                t.classList.remove('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
+                t.classList.add('text-gray-600');
+            });
+            
+            this.classList.remove('text-gray-600');
+            this.classList.add('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
+        });
+    });
+
+    // Setup upload form
+    const uploadForm = document.getElementById('uploadForm');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', handleUpload);
+    }
+});
+
+// Helper function to show upload status
+function showUploadStatus(message, type) {
+    const statusElement = document.getElementById('uploadStatus');
+    if (!statusElement) return;
+    
+    statusElement.textContent = message;
+    statusElement.classList.remove('hidden', 'text-green-500', 'text-red-500', 'text-blue-500');
+    
+    switch(type) {
+        case 'success':
+            statusElement.classList.add('text-green-500');
+            break;
+        case 'error':
+            statusElement.classList.add('text-red-500');
+            break;
+        case 'info':
+            statusElement.classList.add('text-blue-500');
+            break;
+    }
+    
+    statusElement.classList.remove('hidden');
+}
+
+// Upload handler
+async function handleUpload(e) {
     e.preventDefault();
     
     const videoFile = document.getElementById('videoFile').files[0];
@@ -32,44 +90,54 @@ uploadForm.addEventListener('submit', async (e) => {
         // Generate a unique ID for the video
         const videoId = Date.now().toString();
         
-        // Upload to Firebase Storage
+        // Create storage reference with explicit permission metadata
         const storageRef = storage.ref(`videos/${videoId}`);
-        const uploadTask = storageRef.put(videoFile);
+        
+        // Set metadata
+        const metadata = {
+            contentType: videoFile.type,
+            customMetadata: {
+                'origin': 'bricepenven.github.io',
+                'hashtags': hashtags
+            }
+        };
+        
+        // Start upload with metadata
+        const uploadTask = storageRef.put(videoFile, metadata);
         
         uploadTask.on('state_changed', 
+            // Progress function
             (snapshot) => {
-                // Progress monitoring
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 showUploadStatus(`Upload progress: ${Math.round(progress)}%`, 'info');
             },
+            // Error function
             (error) => {
-                // Error handling
                 console.error('Upload error:', error);
-                showUploadStatus(`Upload failed: ${error.message}. Please try again.`, 'error');
+                showUploadStatus(`Upload failed: ${error.message}. Please check Firebase Storage rules.`, 'error');
             },
+            // Complete function
             async () => {
-                // Upload completed successfully
                 try {
                     showUploadStatus('Saving to database...', 'info');
                     
                     // Get download URL
                     const videoUrl = await uploadTask.snapshot.ref.getDownloadURL();
                     
-                    // Save to Firestore first with proper fields
-                    await db.collection('milk_videos').doc(videoId).set({
+                    // Save to Firestore
+                    await db.collection('milk_videos').add({
                         videoUrl: videoUrl,
                         hashtags: hashtags,
-                        status: 'Needs Review',
-                        uploadDate: firebase.firestore.FieldValue.serverTimestamp(),
-                        needsReview: true
+                        status: 'Pending Review',
+                        uploadDate: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
                     showUploadStatus('Video uploaded successfully!', 'success');
                     setTimeout(() => {
                         document.getElementById('videoFile').value = '';
                         document.getElementById('hashtags').value = '';
-                        hideUploadStatus();
-                        // Navigate to Notifications view to see progress
+                        
+                        // Navigate to Notifications view
                         document.getElementById('notificationsTab').click();
                     }, 2000);
                 } catch (dbError) {
@@ -82,7 +150,7 @@ uploadForm.addEventListener('submit', async (e) => {
         console.error('Error:', error);
         showUploadStatus('An error occurred. Please try again.', 'error');
     }
-});
+};
 
 // Submit data to webhook
 async function submitToWebhook(data) {
