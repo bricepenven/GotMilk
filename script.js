@@ -4,10 +4,9 @@ const firebaseConfig = {
     apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
     authDomain: "chokaj-4dcae.firebaseapp.com",
     projectId: "chokaj-4dcae",
-    storageBucket: "chokaj-4dcae.appspot.com", // Fixed from .firebasestorage.app
-    messagingSenderId: "516228224797", // Using the correct ID from requirements
-    appId: "1:516228224797:web:6bdf08edb5962aad5633f4", // Using the correct appId
-    measurementId: "G-9QVCF19J2W"
+    storageBucket: "chokaj-4dcae.appspot.com",
+    messagingSenderId: "628147483032",
+    appId: "1:628147483032:web:2cea7a3dd553b8922d7398"
 };
 
 // Initialize Firebase
@@ -15,49 +14,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// DOM elements
-const tabs = document.querySelectorAll('.tab');
-const views = document.querySelectorAll('[id$="View"]');
-const uploadForm = document.getElementById('uploadForm');
-const uploadStatus = document.getElementById('uploadStatus');
-const pendingReviewBtn = document.getElementById('pendingReviewBtn');
-const allVideosBtn = document.getElementById('allVideosBtn');
-
-// N8N webhook URL for video processing - use the correct webhook URL
-const webhookUrl = 'https://jinthoa.app.n8n.cloud/webhook-test/188f3bac-7c25-4d92-a1ba-020b6878607d';
-
-// Navigation
-tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        // Update active tab UI
-        tabs.forEach(t => {
-            t.classList.remove('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
-            t.classList.add('text-gray-400');
-        });
-        tab.classList.remove('text-gray-400');
-        tab.classList.add('text-fairlife-blue', 'border-t-2', 'border-fairlife-blue');
-        
-        // Show the selected view
-        const viewId = tab.getAttribute('data-view');
-        views.forEach(view => {
-            view.classList.add('hidden');
-        });
-        document.getElementById(viewId).classList.remove('hidden');
-        
-        // Load data for the selected view
-        if (viewId === 'homeView') {
-            renderHomeView();
-        } else if (viewId === 'notificationsView') {
-            renderNotificationsView();
-        } else if (viewId === 'exploreView') {
-            renderExploreView();
-        } else if (viewId === 'reviewView') {
-            renderReviewView(true);
-        }
-    });
-});
-
-// Handle video upload
+// Update the upload task to use proper error handling
 uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -88,31 +45,37 @@ uploadForm.addEventListener('submit', async (e) => {
             (error) => {
                 // Error handling
                 console.error('Upload error:', error);
-                showUploadStatus('Upload failed. Please try again.', 'error');
+                showUploadStatus(`Upload failed: ${error.message}. Please try again.`, 'error');
             },
             async () => {
                 // Upload completed successfully
-                showUploadStatus('Processing video...', 'info');
-                
-                // Get download URL
-                const videoUrl = await uploadTask.snapshot.ref.getDownloadURL();
-                
-                // Submit to webhook for processing
-                await submitToWebhook({
-                    action: 'processVideo',
-                    videoId: videoId,
-                    videoUrl: videoUrl,
-                    hashtags: hashtags
-                });
-                
-                showUploadStatus('Video submitted for processing!', 'success');
-                setTimeout(() => {
-                    document.getElementById('videoFile').value = '';
-                    document.getElementById('hashtags').value = '';
-                    hideUploadStatus();
-                    // Navigate to Notifications view to see progress
-                    document.getElementById('notificationsTab').click();
-                }, 2000);
+                try {
+                    showUploadStatus('Saving to database...', 'info');
+                    
+                    // Get download URL
+                    const videoUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                    
+                    // Save to Firestore first with proper fields
+                    await db.collection('milk_videos').doc(videoId).set({
+                        videoUrl: videoUrl,
+                        hashtags: hashtags,
+                        status: 'Needs Review',
+                        uploadDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        needsReview: true
+                    });
+                    
+                    showUploadStatus('Video uploaded successfully!', 'success');
+                    setTimeout(() => {
+                        document.getElementById('videoFile').value = '';
+                        document.getElementById('hashtags').value = '';
+                        hideUploadStatus();
+                        // Navigate to Notifications view to see progress
+                        document.getElementById('notificationsTab').click();
+                    }, 2000);
+                } catch (dbError) {
+                    console.error('Database error:', dbError);
+                    showUploadStatus('Upload successful but database update failed. Please try again.', 'error');
+                }
             }
         );
     } catch (error) {
