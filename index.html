@@ -43,25 +43,25 @@
         }
         
         /* Updated header styles */
-        .header-top {
-            background-color: #ffffff;
-            height: 12px;
-            box-shadow: 0 1px 2px rgba(0, 163, 224, 0.1);
-        }
-        .header-blue {
-            background-color: #ffffff;
-            border-bottom: 3px solid #00a3e0;
-            box-shadow: 0 2px 6px rgba(0, 163, 224, 0.15);
-        }
-        .blue-tint {
-            background: linear-gradient(to bottom, rgba(0, 163, 224, 0.05), rgba(0, 163, 224, 0));
-            height: 8px;
-            position: fixed;
-            top: 20px;
-            left: 0;
-            right: 0;
-            z-index: 5;
-        }
+    .header-top {
+        background-color: #00a3e0; /* Changed to bright blue */
+        height: 12px;
+        box-shadow: none; /* Removed shadow */
+    }
+    .header-blue {
+        background-color: #ffffff;
+        border-bottom: 3px solid #00a3e0;
+        box-shadow: 0 2px 6px rgba(0, 163, 224, 0.15);
+    }
+    .blue-tint {
+        background: linear-gradient(to bottom, rgba(0, 163, 224, 0.05), rgba(0, 163, 224, 0));
+        height: 8px;
+        position: fixed;
+        top: 20px;
+        left: 0;
+        right: 0;
+        z-index: 5;
+    }
         
         /* Update the theme to be closer to Fairlife site */
         .bg-app {
@@ -100,9 +100,6 @@
         <div class="flex items-center">
             <!-- Use your custom logo image instead of SVG -->
             <img src="logo.png" alt="Fairlife Logo" class="h-10 mr-2">
-            
-            <!-- Text "fairlife" in blue for white background -->
-            <span class="fairlife-logo text-2xl">fa!rlife</span>
         </div>
     </div>
 </header>
