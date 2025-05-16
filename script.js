@@ -292,7 +292,7 @@ async function handleUpload(e) {
     }
 }
 
-// Render home view with ALL videos
+// Render home view with Instagram-style grid layout
 function renderHomeView() {
     console.log("Rendering home view");
     const homeGrid = document.getElementById('homeGrid');
@@ -301,7 +301,7 @@ function renderHomeView() {
         return;
     }
     
-    homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">Loading videos...</div>';
+    homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
     // Get all videos
     db.collection('milk_videos')
@@ -311,42 +311,144 @@ function renderHomeView() {
             console.log(`Found ${snapshot.size} videos`);
             
             if (snapshot.empty) {
-                homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">No videos yet.</div>';
+                homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">No videos yet.</div>';
                 return;
             }
 
+            // Update the HTML to use a 3-column grid
             homeGrid.innerHTML = '';
+            
             snapshot.forEach(doc => {
                 const video = doc.data();
+                const videoId = doc.id;
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-lg overflow-hidden shadow-md';
+                card.className = 'aspect-square relative overflow-hidden';
+                card.setAttribute('data-video-id', videoId);
                 
-                // Create video element
+                // Create thumbnail with overlay
+                let thumbnailUrl = video.thumbnailUrl || '';
                 let mediaContent;
-                if (video.thumbnailUrl) {
-                    mediaContent = `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-36 object-cover">`;
+                
+                if (thumbnailUrl) {
+                    // If we have a thumbnail
+                    mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
+                } else if (video.videoUrl) {
+                    // If we have video but no thumbnail, show first frame of video
+                    mediaContent = `
+                        <video class="w-full h-full object-cover" muted>
+                            <source src="${video.videoUrl}" type="video/mp4">
+                        </video>
+                    `;
                 } else {
-                    mediaContent = `<video src="${video.videoUrl}" class="w-full h-36 object-cover" controls></video>`;
+                    // Fallback if no media is available
+                    mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-500">Processing</span>
+                    </div>`;
+                }
+                
+                // Add badge indicators for status
+                let statusBadge = '';
+                if (video.status === 'Approved') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                } else if (video.status === 'Pending Review') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
+                } else if (video.status === 'Rejected') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';
                 }
                 
                 card.innerHTML = `
                     ${mediaContent}
-                    <div class="p-3">
-                        <p class="text-xs text-gray-700 mb-1">${formatDate(video.uploadDate)}</p>
-                        <p class="text-sm text-gray-800">${video.hashtags || 'No hashtags'}</p>
-                        ${video.mob ? `<p class="text-xs text-fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
-                        ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
-                        <span class="inline-block px-2 py-1 text-xs rounded mt-2 ${getStatusClass(video.status)}">${video.status || 'Processing'}</span>
-                    </div>
+                    ${statusBadge}
                 `;
                 
+                // Add click event to show video details
+                card.addEventListener('click', () => {
+                    showVideoDetails(videoId, video);
+                });
+                
                 homeGrid.appendChild(card);
+            });
+            
+            // Initialize video elements if needed
+            document.querySelectorAll('#homeGrid video').forEach(video => {
+                // Show first frame of video
+                video.currentTime = 0;
             });
         })
         .catch(error => {
             console.error("Error fetching videos:", error);
-            homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">Error loading videos.</div>';
+            homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Error loading videos.</div>';
         });
+}
+
+// Function to show video details in a modal
+function showVideoDetails(videoId, videoData) {
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+    modal.id = 'videoModal';
+    
+    // Create modal content
+    let videoElement = '';
+    if (videoData.videoUrl) {
+        videoElement = `
+            <video controls autoplay class="max-h-[70vh] max-w-full rounded-lg">
+                <source src="${videoData.videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    } else {
+        videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
+    }
+    
+    // Status indicator with appropriate color
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';
+    if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
+    if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium">${formatDate(videoData.uploadDate)}</h3>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                ${videoElement}
+                
+                <div class="mt-4">
+                    <span class="inline-block px-2 py-1 text-xs rounded ${statusClass} mb-2">${videoData.status || 'Processing'}</span>
+                    
+                    <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                    
+                    ${videoData.mob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Mob:</strong> ${videoData.mob}</p>` : ''}
+                    ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add to body
+    document.body.appendChild(modal);
+    
+    // Add close handler
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    // Close when clicking outside the content
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
 }
 
 // Render notifications view (user's own videos)
