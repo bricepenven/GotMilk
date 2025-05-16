@@ -245,7 +245,8 @@ async function handleUpload(e) {
                         hashtags: hashtags,
                         status: 'Pending Review',
                         needsReview: true,
-                        uploadDate: firebase.firestore.FieldValue.serverTimestamp()
+                        uploadDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        originalFileName: videoFile.name
                     });
                     console.log("Document saved with ID:", docRef.id);
                     
@@ -440,11 +441,23 @@ function showVideoDetails(videoId, videoData) {
                     </div>
                     
                     <div class="mb-3">
-                        <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
-                        <div class="flex space-x-2">
-                            <input type="text" id="mediaName" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
-                                value="${videoData.mediaName || ''}" placeholder="Enter a name for this media">
-                            <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Original File Name</label>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                                ${videoData.originalFileName || 'Unknown'}
+                            </div>
+                            <button id="editMediaNameBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                Edit
+                            </button>
+                        </div>
+                        
+                        <div id="mediaNameEditForm" class="hidden">
+                            <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="mediaName" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                    value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
+                                <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -467,6 +480,21 @@ function showVideoDetails(videoId, videoData) {
         }
     });
     
+    // Add edit button handler
+    const editButton = document.getElementById('editMediaNameBtn');
+    if (editButton) {
+        editButton.addEventListener('click', () => {
+            const editForm = document.getElementById('mediaNameEditForm');
+            if (editForm.classList.contains('hidden')) {
+                editForm.classList.remove('hidden');
+                editButton.textContent = "Cancel";
+            } else {
+                editForm.classList.add('hidden');
+                editButton.textContent = "Edit";
+            }
+        });
+    }
+    
     // Add save media name handler
     const saveButton = document.getElementById('saveMediaName');
     if (saveButton) {
@@ -487,6 +515,10 @@ function showVideoDetails(videoId, videoData) {
                 setTimeout(() => {
                     saveButton.textContent = "Save";
                     saveButton.classList.remove('bg-green-500');
+                    
+                    // Hide the edit form
+                    document.getElementById('mediaNameEditForm').classList.add('hidden');
+                    document.getElementById('editMediaNameBtn').textContent = "Edit";
                 }, 2000);
                 
             } catch (error) {
