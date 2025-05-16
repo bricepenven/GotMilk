@@ -590,7 +590,7 @@ function renderNotificationsView() {
                                 <span class="text-xs text-gray-500">${formatDate(video.uploadDate)}</span>
                             </div>
                             <p class="text-sm mt-1">${video.hashtags || 'No hashtags'}</p>
-                            ${video.mob ? `<p class="text-xs text-fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
+                            ${video.recommendedMob ? `<p class="text-xs text-fairlife-blue mt-1">Milk Mob: ${video.recommendedMob}</p>` : ''}
                             ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
                         </div>
                     </div>
