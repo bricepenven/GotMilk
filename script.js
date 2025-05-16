@@ -1,3 +1,4 @@
+// filepath: /Users/bpenven/Documents/Projects/Got_Milk/script.js
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
@@ -163,7 +164,14 @@ function hideUploadStatus() {
 // Render home view with ALL videos
 function renderHomeView() {
     const homeGrid = document.getElementById('homeGrid');
-    homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-400">Loading all media...</div>';
+    homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">Loading all media...</div>';
+
+    // Check if Firestore has initialized properly
+    if (!db) {
+        console.error("Firestore not initialized");
+        homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">No videos yet.</div>';
+        return;
+    }
 
     // Get all videos regardless of approval status
     db.collection('milk_videos')
@@ -171,7 +179,7 @@ function renderHomeView() {
         .get()
         .then((snapshot) => {
             if (snapshot.empty) {
-                homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-400">No videos yet.</div>';
+                homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">No videos yet.</div>';
                 return;
             }
 
@@ -184,8 +192,8 @@ function renderHomeView() {
         })
         .catch(error => {
             console.error("Error fetching videos:", error);
-            // Instead of showing an error, just display the "no videos" message
-            homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-400">No videos yet.</div>';
+            // Just show "No videos yet" instead of an error
+            homeGrid.innerHTML = '<div class="col-span-2 text-center p-8 text-gray-500">No videos yet.</div>';
         });
 }
 
@@ -202,7 +210,7 @@ function createVideoCard(video, videoId) {
         mediaElement = `<div class="w-full h-36 bg-gray-100 flex items-center justify-center text-gray-500">Processing</div>`;
     }
     
-    // Status badge - updated colors
+    // Status badge - updated colors to match new theme
     let statusBadge = '';
     if (video.status === 'Approved') {
         statusBadge = `<span class="absolute top-2 right-2 px-2 py-1 bg-green-100 text-xs text-green-700 rounded-md border border-green-200">Approved</span>`;
@@ -233,13 +241,20 @@ function renderNotificationsView() {
     const notificationsList = document.getElementById('notificationsList');
     notificationsList.innerHTML = '<div class="text-center p-8 text-gray-400">Loading your media...</div>';
 
+    // Check if Firestore is initialized
+    if (!db) {
+        console.error("Firestore not initialized");
+        notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">You haven\'t uploaded any videos yet.</div>';
+        return;
+    }
+
     // Simplified: Normally would filter by user ID
     db.collection('milk_videos')
         .orderBy('uploadDate', 'desc')
         .get()
         .then((snapshot) => {
             if (snapshot.empty) {
-                notificationsList.innerHTML = '<div class="text-center p-8 text-gray-400">You haven\'t uploaded any videos yet.</div>';
+                notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">You haven\'t uploaded any videos yet.</div>';
                 return;
             }
 
@@ -247,20 +262,20 @@ function renderNotificationsView() {
             snapshot.forEach(doc => {
                 const video = doc.data();
                 const notificationItem = document.createElement('div');
-                notificationItem.className = 'border-b border-gray-700 p-4';
+                notificationItem.className = 'border-b border-gray-200 p-4';
                 
                 let statusClass, statusText;
                 if (video.status === 'Approved') {
-                    statusClass = 'bg-green-900 text-green-300';
+                    statusClass = 'bg-green-100 text-green-700 border border-green-200';
                     statusText = 'Approved';
                 } else if (video.status === 'Rejected') {
-                    statusClass = 'bg-red-900 text-red-300';
+                    statusClass = 'bg-red-100 text-red-700 border border-red-200';
                     statusText = 'Rejected';
                 } else if (video.status === 'Needs Review') {
-                    statusClass = 'bg-yellow-900 text-yellow-300';
+                    statusClass = 'bg-yellow-100 text-yellow-700 border border-yellow-200';
                     statusText = 'Needs Review';
                 } else {
-                    statusClass = 'bg-gray-700 text-gray-300';
+                    statusClass = 'bg-gray-100 text-gray-700 border border-gray-200';
                     statusText = 'Processing';
                 }
                 
@@ -268,7 +283,7 @@ function renderNotificationsView() {
                     <div class="flex items-center justify-between">
                         <div>
                             <span class="px-2 py-1 rounded text-xs ${statusClass}">${statusText}</span>
-                            <span class="text-sm ml-2 text-gray-300">${video.hashtags || 'No hashtags'}</span>
+                            <span class="text-sm ml-2 text-gray-700">${video.hashtags || 'No hashtags'}</span>
                         </div>
                         <span class="text-xs text-gray-500">${formatDate(video.uploadDate)}</span>
                     </div>
@@ -281,7 +296,7 @@ function renderNotificationsView() {
         .catch(error => {
             console.error("Error fetching notifications:", error);
             // Updated to show a friendly message instead of an error
-            notificationsList.innerHTML = '<div class="text-center p-8 text-gray-400">You haven\'t uploaded any videos yet.</div>';
+            notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">You haven\'t uploaded any videos yet.</div>';
         });
 }
 
@@ -296,7 +311,14 @@ function formatDate(timestamp) {
 // Render explore view (mobs)
 function renderExploreView() {
     const exploreContainer = document.getElementById('exploreContainer');
-    exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-400">Loading milk mobs...</div>';
+    exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">Loading milk mobs...</div>';
+
+    // Check if Firestore is initialized
+    if (!db) {
+        console.error("Firestore not initialized");
+        exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
+        return;
+    }
 
     // Get all approved videos grouped by mob
     db.collection('milk_videos')
@@ -304,7 +326,7 @@ function renderExploreView() {
         .get()
         .then((snapshot) => {
             if (snapshot.empty) {
-                exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-400">No mobs formed yet. Videos need approval first!</div>';
+                exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
                 return;
             }
 
@@ -320,7 +342,7 @@ function renderExploreView() {
             });
 
             if (Object.keys(mobs).length === 0) {
-                exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-400">No mobs formed yet. Videos need approval first!</div>';
+                exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
                 return;
             }
 
@@ -330,16 +352,16 @@ function renderExploreView() {
                 mobSection.className = 'mb-8';
                 
                 mobSection.innerHTML = `
-                    <h3 class="text-lg font-medium mb-3 fairlife-blue">${mob} <span class="text-sm text-gray-400">(${videos.length})</span></h3>
+                    <h3 class="text-lg font-medium mb-3 fairlife-blue">${mob} <span class="text-sm text-gray-500">(${videos.length})</span></h3>
                     <div class="grid grid-cols-2 gap-2">
                         ${videos.map(video => `
-                            <div class="bg-gray-800 rounded-lg overflow-hidden shadow-md">
+                            <div class="card-bg rounded-lg overflow-hidden shadow-sm border border-gray-200">
                                 ${video.thumbnail_url ? 
                                     `<img src="${video.thumbnail_url}" alt="Video thumbnail" class="w-full h-32 object-cover">` :
-                                    `<div class="w-full h-32 bg-gray-700 flex items-center justify-center text-gray-500">No Thumbnail</div>`
+                                    `<div class="w-full h-32 bg-gray-100 flex items-center justify-center text-gray-500">No Thumbnail</div>`
                                 }
                                 <div class="p-2">
-                                    <p class="text-xs text-gray-400 truncate">${video.hashtags || 'No hashtags'}</p>
+                                    <p class="text-xs text-gray-700 truncate">${video.hashtags || 'No hashtags'}</p>
                                 </div>
                             </div>
                         `).join('')}
@@ -351,7 +373,8 @@ function renderExploreView() {
         })
         .catch(error => {
             console.error("Error fetching mobs:", error);
-            exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-400">Error loading mobs.</div>';
+            // Show a friendly message instead of an error
+            exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
         });
 }
 
@@ -359,6 +382,13 @@ function renderExploreView() {
 function renderReviewView(filterPending = true) {
     const reviewList = document.getElementById('reviewList');
     reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">Loading media for review...</div>';
+
+    // Check if Firestore is initialized
+    if (!db) {
+        console.error("Firestore not initialized");
+        reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">No videos to review at this time.</div>';
+        return;
+    }
 
     // Set up query based on filter
     let query = db.collection('milk_videos');
@@ -392,7 +422,7 @@ function renderReviewView(filterPending = true) {
                     mediaElement = `<div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-500">No Thumbnail</div>`;
                 }
                 
-                // Moderation controls
+                // Moderation controls with updated styling for Fairlife brand
                 const moderationControls = filterPending || video.status === 'Needs Review' ? 
                     `<div class="flex flex-wrap gap-2 mt-2">
                         <button class="approve-btn px-3 py-1 bg-fairlife-blue text-white rounded-md hover:bg-blue-600" data-video-id="${videoId}">
@@ -470,7 +500,7 @@ async function handleReviewAction(videoId, status, mob) {
                   document.querySelector(`.reject-btn[data-video-id="${videoId}"]`)?.parentNode;
         
         if (btn) {
-            btn.innerHTML = '<span class="text-gray-400">Processing...</span>';
+            btn.innerHTML = '<span class="text-gray-500">Processing...</span>';
         }
         
         // Submit to webhook for processing
@@ -492,17 +522,17 @@ async function handleReviewAction(videoId, status, mob) {
 // Event listeners for the moderation view filter buttons
 pendingReviewBtn.addEventListener('click', function() {
     this.classList.add('bg-fairlife-blue');
-    this.classList.remove('bg-gray-700');
+    this.classList.remove('bg-gray-200');
     allVideosBtn.classList.remove('bg-fairlife-blue');
-    allVideosBtn.classList.add('bg-gray-700');
+    allVideosBtn.classList.add('bg-gray-200');
     renderReviewView(true);
 });
 
 allVideosBtn.addEventListener('click', function() {
     this.classList.add('bg-fairlife-blue');
-    this.classList.remove('bg-gray-700');
+    this.classList.remove('bg-gray-200');
     pendingReviewBtn.classList.remove('bg-fairlife-blue');
-    pendingReviewBtn.classList.add('bg-gray-700');
+    pendingReviewBtn.classList.add('bg-gray-200');
     renderReviewView(false);
 });
 
@@ -512,18 +542,26 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHomeView();
     
     // Listen for real-time updates to videos
-    db.collection('milk_videos').onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-            // If currently in notifications or home view, update the display
-            if (!document.getElementById('notificationsView').classList.contains('hidden')) {
-                renderNotificationsView();
-            } else if (!document.getElementById('homeView').classList.contains('hidden')) {
-                renderHomeView();
-            } else if (!document.getElementById('exploreView').classList.contains('hidden')) {
-                renderExploreView();
-            } else if (!document.getElementById('reviewView').classList.contains('hidden')) {
-                renderReviewView(pendingReviewBtn.classList.contains('bg-fairlife-blue'));
-            }
+    try {
+        db.collection('milk_videos').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                // If currently in notifications or home view, update the display
+                if (!document.getElementById('notificationsView').classList.contains('hidden')) {
+                    renderNotificationsView();
+                } else if (!document.getElementById('homeView').classList.contains('hidden')) {
+                    renderHomeView();
+                } else if (!document.getElementById('exploreView').classList.contains('hidden')) {
+                    renderExploreView();
+                } else if (!document.getElementById('reviewView').classList.contains('hidden')) {
+                    renderReviewView(pendingReviewBtn.classList.contains('bg-fairlife-blue'));
+                }
+            });
+        }, error => {
+            console.error("Error in snapshot listener:", error);
+            // Continue with the app even if real-time updates fail
         });
-    });
+    } catch (error) {
+        console.error("Failed to set up snapshot listener:", error);
+        // Continue with the app even if real-time updates fail
+    }
 });
