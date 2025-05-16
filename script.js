@@ -1150,6 +1150,21 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         });
     }
     
+    // Add edit mob button handler
+    const editMobBtn = document.getElementById('editMobBtn');
+    if (editMobBtn) {
+        editMobBtn.addEventListener('click', () => {
+            const editForm = document.getElementById('mobEditForm');
+            if (editForm.classList.contains('hidden')) {
+                editForm.classList.remove('hidden');
+                editMobBtn.classList.add('bg-gray-300');
+            } else {
+                editForm.classList.add('hidden');
+                editMobBtn.classList.remove('bg-gray-300');
+            }
+        });
+    }
+    
     // Add update mob button handler
     const updateMobBtn = document.getElementById('updateMobBtn');
     if (updateMobBtn) {
@@ -1167,6 +1182,12 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     mob: newMob
                 });
                 
+                // Update the display
+                const mobDisplay = document.getElementById('mobDisplay');
+                if (mobDisplay) {
+                    mobDisplay.textContent = newMob;
+                }
+                
                 // Show success feedback
                 updateMobBtn.textContent = "Updated!";
                 updateMobBtn.classList.add('bg-green-500');
@@ -1178,6 +1199,10 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 setTimeout(() => {
                     updateMobBtn.textContent = "Update";
                     updateMobBtn.classList.remove('bg-green-500');
+                    
+                    // Hide the edit form
+                    document.getElementById('mobEditForm').classList.add('hidden');
+                    document.getElementById('editMobBtn').classList.remove('bg-gray-300');
                 }, 2000);
                 
             } catch (error) {
