@@ -13,11 +13,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'fairlife-blue': '#3c8dc6', // Updated to the requested blue color
-                        'fairlife-dark-blue': '#18437c', // Dark blue from header
-                        'fairlife-navy': '#172b49', // Navy color in the app
+                        'fairlife-blue': '#00a3e0', // Bright blue from bottle
+                        'fairlife-dark-blue': '#18437c', // Dark blue from navigation
+                        'fairlife-navy': '#172b49', // Navy color from their logo background
                         'fairlife-light': '#f5f7fa', // Light background
                         'fairlife-brown': '#4e332c', // Brown color from top bar
+                        'fairlife-beige': '#e8d8c3', // Beige background from hero section
                     }
                 }
             }
@@ -32,23 +33,23 @@
             padding-bottom: 80px;
         }
         .fairlife-blue {
-            color: #3c8dc6; /* Updated to requested blue */
+            color: #00a3e0; /* Bright blue from bottle */
         }
         .bg-fairlife-blue {
-            background-color: #3c8dc6; /* Updated to requested blue */
+            background-color: #00a3e0; /* Bright blue from bottle */
         }
         .border-fairlife-blue {
-            border-color: #3c8dc6; /* Updated to requested blue */
+            border-color: #00a3e0; /* Bright blue from bottle */
         }
         .header-blue {
-            background-color: #3c8dc6; /* Updated to requested blue */
+            background-color: #18437c; /* Dark blue from navigation */
         }
         .header-brown {
-            background-color: #4e332c;
+            background-color: #e8d8c3; /* Changed to beige from hero section */
             height: 12px;
         }
         
-        /* Update the dark theme to be less harsh and more like the Fairlife site */
+        /* Update the theme to be closer to Fairlife site */
         .bg-app {
             background-color: #ffffff;
         }
@@ -71,20 +72,20 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥛</text></svg>" />
 </head>
 <body class="bg-app text-gray-800">
-    <!-- Brown top bar -->
+    <!-- Top bar in beige matching the hero section -->
     <div class="header-brown fixed top-0 left-0 right-0 z-10"></div>
     
-    <!-- Main header with logo -->
+    <!-- Main header with logo in dark blue like website navigation -->
     <header class="header-blue shadow-md fixed top-3 left-0 right-0 z-10">
         <div class="max-w-screen-md mx-auto flex justify-center items-center h-16 px-4">
             <!-- Logo container with custom styling -->
             <div class="flex items-center">
-                <!-- Updated logo with new blue cow and white markings -->
+                <!-- Updated logo with blue cow and white markings to match bottle -->
                 <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-1">
-                    <!-- Cow face/body in the requested blue -->
-                    <path d="M50 15C35.5 15 25 25 25 40C25 55 35 65 50 65C65 65 75 55 75 40C75 25 64.5 15 50 15ZM35 35C37.8 35 40 37.2 40 40C40 42.8 37.8 45 35 45C32.2 45 30 42.8 30 40C30 37.2 32.2 35 35 35ZM65 35C67.8 35 70 37.2 70 40C70 42.8 67.8 45 65 45C62.2 45 60 42.8 60 40C60 37.2 62.2 35 65 35Z" fill="#3c8dc6"/>
-                    <!-- Cow udder in the requested blue -->
-                    <path d="M50 85C58.3 85 65 78.3 65 70V65H35V70C35 78.3 41.7 85 50 85Z" fill="#3c8dc6"/>
+                    <!-- Cow face/body in bright blue from bottle -->
+                    <path d="M50 15C35.5 15 25 25 25 40C25 55 35 65 50 65C65 65 75 55 75 40C75 25 64.5 15 50 15ZM35 35C37.8 35 40 37.2 40 40C40 42.8 37.8 45 35 45C32.2 45 30 42.8 30 40C30 37.2 32.2 35 35 35ZM65 35C67.8 35 70 37.2 70 40C70 42.8 67.8 45 65 45C62.2 45 60 42.8 60 40C60 37.2 62.2 35 65 35Z" fill="#00a3e0"/>
+                    <!-- Cow udder in bright blue -->
+                    <path d="M50 85C58.3 85 65 78.3 65 70V65H35V70C35 78.3 41.7 85 50 85Z" fill="#00a3e0"/>
                     <!-- White exclamation mark center -->
                     <circle cx="50" cy="50" r="10" fill="white"/>
                     <!-- White exclamation mark top -->
