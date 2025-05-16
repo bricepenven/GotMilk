@@ -874,20 +874,37 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-3">
-                        <label for="mobInput" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                        ${videoData.mob ? 
-                            `<div class="flex space-x-2">
-                                <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${videoData.mob}">
-                                <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
+                        <label for="${videoData.mob ? 'mobDisplay' : 'mobSelect'}" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                        ${videoData.status === 'Rejected' ? 
+                            `<div class="px-3 py-2 bg-gray-100 rounded-md text-gray-500 text-sm italic">
+                                No mob assigned (rejected)
                              </div>` 
                             : 
-                            `<select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                <option value="">Select Mob</option>
-                                <option value="Dairy Dragons">Dairy Dragons</option>
-                                <option value="Milk Masters">Milk Masters</option>
-                                <option value="Calcium Crew">Calcium Crew</option>
-                                <option value="Lactose Legion">Lactose Legion</option>
-                             </select>`
+                            videoData.mob ? 
+                                `<div class="flex items-center space-x-2">
+                                    <div id="mobDisplay" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
+                                        ${videoData.mob}
+                                    </div>
+                                    <button id="editMobBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="mobEditForm" class="hidden mt-2">
+                                    <div class="flex space-x-2">
+                                        <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${videoData.mob}">
+                                        <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
+                                    </div>
+                                </div>` 
+                                : 
+                                `<select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="">Select Mob</option>
+                                    <option value="Dairy Dragons">Dairy Dragons</option>
+                                    <option value="Milk Masters">Milk Masters</option>
+                                    <option value="Calcium Crew">Calcium Crew</option>
+                                    <option value="Lactose Legion">Lactose Legion</option>
+                                 </select>`
                         }
                     </div>
                     
@@ -1042,19 +1059,47 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 videoData.status = 'Approved';
                 videoData.mob = mob;
                 
-                // Convert the select to an input field if we just approved
-                const mobContainer = document.querySelector('[for="mobInput"]').parentNode;
-                if (mobSelect && !mobInput) {
-                    mobContainer.innerHTML = `
-                        <label for="mobInput" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                // Update the mob display to show edit mode instead of dropdown
+                const mobContainer = document.querySelector('[for="mobInput"], [for="mobSelect"]').parentNode;
+                mobContainer.innerHTML = `
+                    <label for="mobDisplay" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                    <div class="flex items-center space-x-2">
+                        <div id="mobDisplay" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
+                            ${mob}
+                        </div>
+                        <button id="editMobBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="mobEditForm" class="hidden mt-2">
                         <div class="flex space-x-2">
                             <input type="text" id="mobInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" value="${mob}">
                             <button id="updateMobBtn" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Update</button>
                         </div>
-                    `;
+                    </div>
+                `;
                     
-                    // Add event listener to the new update button
-                    document.getElementById('updateMobBtn').addEventListener('click', async () => {
+                // Add event listeners for the mob editing
+                const editMobBtn = document.getElementById('editMobBtn');
+                if (editMobBtn) {
+                    editMobBtn.addEventListener('click', () => {
+                        const editForm = document.getElementById('mobEditForm');
+                        if (editForm.classList.contains('hidden')) {
+                            editForm.classList.remove('hidden');
+                            editMobBtn.classList.add('bg-gray-300');
+                        } else {
+                            editForm.classList.add('hidden');
+                            editMobBtn.classList.remove('bg-gray-300');
+                        }
+                    });
+                }
+                
+                // Add event listener for the update button
+                const updateMobBtn = document.getElementById('updateMobBtn');
+                if (updateMobBtn) {
+                    updateMobBtn.addEventListener('click', async () => {
                         const newMobInput = document.getElementById('mobInput');
                         const newMob = newMobInput ? newMobInput.value.trim() : '';
                         
@@ -1068,18 +1113,27 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                                 mob: newMob
                             });
                             
+                            // Update the display
+                            const mobDisplay = document.getElementById('mobDisplay');
+                            if (mobDisplay) {
+                                mobDisplay.textContent = newMob;
+                            }
+                            
                             // Show success feedback
-                            const updateBtn = document.getElementById('updateMobBtn');
-                            updateBtn.textContent = "Updated!";
-                            updateBtn.classList.add('bg-green-500');
+                            updateMobBtn.textContent = "Updated!";
+                            updateMobBtn.classList.add('bg-green-500');
                             
                             // Update the videoData object
                             videoData.mob = newMob;
                             
                             // Reset after 2 seconds
                             setTimeout(() => {
-                                updateBtn.textContent = "Update";
-                                updateBtn.classList.remove('bg-green-500');
+                                updateMobBtn.textContent = "Update";
+                                updateMobBtn.classList.remove('bg-green-500');
+                                
+                                // Hide the edit form
+                                document.getElementById('mobEditForm').classList.add('hidden');
+                                document.getElementById('editMobBtn').classList.remove('bg-gray-300');
                             }, 2000);
                             
                         } catch (error) {
@@ -1154,6 +1208,15 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 // Update the videoData object
                 videoData.status = 'Rejected';
                 
+                // Remove mob display since rejected videos shouldn't have a mob
+                const mobContainer = document.querySelector('[for="mobInput"], [for="mobSelect"], [for="mobDisplay"]').parentNode;
+                mobContainer.innerHTML = `
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                    <div class="px-3 py-2 bg-gray-100 rounded-md text-gray-500 text-sm italic">
+                        No mob assigned (rejected)
+                    </div>
+                `;
+                
             } catch (error) {
                 console.error("Error rejecting video:", error);
                 alert("Failed to reject video. Please try again.");
@@ -1207,10 +1270,11 @@ async function rejectVideo(videoId) {
     try {
         console.log(`Rejecting video ${videoId}`);
         
-        // Update Firestore
+        // Update Firestore - remove mob when rejecting
         await db.collection('milk_videos').doc(videoId).update({
             status: 'Rejected',
             needsReview: false,
+            mob: firebase.firestore.FieldValue.delete(), // Remove mob field
             reviewDate: firebase.firestore.FieldValue.serverTimestamp()
         });
         
