@@ -434,6 +434,7 @@ function showVideoDetails(videoId, videoData) {
                             <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
                         </div>
                         <div>
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
                             ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
@@ -871,12 +872,6 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
-                        <div class="px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm">
-                            ${videoData.recommendedMob || 'None assigned'}
-                        </div>
-                    </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-3">
                         <div>
