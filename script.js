@@ -14,7 +14,7 @@ const db = firebase.firestore();  // for storing all the video metadata
 const storage = firebase.storage();  // for storing the actual video files
 
 // Add the webhook URL - this connects to our n8n workflow for video processing
-const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
+const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook-test/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
 // CORS proxy URL as a fallback because browsers are bitchy about cross-origin requests
 const corsProxyUrl = "https://corsproxy.io/?";
 
