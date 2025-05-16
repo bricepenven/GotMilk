@@ -28,3 +28,283 @@
 
 # 2025-05-16 11:36:24.965848
 +/run open index.html
+
+# 2025-05-16 11:37:36.316535
++the two only media i have currently, arent next to each other, should stack ththree horizontal and unlimited scroll down. 
+
+# 2025-05-16 11:38:27.342266
++y
+
+# 2025-05-16 11:38:27.346188
++/run open index.html
+
+# 2025-05-16 11:38:27.346311
++/run open index.html
+
+# 2025-05-16 11:39:20.701105
++in milk mobs currently its categorized by general or #, it should be categorized by recommendedMob
+
+# 2025-05-16 11:39:36.717049
++y
+
+# 2025-05-16 11:39:36.721011
++/run open index.html
+
+# 2025-05-16 11:39:36.721153
++/run open index.html
+
+# 2025-05-16 11:40:48.332933
++the milk mobs should also only show thumbnail just like the home tab, and can be opened for preview just like home tab. Also in activity, only show the thumbnail, same size as right now tho.
+
+# 2025-05-16 11:41:41.827293
++y
+
+# 2025-05-16 11:41:41.831302
++/run open index.html
+
+# 2025-05-16 11:41:41.831434
++/run open index.html
+
+# 2025-05-16 11:43:07.266172
++in the home tab when click on a video, we see approved, hastags, tag, we should also see the mob, upload date, and the name of the original media that we can manually change if needed. 
+
+# 2025-05-16 11:44:03.998172
++y
+
+# 2025-05-16 11:44:04.002365
++/run open index.html
+
+# 2025-05-16 11:44:04.002496
++/run open index.html
+
+# 2025-05-16 11:44:37.628756
++no you must show the original file name when it was uploaded, then edit button, we can change it if needed. 
+
+# 2025-05-16 11:45:25.506768
++y
+
+# 2025-05-16 11:45:25.510718
++/run open index.html
+
+# 2025-05-16 11:45:25.510856
++/run open index.html
+
+# 2025-05-16 11:46:13.651459
++i have saved a new name, it's not taken into account, I still have my original name
+
+# 2025-05-16 11:46:42.634097
++y
+
+# 2025-05-16 11:46:42.638200
++/run open index.html
+
+# 2025-05-16 11:46:42.638311
++/run open index.html
+
+# 2025-05-16 11:49:46.915171
++instead of Recommended Mob = Milk Mob, in Moderation panel - all media. Same style as thumbnail / preview but we should also be able to change the status manually from Approved to Rejected and vice versa in case someone made an error on the initial review. Same metadata as well. 
+
+# 2025-05-16 11:51:18.497562
++y
+
+# 2025-05-16 11:51:18.501547
++/run open index.html
+
+# 2025-05-16 11:51:18.501673
++/run open index.html
+
+# 2025-05-16 11:52:34.539160
++I still see recommended mob instead of Milk Mob when previewing a media. In moderation panel, the drop down menu should only be available for mob if there's no mobs, otherwise we should be able to edit the field to change it if needed. 
+
+# 2025-05-16 11:53:22.177403
++y
+
+# 2025-05-16 11:53:22.181400
++/run open index.html
+
+# 2025-05-16 11:53:22.181520
++/run open index.html
+
+# 2025-05-16 11:54:57.277020
++in moderation when previewing a media, the dropdown menu for milk mob is still present even tho there's a milk mob already. I should only be able to edit it if there's a milk mob already. Drop down should show up if there's none. Also in the same tab, rename recommended mob to milk mob.
+
+# 2025-05-16 11:55:33.904572
++y
+
+# 2025-05-16 11:55:33.908336
++/run open index.html
+
+# 2025-05-16 11:55:33.908454
++/run open index.html
+
+# 2025-05-16 11:56:55.507467
++DUDE. IN MODERATE TAB, WHEN OPENING A MEDIA IF THAT MEDIA ALREADY HAVE A MILK MOB, YOU SHOULDN'T SHOW ME THE DROP DOWN MENU TO CHANGE IT, YOU SHOULD SHOW A PEN TO ENTER EDIT MODE TO CHANGE IT. BUT IF THERE'S ANY THEN YES YOU CHANGE IT. IF WE REJECT A MEDIA NO MILK MOB SHOULD BE PRESENT.
+
+# 2025-05-16 11:58:24.297358
++y
+
+# 2025-05-16 11:58:24.301183
++/run open index.html
+
+# 2025-05-16 11:58:24.301414
++/run open index.html
+
+# 2025-05-16 11:59:47.153311
++ok you dont understand asshole. If my media already have a mob assign, you should only allow me to edit it and save it, you shouldn;t show me the drop down menu of the mobs. However, if there's any mob assigned that's fine, but there's no saved button, so right now, its not saving.
+
+# 2025-05-16 12:00:27.139231
++y
+
+# 2025-05-16 12:00:27.143258
++/run open index.html
+
+# 2025-05-16 12:00:27.143372
++/run open index.html
+
+# 2025-05-16 12:01:58.518131
++you arent making any changes fucktwat. I guess let's just add a saved button when changing a milk mob
+
+# 2025-05-16 12:04:31.469889
++y
+
+# 2025-05-16 12:04:31.473708
++/run open index.html
+
+# 2025-05-16 12:04:31.473840
++/run open index.html
+
+# 2025-05-16 12:05:32.164470
++YOU STILL ARENT CHANGING A FUCKING THING ASSHOLE. UNDER MODERATE, ALL MEDIA WHEN I OPEN A MEDIA, I SEE A DROP DOWN TO CHANGE MILK MOB, HOWEVER WHEN I CHANGE NOTHING HAPPENS. 
+
+# 2025-05-16 12:07:25.160133
++y
+
+# 2025-05-16 12:07:25.164047
++/run open index.html
+
+# 2025-05-16 12:07:25.164182
++/run open index.html
+
+# 2025-05-16 12:08:21.111249
++ok now it's just not changeing the milk mob in the database... so even tho the drop down is update not the Milk Mob field. 
+
+# 2025-05-16 12:08:58.215620
++y
+
+# 2025-05-16 12:08:58.219505
++/run open index.html
+
+# 2025-05-16 12:08:58.219640
++/run open index.html
+
+# 2025-05-16 12:09:56.503386
++you know what, you are a moron, scratch completely the change of milk mob
+
+# 2025-05-16 12:11:22.547202
++y
+
+# 2025-05-16 12:11:22.550998
++/run open index.html
+
+# 2025-05-16 12:11:22.551114
++/run open index.html
+
+# 2025-05-16 12:12:06.973242
++OMG FUCKING MORON, REMOVE THE DROP DOWN FROM MODERATE TAB so we can't change the milk mob. Also rename in the home preview the Recommended MOb to Milk Mob
+
+# 2025-05-16 12:12:34.553083
++y
+
+# 2025-05-16 12:12:34.557082
++/run open index.html
+
+# 2025-05-16 12:12:34.557222
++/run open index.html
+
+# 2025-05-16 12:14:10.232121
++Imma kill you, why do we have two blue field for mob now ? I need one that says "Mob Milk" and display the name of the mob based on the firestore document field : recommendedMob. Remove the other "mob" keep only one Milk Mob link to firestore. 
+
+# 2025-05-16 12:14:57.067555
++y
+
+# 2025-05-16 12:14:57.071430
++/run open index.html
+
+# 2025-05-16 12:14:57.071569
++/run open index.html
+
+# 2025-05-16 13:12:41.583300
++/var/folders/nr/96pkmlk543516kk2lcxg60fh0000gn/T/TemporaryItems/NSIRD_screencaptureui_rSgEX8/Screenshot\ 2025-05-16\ at\ 1.12.28 PM.png i still see this under moderate
+
+# 2025-05-16 13:13:14.158122
++i still see this under moderate / media preview: Milk Mob
++Milk Masters. Should only see one Milk Mob field in blue.
+
+# 2025-05-16 13:22:56.737250
++y
+
+# 2025-05-16 13:22:56.740906
++/run open index.html
+
+# 2025-05-16 13:22:56.741022
++/run open index.html
+
+# 2025-05-16 13:23:45.760730
++talking about div.mb3 under moderate/review media, MORON
+
+# 2025-05-16 13:44:36.004520
++y
+
+# 2025-05-16 13:44:36.008297
++/run open index.html
+
+# 2025-05-16 13:44:36.008389
++/run open index.html
+
+# 2025-05-16 13:46:34.930309
++you removed it from the home tab asshole. bring back the field Mob Milk with the proper tab for the home tab, and bring it back as well on the moderate, milk mobs tab. Remove the current milk mob field in moderate : flex items-center justify-between mb-3 OR IM GONNA CUT YOU BITCH
+
+# 2025-05-16 13:50:08.738266
++y
+
+# 2025-05-16 13:50:08.741968
++/run open index.html
+
+# 2025-05-16 13:50:08.742069
++/run open index.html
+
+# 2025-05-16 13:50:44.946525
++so the Milk Mob available in home, i want it in moderate tab as well, same degisn. 
+
+# 2025-05-16 13:51:15.712263
++y
+
+# 2025-05-16 13:51:15.716180
++/run open index.html
+
+# 2025-05-16 13:51:15.716297
++/run open index.html
+
+# 2025-05-16 13:52:42.528074
++in activity, there's a media without the Mob, but when I open it there's one associated to it... Also rename the field of the activity tab for Mob to Milk Mob
+
+# 2025-05-16 13:53:32.762595
++y
+
+# 2025-05-16 13:53:32.766394
++/run open index.html
+
+# 2025-05-16 13:53:32.766639
++/run open index.html
+
+# 2025-05-16 13:53:56.920208
++any reason why I cant see the thumbnail in activity ? I only see a Processing thumbnail
+
+# 2025-05-16 13:54:28.542051
++y
+
+# 2025-05-16 13:54:28.544872
++/run open index.html
+
+# 2025-05-16 13:54:28.544956
++/run open index.html
