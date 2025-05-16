@@ -21,8 +21,8 @@ const uploadStatus = document.getElementById('uploadStatus');
 const pendingReviewBtn = document.getElementById('pendingReviewBtn');
 const allVideosBtn = document.getElementById('allVideosBtn');
 
-// N8N webhook URL for video processing - updated with your actual webhook URL
-const webhookUrl = 'https://jinthoa.app.n8n.cloud/webhook-test/webhook-test/{{$workflow.id}}';
+// N8N webhook URL for video processing - use the correct webhook URL
+const webhookUrl = 'https://jinthoa.app.n8n.cloud/webhook-test/188f3bac-7c25-4d92-a1ba-020b6878607d';
 
 // Navigation
 tabs.forEach(tab => {
