@@ -753,81 +753,314 @@ function renderReviewView(pendingOnly = true) {
                 return;
             }
 
+            // Create a grid layout for the videos
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 gap-3';
             reviewList.innerHTML = '';
+            reviewList.appendChild(grid);
+            
             snapshot.forEach(doc => {
                 const video = doc.data();
                 const videoId = doc.id;
                 
-                const item = document.createElement('div');
-                item.className = 'bg-white rounded-lg overflow-hidden shadow-md mb-4';
+                const card = document.createElement('div');
+                card.className = 'aspect-square relative overflow-hidden bg-white rounded-lg shadow-sm';
+                card.setAttribute('data-video-id', videoId);
                 
-                // Create review item
+                // Create thumbnail with overlay
+                let thumbnailUrl = video.thumbnailUrl || '';
                 let mediaContent;
-                if (video.thumbnailUrl) {
-                    mediaContent = `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-48 object-cover">`;
+                
+                if (thumbnailUrl) {
+                    // If we have a thumbnail
+                    mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
+                } else if (video.videoUrl) {
+                    // If we have video but no thumbnail, show first frame of video
+                    mediaContent = `
+                        <video class="w-full h-full object-cover" muted>
+                            <source src="${video.videoUrl}" type="video/mp4">
+                        </video>
+                    `;
                 } else {
-                    mediaContent = `<video src="${video.videoUrl}" class="w-full h-48 object-cover" controls></video>`;
+                    // Fallback if no media is available
+                    mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-500">Processing</span>
+                    </div>`;
                 }
                 
-                const isReviewable = pendingOnly || video.needsReview;
-                const actionButtons = isReviewable ? `
-                    <div class="flex space-x-2 mt-3">
-                        <button class="approve-btn px-3 py-1.5 bg-fairlife-blue text-white rounded" data-id="${videoId}">Approve</button>
-                        <button class="reject-btn px-3 py-1.5 bg-red-500 text-white rounded" data-id="${videoId}">Reject</button>
-                        <select class="mob-select px-2 py-1.5 border border-gray-300 rounded bg-white" data-id="${videoId}">
-                            <option value="">Select Mob</option>
-                            <option value="Dairy Dragons">Dairy Dragons</option>
-                            <option value="Milk Masters">Milk Masters</option>
-                            <option value="Calcium Crew">Calcium Crew</option>
-                            <option value="Lactose Legion">Lactose Legion</option>
-                        </select>
-                    </div>
-                ` : '';
+                // Add status badge
+                let statusBadge = '';
+                if (video.status === 'Approved') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                } else if (video.status === 'Pending Review') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
+                } else if (video.status === 'Rejected') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';
+                }
                 
-                item.innerHTML = `
-                    <div class="relative">
-                        ${mediaContent}
-                        <span class="absolute top-2 right-2 px-2 py-1 text-xs rounded ${getStatusClass(video.status)}">${video.status || 'Processing'}</span>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-gray-600 text-sm">${formatDate(video.uploadDate)}</p>
-                        <p class="text-gray-800 mt-1">${video.hashtags || 'No hashtags'}</p>
-                        ${video.mob ? `<p class="text-sm text-fairlife-blue mt-1">Mob: ${video.mob}</p>` : ''}
-                        ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
-                        ${actionButtons}
-                    </div>
+                card.innerHTML = `
+                    ${mediaContent}
+                    ${statusBadge}
                 `;
                 
-                reviewList.appendChild(item);
-            });
-            
-            // Add event listeners for buttons
-            document.querySelectorAll('.approve-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    const mobSelect = document.querySelector(`.mob-select[data-id="${id}"]`);
-                    const mob = mobSelect ? mobSelect.value : '';
-                    
-                    if (!mob) {
-                        alert('Please select a mob before approving.');
-                        return;
-                    }
-                    
-                    approveVideo(id, mob);
+                // Add click event to show video details with moderation options
+                card.addEventListener('click', () => {
+                    showVideoDetailsWithModeration(videoId, video);
                 });
-            });
-            
-            document.querySelectorAll('.reject-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    rejectVideo(id);
-                });
+                
+                grid.appendChild(card);
             });
         })
         .catch(error => {
             console.error("Error fetching videos for review:", error);
             reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">Error loading videos for review.</div>';
         });
+}
+
+// Function to show video details with moderation options
+function showVideoDetailsWithModeration(videoId, videoData) {
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+    modal.id = 'videoModal';
+    
+    // Create modal content
+    let videoElement = '';
+    if (videoData.videoUrl) {
+        videoElement = `
+            <video controls autoplay class="max-h-[50vh] max-w-full rounded-lg">
+                <source src="${videoData.videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    } else {
+        videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
+    }
+    
+    // Status indicator with appropriate color
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';
+    if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
+    if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium">Moderate Video</h3>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                ${videoElement}
+                
+                <div class="mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                        
+                        <div class="flex space-x-2">
+                            <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
+                                Approve
+                            </button>
+                            <button id="rejectBtn" class="px-3 py-1 bg-red-500 text-white rounded text-sm ${videoData.status === 'Rejected' ? 'opacity-50' : ''}">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="mobSelect" class="block text-sm font-medium text-gray-700 mb-1">Milk Mob</label>
+                        <select id="mobSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">Select Mob</option>
+                            <option value="Dairy Dragons" ${videoData.mob === 'Dairy Dragons' ? 'selected' : ''}>Dairy Dragons</option>
+                            <option value="Milk Masters" ${videoData.mob === 'Milk Masters' ? 'selected' : ''}>Milk Masters</option>
+                            <option value="Calcium Crew" ${videoData.mob === 'Calcium Crew' ? 'selected' : ''}>Calcium Crew</option>
+                            <option value="Lactose Legion" ${videoData.mob === 'Lactose Legion' ? 'selected' : ''}>Lactose Legion</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                            <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
+                            <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                        </div>
+                        <div>
+                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Recommended Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                                ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
+                                ${videoData.mediaName ? 
+                                    `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
+                                    ''}
+                            </div>
+                            <button id="editMediaNameBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                Edit
+                            </button>
+                        </div>
+                        
+                        <div id="mediaNameEditForm" class="hidden">
+                            <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="mediaName" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                    value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
+                                <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add to body
+    document.body.appendChild(modal);
+    
+    // Add close handler
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    // Close when clicking outside the content
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+    
+    // Add edit button handler
+    const editButton = document.getElementById('editMediaNameBtn');
+    if (editButton) {
+        editButton.addEventListener('click', () => {
+            const editForm = document.getElementById('mediaNameEditForm');
+            if (editForm.classList.contains('hidden')) {
+                editForm.classList.remove('hidden');
+                editButton.textContent = "Cancel";
+            } else {
+                editForm.classList.add('hidden');
+                editButton.textContent = "Edit";
+            }
+        });
+    }
+    
+    // Add save media name handler
+    const saveButton = document.getElementById('saveMediaName');
+    if (saveButton) {
+        saveButton.addEventListener('click', async () => {
+            const mediaName = document.getElementById('mediaName').value.trim();
+            
+            try {
+                await db.collection('milk_videos').doc(videoId).update({
+                    mediaName: mediaName
+                });
+                
+                // Update the display with the new name
+                const nameDisplay = modal.querySelector('.flex-1.px-3.py-2.bg-gray-100');
+                if (nameDisplay) {
+                    nameDisplay.innerHTML = `
+                        ${mediaName || videoData.originalFileName || 'Unknown'}
+                        <div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>
+                    `;
+                }
+                
+                // Update the videoData object
+                videoData.mediaName = mediaName;
+                
+                // Show success feedback
+                saveButton.textContent = "Saved!";
+                saveButton.classList.add('bg-green-500');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    saveButton.textContent = "Save";
+                    saveButton.classList.remove('bg-green-500');
+                    
+                    // Hide the edit form
+                    document.getElementById('mediaNameEditForm').classList.add('hidden');
+                    document.getElementById('editMediaNameBtn').textContent = "Edit";
+                }, 2000);
+                
+            } catch (error) {
+                console.error("Error saving media name:", error);
+                alert("Failed to save media name. Please try again.");
+            }
+        });
+    }
+    
+    // Add approve button handler
+    const approveBtn = document.getElementById('approveBtn');
+    if (approveBtn) {
+        approveBtn.addEventListener('click', async () => {
+            const mobSelect = document.getElementById('mobSelect');
+            const mob = mobSelect ? mobSelect.value : '';
+            
+            if (!mob) {
+                alert('Please select a mob before approving.');
+                return;
+            }
+            
+            try {
+                await approveVideo(videoId, mob);
+                
+                // Update UI to reflect the change
+                const statusBadge = modal.querySelector('.inline-block.px-2.py-1.text-xs.rounded');
+                if (statusBadge) {
+                    statusBadge.className = 'inline-block px-2 py-1 text-xs rounded bg-green-100 text-green-800';
+                    statusBadge.textContent = 'Approved';
+                }
+                
+                // Update buttons
+                approveBtn.classList.add('opacity-50');
+                document.getElementById('rejectBtn').classList.remove('opacity-50');
+                
+                // Update the videoData object
+                videoData.status = 'Approved';
+                videoData.mob = mob;
+                
+            } catch (error) {
+                console.error("Error approving video:", error);
+                alert("Failed to approve video. Please try again.");
+            }
+        });
+    }
+    
+    // Add reject button handler
+    const rejectBtn = document.getElementById('rejectBtn');
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', async () => {
+            try {
+                await rejectVideo(videoId);
+                
+                // Update UI to reflect the change
+                const statusBadge = modal.querySelector('.inline-block.px-2.py-1.text-xs.rounded');
+                if (statusBadge) {
+                    statusBadge.className = 'inline-block px-2 py-1 text-xs rounded bg-red-100 text-red-800';
+                    statusBadge.textContent = 'Rejected';
+                }
+                
+                // Update buttons
+                rejectBtn.classList.add('opacity-50');
+                document.getElementById('approveBtn').classList.remove('opacity-50');
+                
+                // Update the videoData object
+                videoData.status = 'Rejected';
+                
+            } catch (error) {
+                console.error("Error rejecting video:", error);
+                alert("Failed to reject video. Please try again.");
+            }
+        });
+    }
 }
 
 // Approve video
