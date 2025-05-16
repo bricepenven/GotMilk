@@ -316,13 +316,14 @@ function renderHomeView() {
             }
 
             // Update the HTML to use a 3-column grid
+            homeGrid.className = 'grid grid-cols-3 gap-2';
             homeGrid.innerHTML = '';
             
             snapshot.forEach(doc => {
                 const video = doc.data();
                 const videoId = doc.id;
                 const card = document.createElement('div');
-                card.className = 'aspect-square relative overflow-hidden max-h-32';
+                card.className = 'aspect-square relative overflow-hidden';
                 card.setAttribute('data-video-id', videoId);
                 
                 // Create thumbnail with overlay
