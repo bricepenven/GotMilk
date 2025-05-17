@@ -260,7 +260,8 @@ async function handleUpload(e) {
                         status: 'Pending Review',  // All videos start as pending
                         needsReview: true,  // Flag for videos that need moderation
                         uploadDate: firebase.firestore.FieldValue.serverTimestamp(),  // Server timestamp
-                        originalFileName: videoFile.name  // Store original filename
+                        originalFileName: videoFile.name,  // Store original filename
+                        score: 0  // Initialize score at 0 until n8n processes it
                     });
                     console.log("Document saved with ID:", docRef.id);
                     
@@ -376,10 +377,17 @@ function renderHomeView() {
                     statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';  // Yellow hourglass
                 }
                 
-                // Combine the media and badge into the card
+                // Add score badge if available
+                let scoreBadge = '';
+                if (typeof video.score === 'number') {
+                    scoreBadge = `<span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded-md">${video.score}/100</span>`;
+                }
+                
+                // Combine the media and badges into the card
                 card.innerHTML = `
                     ${mediaContent}
                     ${statusBadge}
+                    ${scoreBadge}
                 `;
                 
                 // Add click event to show video details when clicked
@@ -431,7 +439,12 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';  // Red for rejected
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';  // Yellow for pending
     
-    // Build the modal HTML - Removed milkTag references
+    // Score display - show score if available
+    const scoreDisplay = typeof videoData.score === 'number' 
+        ? `<div class="bg-black text-white text-sm font-medium rounded px-2 py-1 ml-2">Score: ${videoData.score}/100</div>` 
+        : '';
+    
+    // Build the modal HTML - with score added
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
@@ -449,7 +462,10 @@ function showVideoDetails(videoId, videoData) {
                 ${videoElement}
                 
                 <div class="mt-4">
-                    <span class="inline-block px-2 py-1 text-xs rounded ${statusClass} mb-2">${videoData.status || 'Processing'}</span>
+                    <div class="flex items-center mb-2">
+                        <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                        ${scoreDisplay}
+                    </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-3">
                         <div>
@@ -604,7 +620,12 @@ function renderNotificationsView() {
                 item.className = 'border-b border-gray-200 p-4';  // List item with bottom border
                 item.setAttribute('data-video-id', doc.id);
                 
-                // Create notification item with thumbnail and details - removed milkTag
+                // Create score display if available
+                const scoreDisplay = typeof video.score === 'number' 
+                    ? `<div class="text-xs font-medium bg-black text-white px-2 py-0.5 rounded ml-2">Score: ${video.score}/100</div>` 
+                    : '';
+                
+                // Create notification item with thumbnail and details - added score
                 item.innerHTML = `
                     <div class="flex items-start space-x-3">
                         <!-- Thumbnail section -->
@@ -620,9 +641,10 @@ function renderNotificationsView() {
                         </div>
                         <!-- Details section -->
                         <div class="flex-1">
-                            <div class="flex justify-between items-start">
+                            <div class="flex items-center">
                                 <span class="inline-block px-2 py-1 text-xs rounded ${getStatusClass(video.status)}">${video.status || 'Processing'}</span>
-                                <span class="text-xs text-gray-500">${formatDate(video.uploadDate)}</span>
+                                ${scoreDisplay}
+                                <span class="text-xs text-gray-500 ml-auto">${formatDate(video.uploadDate)}</span>
                             </div>
                             <p class="text-sm mt-1">${video.hashtags || 'No hashtags'}</p>
                             ${video.recommendedMob ? `<p class="text-xs text-fairlife-blue mt-1">Milk Mob: ${video.recommendedMob}</p>` : ''}
@@ -741,10 +763,17 @@ function renderExploreView() {
                         statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
                     }
                     
+                    // Add score badge if available
+                    let scoreBadge = '';
+                    if (typeof video.score === 'number') {
+                        scoreBadge = `<span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded-md">${video.score}/100</span>`;
+                    }
+                    
                     // Combine the media and badge into the card
                     card.innerHTML = `
                         ${mediaContent}
                         ${statusBadge}
+                        ${scoreBadge}
                     `;
                     
                     // Add click event to show video details when clicked
@@ -845,10 +874,17 @@ function renderReviewView(pendingOnly = true) {
                     statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';  // Red X
                 }
                 
+                // Add score badge if available
+                let scoreBadge = '';
+                if (typeof video.score === 'number') {
+                    scoreBadge = `<span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded-md">${video.score}/100</span>`;
+                }
+                
                 // Combine the media and badge into the card
                 card.innerHTML = `
                     ${mediaContent}
                     ${statusBadge}
+                    ${scoreBadge}
                 `;
                 
                 // Add click event to show video details with moderation options
@@ -894,7 +930,12 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';  // Red for rejected
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';  // Yellow for pending
     
-    // Build the modal HTML - includes moderation controls - removed milkTag
+    // Score display - show score if available
+    const scoreDisplay = typeof videoData.score === 'number' 
+        ? `<div class="bg-black text-white text-sm font-medium rounded px-2 py-1 ml-2">Score: ${videoData.score}/100</div>` 
+        : '';
+    
+    // Build the modal HTML - includes moderation controls - added score
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
@@ -912,9 +953,12 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 ${videoElement}
                 
                 <div class="mt-4">
-                    <!-- Status and action buttons -->
+                    <!-- Status, score, and action buttons -->
                     <div class="flex items-center justify-between mb-3">
-                        <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                        <div class="flex items-center">
+                            <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                            ${scoreDisplay}
+                        </div>
                         
                         <div class="flex space-x-2">
                             <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
