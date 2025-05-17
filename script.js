@@ -14,7 +14,7 @@ const db = firebase.firestore();  // for storing all the video metadata
 const storage = firebase.storage();  // for storing the actual video files
 
 // Add the webhook URL - this connects to our n8n workflow for video processing
-const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook-test/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
+const webhookUrl = "https://jinthoa.app.n8n.cloud/webhook/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
 // CORS proxy URL as a fallback because browsers are bitchy about cross-origin requests
 const corsProxyUrl = "https://corsproxy.io/?";
 
@@ -322,9 +322,9 @@ function renderHomeView() {
     // Show loading message while we fetch the videos
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
-    // Get all videos sorted by upload date (newest first)
+    // Get all videos EXCEPT rejected ones
     db.collection('milk_videos')
-        .orderBy('uploadDate', 'desc')
+        .where('status', '!=', 'Rejected') // Filter out rejected videos
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos`);
@@ -372,10 +372,8 @@ function renderHomeView() {
                 let statusBadge = '';
                 if (video.status === 'Approved') {
                     statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';  // Green checkmark
-                } else if (video.status === 'Pending Review') {
+                } else if (video.status === 'Pending Review' || video.needsReview) {
                     statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';  // Yellow hourglass
-                } else if (video.status === 'Rejected') {
-                    statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';  // Red X
                 }
                 
                 // Combine the media and badge into the card
@@ -843,7 +841,7 @@ function renderReviewView(pendingOnly = true) {
                 let statusBadge = '';
                 if (video.status === 'Approved') {
                     statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';  // Green checkmark
-                } else if (video.status === 'Pending Review') {
+                } else if (video.status === 'Pending Review' || video.needsReview) {
                     statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';  // Yellow hourglass
                 } else if (video.status === 'Rejected') {
                     statusBadge = '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">✕</span>';  // Red X
