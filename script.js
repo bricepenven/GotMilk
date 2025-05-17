@@ -431,7 +431,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';  // Red for rejected
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';  // Yellow for pending
     
-    // Build the modal HTML
+    // Build the modal HTML - Removed milkTag references
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
@@ -458,7 +458,6 @@ function showVideoDetails(videoId, videoData) {
                         </div>
                         <div>
                             ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
-                            ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
                     
@@ -605,7 +604,7 @@ function renderNotificationsView() {
                 item.className = 'border-b border-gray-200 p-4';  // List item with bottom border
                 item.setAttribute('data-video-id', doc.id);
                 
-                // Create notification item with thumbnail and details
+                // Create notification item with thumbnail and details - removed milkTag
                 item.innerHTML = `
                     <div class="flex items-start space-x-3">
                         <!-- Thumbnail section -->
@@ -627,7 +626,6 @@ function renderNotificationsView() {
                             </div>
                             <p class="text-sm mt-1">${video.hashtags || 'No hashtags'}</p>
                             ${video.recommendedMob ? `<p class="text-xs text-fairlife-blue mt-1">Milk Mob: ${video.recommendedMob}</p>` : ''}
-                            ${video.milkTag ? `<p class="text-xs text-purple-700 mt-1 italic">Tag: ${video.milkTag}</p>` : ''}
                         </div>
                     </div>
                 `;
@@ -896,7 +894,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';  // Red for rejected
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';  // Yellow for pending
     
-    // Build the modal HTML - includes moderation controls
+    // Build the modal HTML - includes moderation controls - removed milkTag
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
             <div class="p-4 border-b">
@@ -936,7 +934,6 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                         <div>
                             ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
-                            ${videoData.milkTag ? `<p class="text-sm text-purple-700 italic mb-1"><strong>Tag:</strong> ${videoData.milkTag}</p>` : ''}
                         </div>
                     </div>
                     
