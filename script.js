@@ -418,12 +418,19 @@ function showVideoDetails(videoId, videoData) {
     modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
     modal.id = 'videoModal';
     
+    // Add touchstart event listener to help with mobile interactions
+    modal.addEventListener('touchstart', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+    
     // Create modal content - figure out what to display
     let videoElement = '';
     if (videoData.videoUrl) {
-        // If we have a video URL, show the video player
+        // If we have a video URL, show the video player (autoplay disabled)
         videoElement = `
-            <video controls autoplay class="max-h-[70vh] max-w-full rounded-lg">
+            <video controls class="max-h-[70vh] max-w-full rounded-lg">
                 <source src="${videoData.videoUrl}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -446,11 +453,11 @@ function showVideoDetails(videoId, videoData) {
     
     // Build the modal HTML - with score added
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
-            <div class="p-4 border-b">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="p-4 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-medium">Video Details</h3>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -912,9 +919,9 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     // Create modal content - figure out what to display
     let videoElement = '';
     if (videoData.videoUrl) {
-        // If we have a video URL, show the video player
+        // If we have a video URL, show the video player (autoplay disabled)
         videoElement = `
-            <video controls autoplay class="max-h-[50vh] max-w-full rounded-lg">
+            <video controls class="max-h-[50vh] max-w-full rounded-lg">
                 <source src="${videoData.videoUrl}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -937,11 +944,11 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     
     // Build the modal HTML - includes moderation controls - added score
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden">
-            <div class="p-4 border-b">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="p-4 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-medium">Moderate Video</h3>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>

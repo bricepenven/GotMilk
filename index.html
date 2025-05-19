@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fairlife Social</title>
     <!-- Load Tailwind CSS from CDN - this gives us all our styling without writing CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,6 +31,13 @@
         /* Base styles for the app */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+            touch-action: manipulation; /* Improve touch responsiveness */
+        }
+        
+        /* Improve tap targets for mobile */
+        button, a {
+            touch-action: manipulation;
         }
         /* Make views fill the screen minus the nav bar */
         .view {
