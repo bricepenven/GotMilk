@@ -381,7 +381,7 @@ function renderHomeView() {
                 } else if (video.videoUrl) {
                     // Use a static placeholder with play button instead of trying to load video frames
                     mediaContent = `
-                        <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+                        <div class="relative w-full h-full bg-gray-200 flex items-center justify-center" data-video-url="${video.videoUrl}">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                     <path d="M8 5v14l11-7z"/>
