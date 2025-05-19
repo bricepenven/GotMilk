@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load initial content for home view - this runs when the page first loads
     renderHomeView();
     
+    // Try to preload thumbnails (will use placeholders on iOS)
+    preloadThumbnails();
+    
     // Setup real-time updates - this is the magic that refreshes the UI when data changes
     try {
         db.collection('milk_videos').onSnapshot(snapshot => {
@@ -356,11 +359,15 @@ function renderHomeView() {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // If we have video but no thumbnail, show first frame of video
+                    // If we have video but no thumbnail, use a poster image or placeholder
+                    // Safari has issues with video as thumbnails, so we use a div with background
                     mediaContent = `
-                        <video class="w-full h-full object-cover" muted>
-                            <source src="${video.videoUrl}" type="video/mp4">
-                        </video>
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center" 
+                             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"%2300a3e0\"><path d=\"M8 5v14l11-7z\"/></svg>'); 
+                                    background-position: center; 
+                                    background-repeat: no-repeat; 
+                                    background-size: 32px;">
+                        </div>
                     `;
                 } else {
                     // Fallback if no media is available - shouldn't happen but just in case
@@ -399,11 +406,7 @@ function renderHomeView() {
                 homeGrid.appendChild(card);
             });
             
-            // Initialize video elements if needed - make sure they show the first frame
-            document.querySelectorAll('#homeGrid video').forEach(video => {
-                // Show first frame of video instead of black screen
-                video.currentTime = 0;
-            });
+            // No need to initialize video elements anymore since we're using static placeholders
         })
         .catch(error => {
             console.error("Error fetching videos:", error);
@@ -858,11 +861,15 @@ function renderReviewView(pendingOnly = true) {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // If we have video but no thumbnail, show first frame of video
+                    // If we have video but no thumbnail, use a poster image or placeholder
+                    // Safari has issues with video as thumbnails, so we use a div with background
                     mediaContent = `
-                        <video class="w-full h-full object-cover" muted>
-                            <source src="${video.videoUrl}" type="video/mp4">
-                        </video>
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center" 
+                             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"%2300a3e0\"><path d=\"M8 5v14l11-7z\"/></svg>'); 
+                                    background-position: center; 
+                                    background-repeat: no-repeat; 
+                                    background-size: 32px;">
+                        </div>
                     `;
                 } else {
                     // Fallback if no media is available - shouldn't happen but just in case
@@ -1234,6 +1241,13 @@ async function rejectVideo(videoId) {
         console.error("Error rejecting video:", error);
         alert("Failed to reject video. Please try again.");
     }
+}
+
+// Helper function to preload thumbnails from video URLs
+function preloadThumbnails() {
+    // This function would normally generate thumbnails from videos
+    // But since iOS/Safari has issues with this, we're using static placeholders instead
+    console.log("Using static placeholders for thumbnails on mobile");
 }
 
 // Format date - converts timestamps to readable format
