@@ -359,10 +359,16 @@ function renderHomeView() {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // If we have video but no thumbnail, use a poster image or placeholder
-                    // Safari has issues with video as thumbnails, so we use a div with background
+                    // If we have video but no thumbnail, use a video element with poster attribute
                     mediaContent = `
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <video class="w-full h-full object-cover" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" preload="metadata">
+                            <source src="${video.videoUrl}" type="video/mp4">
+                        </video>
+                    `;
+                    
+                    // Add a play button overlay
+                    mediaContent += `
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
@@ -642,8 +648,11 @@ function renderNotificationsView() {
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
                                 video.videoUrl ?
-                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                                    <video class="w-full h-full object-cover opacity-0" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" preload="metadata">
+                                        <source src="${video.videoUrl}" type="video/mp4">
+                                    </video>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0" class="absolute">
                                         <path d="M8 5v14l11-7z"/>
                                     </svg>
                                 </div>` :
@@ -864,10 +873,16 @@ function renderReviewView(pendingOnly = true) {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // If we have video but no thumbnail, use a poster image or placeholder
-                    // Safari has issues with video as thumbnails, so we use a div with background
+                    // If we have video but no thumbnail, use a video element with poster attribute
                     mediaContent = `
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <video class="w-full h-full object-cover" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" preload="metadata">
+                            <source src="${video.videoUrl}" type="video/mp4">
+                        </video>
+                    `;
+                    
+                    // Add a play button overlay
+                    mediaContent += `
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
@@ -1250,6 +1265,25 @@ function preloadThumbnails() {
     // This function would normally generate thumbnails from videos
     // But since iOS/Safari has issues with this, we're using static placeholders instead
     console.log("Using static placeholders for thumbnails on mobile");
+        
+    // Try to load the first frame of videos when possible
+    setTimeout(() => {
+        document.querySelectorAll('video').forEach(video => {
+            try {
+                // Set currentTime to 0.1 to try to capture the first frame
+                video.currentTime = 0.1;
+                    
+                // Listen for loadeddata event to know when video is ready
+                video.addEventListener('loadeddata', function() {
+                    // Make video visible once it has loaded data
+                    this.classList.remove('opacity-0');
+                    this.classList.add('opacity-100');
+                });
+            } catch (e) {
+                console.log("Error setting video currentTime:", e);
+            }
+        });
+    }, 500);
 }
 
 // Format date - converts timestamps to readable format
