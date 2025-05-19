@@ -1377,3 +1377,10 @@ function getStatusClass(status) {
             return 'bg-gray-100 text-gray-800';  // Gray for unknown/processing
     }
 }
+// This file is kept for backward compatibility
+// It imports from the modular structure
+
+// Import from the new module structure
+import './js/app.js';
+
+console.log('Using legacy script.js entry point - consider updating your HTML to use js/app.js directly');
