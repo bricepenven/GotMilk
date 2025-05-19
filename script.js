@@ -346,9 +346,10 @@ function renderHomeView() {
     // Show loading message while we fetch the videos
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
-    // Get all videos EXCEPT rejected ones
+    // Get all videos EXCEPT rejected ones, ordered by upload date (newest first)
     db.collection('milk_videos')
         .where('status', '!=', 'Rejected') // Filter out rejected videos
+        .orderBy('uploadDate', 'desc') // Newest videos first
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos`);
