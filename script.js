@@ -347,9 +347,11 @@ function renderHomeView() {
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
     // Get all videos EXCEPT rejected ones, ordered by upload date (newest first)
+    // First orderBy must match the inequality filter field (status)
     db.collection('milk_videos')
         .where('status', '!=', 'Rejected') // Filter out rejected videos
-        .orderBy('uploadDate', 'desc') // Newest videos first
+        .orderBy('status') // Must first orderBy the field with inequality
+        .orderBy('uploadDate', 'desc') // Then order by date (newest first)
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos`);
