@@ -656,7 +656,7 @@ function renderNotificationsView() {
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
                                 video.videoUrl ?
-                                createVideoThumbnail(video.videoUrl, video.id || index) :
+                                createVideoThumbnail(video.videoUrl, video.id) :
                                 `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <span class="text-gray-500 text-xs">Processing</span>
                                 </div>`
