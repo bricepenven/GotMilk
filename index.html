@@ -2,262 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fairlife Social App</title>
-    <!-- Load Tailwind CSS from CDN - this gives us all our styling without writing CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase libraries - these connect to our database and storage -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        // Custom Tailwind config - adds Fairlife brand colors
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'fairlife-blue': '#00a3e0', // Bright blue from bottle - our primary color
-                        'fairlife-dark-blue': '#18437c', // Dark blue from navigation
-                        'fairlife-navy': '#172b49', // Navy color from their logo background
-                        'fairlife-light': '#f5f7fa', // Light background
-                        'fairlife-brown': '#4e332c', // Brown color from top bar
-                        'fairlife-beige': '#e8d8c3', // Beige background from hero section
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Base styles for the app */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
-            touch-action: manipulation; /* Improve touch responsiveness */
-        }
-        
-        /* Improve tap targets for mobile */
-        button, a {
-            touch-action: manipulation;
-        }
-        /* Make views fill the screen minus the nav bar */
-        .view {
-            min-height: calc(100vh - 64px);
-            padding-bottom: 80px; /* Space for bottom nav */
-        }
-        /* Fairlife brand color utility classes */
-        .fairlife-blue {
-            color: #00a3e0; /* Bright blue from bottle */
-        }
-        .bg-fairlife-blue {
-            background-color: #00a3e0; /* Bright blue from bottle */
-        }
-        .border-fairlife-blue {
-            border-color: #00a3e0; /* Bright blue from bottle */
-        }
-        
-        /* Enhanced header styles with prettier blue gradient - looks slick AF */
-        .header-blue {
-            background-color: #00a3e0;
-            background-image: linear-gradient(to right, #00a3e0, #0085c7);
-            box-shadow: 0 2px 10px rgba(0, 131, 224, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Add subtle animated wave effect to header - fancy shit */
-        .header-blue::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 100%;
-            background-image: linear-gradient(120deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
-        }
-        
-        /* Update the theme to be closer to Fairlife site */
-        .bg-app {
-            background-color: #ffffff; /* Clean white background */
-        }
-        .nav-bg {
-            background-color: #f8f9fa; /* Light gray nav bar */
-            border-top: 1px solid #e5e7eb;
-        }
-        .card-bg {
-            background-color: #ffffff; /* White cards */
-            border: 1px solid #e5e7eb;
-        }
-
-        /* Logo image enhancements - make it pop */
-        .logo-img {
-            height: 40px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-            transition: transform 0.2s ease;
-        }
-        .logo-img:hover {
-            transform: scale(1.05); /* Subtle grow on hover */
-        }
-    </style>
-    <!-- Favicon - milk emoji -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Got Milk App</title>
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥛</text></svg>" />
 </head>
 <body class="bg-app text-gray-800">
-    <!-- Enhanced blue header - fixed at the top of the screen -->
     <header class="header-blue fixed top-0 left-0 right-0 z-10">
         <div class="max-w-screen-md mx-auto flex justify-center items-center h-16 px-4">
-            <!-- Logo container with custom styling -->
             <div class="flex items-center">
-                <!-- Using custom logo with enhanced styling -->
-                <img src="logo.png" alt="Fairlife Logo" class="logo-img">
+                <img src="assets/logo.png" alt="Got Milk Logo" class="logo-img">
             </div>
         </div>
     </header>
 
-    <!-- Main content area - pushed down to account for fixed header -->
     <main class="max-w-screen-md mx-auto pt-20 pb-16">
-        <!-- Home View - Instagram-style grid of videos -->
         <div id="homeView" class="view px-4 py-6">
             <div id="homeGrid" class="grid grid-cols-3 gap-2">
-                <!-- Video cards will be dynamically inserted here by JavaScript -->
                 <div class="col-span-2 text-center p-8 text-gray-500">
-                    No videos yet.
+                    Loading videos...
                 </div>
             </div>
         </div>
 
-        <!-- Upload View - form for uploading new videos -->
         <div id="uploadView" class="view px-4 py-6 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Upload Your Milk Video</h2>
             <form id="uploadForm" class="card-bg rounded-lg shadow-md p-6">
-                <!-- Video file input -->
                 <div class="mb-4">
-                    <label for="videoFile" class="block text-sm font-medium text-gray-700 mb-1">
-                        Select Video
-                    </label>
-                    <input type="file" id="videoFile" accept="video/*" 
-                        class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0 file:text-sm file:font-semibold
-                        file:bg-fairlife-blue file:text-white hover:file:bg-blue-700">
+                    <label for="videoFile" class="block text-sm font-medium text-gray-700 mb-1">Select Video</label>
+                    <input type="file" id="videoFile" accept="video/*" class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-fairlife-blue file:text-white hover:file:bg-blue-700">
                 </div>
-                
-                <!-- Hashtags input -->
                 <div class="mb-6">
-                    <label for="hashtags" class="block text-sm font-medium text-gray-700 mb-1">
-                        Hashtags
-                    </label>
-                    <input type="text" id="hashtags" placeholder="#GotMilk #MilkMob" 
-                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-gray-800 focus:outline-none focus:ring-fairlife-blue focus:border-fairlife-blue">
+                    <label for="hashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label>
+                    <input type="text" id="hashtags" placeholder="#GotMilk #MilkMob" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-gray-800 focus:outline-none focus:ring-fairlife-blue focus:border-fairlife-blue">
                     <p class="mt-1 text-xs text-gray-500">Add multiple hashtags separated by spaces</p>
                 </div>
-                
-                <!-- Upload button -->
-                <button id="uploadBtn" type="submit" 
-                    class="w-full bg-fairlife-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Upload Media
-                </button>
-                
-                <!-- Status message - hidden by default -->
+                <button id="uploadBtn" type="submit" class="w-full bg-fairlife-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Upload Media</button>
                 <p id="uploadStatus" class="mt-3 text-sm text-center hidden"></p>
             </form>
-            
-            <!-- Guidelines card -->
-            <div class="mt-6 card-bg rounded-lg p-4 border border-gray-200">
-                <h3 class="text-sm font-medium fairlife-blue mb-2">🥛 Challenge Guidelines</h3>
-                <ul class="text-xs text-gray-700 space-y-1">
-                    <li>• Record yourself enjoying Fairlife milk</li>
-                    <li>• Add creative hashtags to join a Milk Mob</li>
-                    <li>• Videos are analyzed automatically</li>
-                    <li>• See where you rank in the Milk Mobs tab</li>
-                </ul>
-            </div>
         </div>
 
-        <!-- Notifications View - activity feed of user's videos -->
         <div id="notificationsView" class="view px-4 py-6 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Your Videos</h2>
-            <div id="notificationsList" class="card-bg rounded-lg shadow-md overflow-hidden">
-                <!-- Notifications will be dynamically inserted here by JavaScript -->
-                <div class="text-center p-8 text-gray-500">
-                    You haven't uploaded any videos yet.
-                </div>
-            </div>
+            <div id="notificationsList" class="card-bg rounded-lg shadow-md overflow-hidden"></div>
         </div>
 
-        <!-- Explore View - browse videos by milk mob -->
         <div id="exploreView" class="view px-4 py-6 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Explore Milk Mobs</h2>
-            <div id="exploreContainer">
-                <!-- Mob sections will be dynamically inserted here by JavaScript -->
-                <div class="text-center p-8 text-gray-500">
-                    No mobs formed yet. Videos need approval first!
-                </div>
-            </div>
+            <div id="exploreContainer"></div>
         </div>
 
-        <!-- Moderation View - approve or reject videos -->
-        <div id="reviewView" class="view px-4 py-6 hidden">
-            <h2 class="text-xl font-bold mb-4 fairlife-blue">Moderation Panel</h2>
-            <!-- Filter buttons -->
-            <div class="flex space-x-4 mb-4">
-                <button id="pendingReviewBtn" class="px-4 py-2 bg-fairlife-blue rounded-md text-white hover:bg-blue-700">Pending Review</button>
-                <button id="allVideosBtn" class="px-4 py-2 bg-gray-200 rounded-md text-gray-800 hover:bg-gray-300">All Media</button>
-            </div>
-            <div id="reviewList" class="space-y-4">
-                <!-- Videos to review will be dynamically inserted here by JavaScript -->
-                <div class="text-center p-8 text-gray-500">
-                    No videos to review at this time.
-                </div>
-            </div>
-        </div>
+        <div id="reviewView" class="view px-4 py-6 hidden"></div>
     </main>
 
-    <!-- Fixed Bottom Navigation - mobile app style tabs -->
-    <nav class="nav-bg shadow-lg fixed bottom-0 left-0 right-0 z-10">
-        <div class="max-w-screen-md mx-auto flex items-center justify-around h-16">
-            <!-- Home tab - default active -->
-            <button id="homeTab" class="tab text-fairlife-blue flex flex-col items-center justify-center w-full h-full border-t-2 border-fairlife-blue" data-view="homeView">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <span class="text-xs">Home</span>
-            </button>
-            
-            <!-- Upload tab -->
-            <button id="uploadTab" class="tab text-gray-600 flex flex-col items-center justify-center w-full h-full" data-view="uploadView">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                <span class="text-xs">Upload</span>
-            </button>
-            
-            <!-- Activity tab (notifications) -->
-            <button id="notificationsTab" class="tab text-gray-600 flex flex-col items-center justify-center w-full h-full" data-view="notificationsView">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span class="text-xs">Activity</span>
-            </button>
-            
-            <!-- Milk Mobs tab (explore) -->
-            <button id="exploreTab" class="tab text-gray-600 flex flex-col items-center justify-center w-full h-full" data-view="exploreView">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="text-xs">Milk Mobs</span>
-            </button>
-            
-            <!-- Moderate tab (review) -->
-            <button id="reviewTab" class="tab text-gray-600 flex flex-col items-center justify-center w-full h-full" data-view="reviewView">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="text-xs">Moderate</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Load our main JavaScript file -->
-    <script src="script.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/uploadHandler.js"></script>
+    <script src="js/homeView.js"></script>
+    <script src="js/notificationsView.js"></script>
+    <script src="js/exploreView.js"></script>
+    <script src="js/videoModal.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

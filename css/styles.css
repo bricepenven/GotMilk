@@ -1,0 +1,107 @@
+/* 
+This CSS file contains the styles for the Got Milk application. 
+It defines the layout and appearance of various components, including the header, video cards, buttons, and modals. 
+Feel free to customize the styles to fit your branding and design preferences.
+*/
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff; /* Clean white background */
+    color: #4a4a4a; /* Default text color */
+}
+
+.header-blue {
+    background-color: #00a3e0;
+    background-image: linear-gradient(to right, #00a3e0, #0085c7);
+    box-shadow: 0 2px 10px rgba(0, 131, 224, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-img {
+    height: 40px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.2s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05); /* Subtle grow on hover */
+}
+
+.card-bg {
+    background-color: #ffffff; /* White cards */
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button {
+    background-color: #00a3e0; /* Fairlife blue */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #0085c7; /* Darker blue on hover */
+}
+
+.video-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.video-card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: white;
+    font-size: 12px;
+}
+
+.status-approved {
+    background-color: #28a745; /* Green for approved */
+}
+
+.status-pending {
+    background-color: #ffc107; /* Yellow for pending */
+}
+
+.status-rejected {
+    background-color: #dc3545; /* Red for rejected */
+}
+
+.modal {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-body {
+    padding: 15px;
+}
+
+.modal-footer {
+    padding: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.hidden {
+    display: none;
+}

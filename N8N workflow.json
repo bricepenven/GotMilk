@@ -1,0 +1,551 @@
+{
+  "name": "TwelveLabs_2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "884e09b7-11b7-4728-b3f7-e909cc9c6b9a",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://bricepenven.github.io"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        -460
+      ],
+      "id": "ca28af9c-7331-402a-bb14-e1369813a4eb",
+      "name": "Receive Request",
+      "webhookId": "884e09b7-11b7-4728-b3f7-e909cc9c6b9a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twelvelabs.io/v1.3/tasks",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "index_id",
+              "value": "682684da72f293deecea26fd"
+            },
+            {
+              "name": "video_url",
+              "value": "={{$json.body.videoUrl}}"
+            },
+            {
+              "name": "language",
+              "value": "en"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -460
+      ],
+      "id": "a64d56c9-0028-4bcc-ae45-cf72ba74883f",
+      "name": "Submit to Twelve Labs",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0k9GWjhJKP7Cx9aw",
+          "name": "Twelve Labs API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc4c7a8b-c123-4f11-8541-c12a7ed6bfa2",
+              "name": "video_id",
+              "value": "={{ $node[\"Submit to Twelve Labs\"].json.video_id }}",
+              "type": "string"
+            },
+            {
+              "id": "41ad1af6-cdda-4c8d-9e8b-f7a39a54ca1a",
+              "name": "taskId",
+              "value": "={{$node[\"Submit to Twelve Labs\"].json._id}}",
+              "type": "string"
+            },
+            {
+              "id": "07099d23-96ce-41c8-9d63-7405a6c73fe7",
+              "name": "status",
+              "value": "Processing",
+              "type": "string"
+            },
+            {
+              "id": "8867422d-8b71-47ef-aa8b-3ea823bf5aba",
+              "name": "hashtags",
+              "value": "={{ $('Receive Request').item.json.body.hashtags }}",
+              "type": "string"
+            },
+            {
+              "id": "fcee0a26-75a1-4d8e-a3ca-251f0e2d492b",
+              "name": "uploadDate",
+              "value": "={{$now}}",
+              "type": "string"
+            },
+            {
+              "id": "82275698-986f-485f-8071-5294e820b8c8",
+              "name": "videoId",
+              "value": "={{ $('Receive Request').item.json.body.videoId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        -460
+      ],
+      "id": "2683ef1d-7e3d-4503-a051-2dfa790d82e6",
+      "name": "Prepare Video Data",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twelvelabs.io/v1.3/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "index_id",
+              "value": "=682684da72f293deecea26fd"
+            },
+            {
+              "name": "query_text",
+              "value": "milk"
+            },
+            {
+              "name": "filter",
+              "value": "={{ JSON.stringify({ \"id\": [$('Submit to Twelve Labs').item.json.video_id] }) }}"
+            },
+            {
+              "name": "search_options",
+              "value": "visual"
+            },
+            {
+              "name": "search_options",
+              "value": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -20
+      ],
+      "id": "b3da6d91-fb23-4564-bd0d-f8355d2ca414",
+      "name": "Get Analysis Results",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0k9GWjhJKP7Cx9aw",
+          "name": "Twelve Labs API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1fede01a-2fda-43c0-93ff-cdacd703be27",
+              "leftValue": "={{ $json.data[0].status }}",
+              "rightValue": "=ready",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -260
+      ],
+      "id": "319f788e-6499-4346-aac3-68ea607ce6bc",
+      "name": "Is Processing Complete?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first();\nconst analysisData = input?.json || {};\nconst webhookNode = $('Receive Request');\nconst webhookBody = webhookNode.item.json.body;\nconst singleVideoIdToProcess = $('Submit to Twelve Labs').item.json.video_id;\n\nlet highestRelevantClipScore = 0;\nconst seenClips = new Set();\n\nif (Array.isArray(analysisData.data) && analysisData.data.length > 0) {\n  analysisData.data.forEach((clipItem, itemIndex) => {\n    if (clipItem.video_id !== singleVideoIdToProcess) {\n      return; \n    }\n    const clipUniqueId = `${clipItem.video_id}-${clipItem.start}-${clipItem.end}`;\n    if (seenClips.has(clipUniqueId)) {\n      return; \n    }\n    seenClips.add(clipUniqueId);\n\n    const rawClipScore = Number(clipItem.score || 0);\n    const roundedClipScore = Math.floor(rawClipScore);\n\n    if (roundedClipScore > highestRelevantClipScore) {\n      highestRelevantClipScore = roundedClipScore;\n    }\n  });\n}\n\nlet finalVideoScore = highestRelevantClipScore; // This is already a whole number\n\nconst rawHashtags = webhookBody.hashtags;\nconst hashtagsString = (rawHashtags || '').toLowerCase();\n\nif (hashtagsString.includes('gotmilk') || hashtagsString.includes('milkmob')) {\n  finalVideoScore += 5; // Add +5 whole points\n}\n\nlet recommendedMob = \"Non-Dairy Nomads\"; \nlet status = \"Rejected\";\nlet needsReview = false;\n\nif (finalVideoScore >= 85) { \n  recommendedMob = \"Milk Masters\";\n  status = \"Approved\";\n} else if (finalVideoScore >= 81) { \n  recommendedMob = \"Lactose Lookouts\";\n  status = \"Needs Review\";\n  needsReview = true;\n} else { \n  recommendedMob = \"Non-Dairy Nomads\"; \n  status = \"Rejected\";\n}\n\nreturn [\n  {\n    json: {\n      videoId: singleVideoIdToProcess,\n      score: finalVideoScore, \n      status,\n      recommendedMob,\n      needsReview,\n      analysisComplete: true,\n      processingEndTime: new Date().toISOString(),\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        -20
+      ],
+      "id": "abec8920-0fef-4d8c-a3b1-0c619a53c360",
+      "name": "Validate Milk Content",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "https://bricepenven.github.io"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Authorization"
+              }
+            ]
+          },
+          "responseKey": "={\n  \"success\": true,\n  \"message\": \"Video processed successfully\",\n  \"videoId\": {{$node[\"Validate Milk Content\"].json.videoId}},\n  \"status\": \"{{$node[\"Validate Milk Content\"].json.status}}\",\n  \"recommendedMob\": \"{{$node[\"Validate Milk Content\"].json.recommendedMob}}\",\n  \"score\": {{$node[\"Validate Milk Content\"].json.score}}\n}\n"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        -20
+      ],
+      "id": "3cba49f3-71d5-46ef-b104-b24083a56a8d",
+      "name": "Send Processing Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09f8a073-106e-483c-beaf-1c892224c83e",
+              "name": "fields.status.stringValue",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "849d772b-8b28-4310-8c02-512184cc423a",
+              "name": "fields.recommendedMob.stringValue",
+              "value": "={{ $json.recommendedMob }}",
+              "type": "string"
+            },
+            {
+              "id": "f1ff9625-88f9-49ef-899f-5cca3f87ea30",
+              "name": "fields.needsReview.booleanValue",
+              "value": "={{ $json.needsReview }}",
+              "type": "boolean"
+            },
+            {
+              "id": "9bd0f5e4-9e19-45c4-bea8-10fc04dedc3c",
+              "name": "fields.analysisComplete.booleanValue",
+              "value": "={{ $json.analysisComplete }}",
+              "type": "boolean"
+            },
+            {
+              "id": "65892bc1-89ca-4a68-86ab-105b491ea934",
+              "name": "fields.score.integerValue",
+              "value": "={{ $json.score }}",
+              "type": "number"
+            },
+            {
+              "id": "04903b3f-cae0-4698-89a4-ca2bdb29d905",
+              "name": "fields.processingEndTime.timestampValue",
+              "value": "={{ $json.processingEndTime }}",
+              "type": "string"
+            },
+            {
+              "id": "fd813160-316d-4195-be59-073bcf258dd1",
+              "name": "fields.videoId.stringValue",
+              "value": "={{ $json.videoId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        -20
+      ],
+      "id": "86d55e19-2a0c-458b-a30f-366b75b0c4f8",
+      "name": "Flatten Firestore Fields"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/chokaj-4dcae/databases/(default)/documents/milk_videos/{{ $('Receive Request').item.json.body.videoId }}?updateMask.fieldPaths=status&updateMask.fieldPaths=processingEndTime&updateMask.fieldPaths=needsReview&updateMask.fieldPaths=analysisComplete&updateMask.fieldPaths=score&updateMask.fieldPaths=milkTag&updateMask.fieldPaths=recommendedMob&updateMask.fieldPaths=videoId\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"fields\": $json.fields } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1060,
+        -20
+      ],
+      "id": "151e2eea-7638-43bd-91ef-6902c2b846ca",
+      "name": "Update Analysis Results Firestore",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0k9GWjhJKP7Cx9aw",
+          "name": "Twelve Labs API Key"
+        },
+        "googleApi": {
+          "id": "ZgB4FI8nUxazyFJW",
+          "name": "MyFirestoreServiceKey"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://firestore.googleapis.com/v1/projects/chokaj-4dcae/databases/(default)/documents/milk_videos/{{$json.videoId}}?updateMask.fieldPaths=status&updateMask.fieldPaths=processingStartTime&updateMask.fieldPaths=needsReview",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"fields\": $json.fields } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        -460
+      ],
+      "id": "fd6b099f-644f-406e-a89a-7a99d8fd6e86",
+      "name": "Save Initial Status Firestore",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0k9GWjhJKP7Cx9aw",
+          "name": "Twelve Labs API Key"
+        },
+        "googleApi": {
+          "id": "ZgB4FI8nUxazyFJW",
+          "name": "MyFirestoreServiceKey"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -260
+      ],
+      "id": "0d25a50d-c98a-480b-be26-9d6c7a90ad84",
+      "name": "Wait 10sec",
+      "webhookId": "4a65b1ef-e5b6-4c1f-a65e-ca9726352fea"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.twelvelabs.io/v1.3/tasks?video_id={{ $('Submit to Twelve Labs').item.json.video_id }}&sort_by=updated_at&sort_option=desc\n",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        740,
+        -260
+      ],
+      "id": "47ce3619-d9bb-4632-b4f7-70f03fa5789b",
+      "name": "Check indexing status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0k9GWjhJKP7Cx9aw",
+          "name": "Twelve Labs API Key"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Request": {
+      "main": [
+        [
+          {
+            "node": "Submit to Twelve Labs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit to Twelve Labs": {
+      "main": [
+        [
+          {
+            "node": "Prepare Video Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Video Data": {
+      "main": [
+        [
+          {
+            "node": "Save Initial Status Firestore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Processing Complete?": {
+      "main": [
+        [
+          {
+            "node": "Get Analysis Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 10sec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Analysis Results": {
+      "main": [
+        [
+          {
+            "node": "Validate Milk Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Milk Content": {
+      "main": [
+        [
+          {
+            "node": "Flatten Firestore Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten Firestore Fields": {
+      "main": [
+        [
+          {
+            "node": "Update Analysis Results Firestore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Analysis Results Firestore": {
+      "main": [
+        [
+          {
+            "node": "Send Processing Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Initial Status Firestore": {
+      "main": [
+        [
+          {
+            "node": "Wait 10sec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10sec": {
+      "main": [
+        [
+          {
+            "node": "Check indexing status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check indexing status": {
+      "main": [
+        [
+          {
+            "node": "Is Processing Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "327adb53-f24c-425d-98e3-cf8a246b1760",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9813ab9664561aea7e7ad6ccc87123506a073f362fe033c3b35be17684364f29"
+  },
+  "id": "kEYJBjqWS3mTXlnq",
+  "tags": []
+}
