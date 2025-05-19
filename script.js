@@ -362,11 +362,10 @@ function renderHomeView() {
                     // If we have video but no thumbnail, use a poster image or placeholder
                     // Safari has issues with video as thumbnails, so we use a div with background
                     mediaContent = `
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center" 
-                             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"%2300a3e0\"><path d=\"M8 5v14l11-7z\"/></svg>'); 
-                                    background-position: center; 
-                                    background-repeat: no-repeat; 
-                                    background-size: 32px;">
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
                         </div>
                     `;
                 } else {
@@ -643,11 +642,10 @@ function renderNotificationsView() {
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
                                 video.videoUrl ?
-                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center" 
-                                     style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"%2300a3e0\"><path d=\"M8 5v14l11-7z\"/></svg>'); 
-                                            background-position: center; 
-                                            background-repeat: no-repeat; 
-                                            background-size: 32px;">
+                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
                                 </div>` :
                                 `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <span class="text-gray-500 text-xs">Processing</span>
@@ -869,11 +867,10 @@ function renderReviewView(pendingOnly = true) {
                     // If we have video but no thumbnail, use a poster image or placeholder
                     // Safari has issues with video as thumbnails, so we use a div with background
                     mediaContent = `
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center" 
-                             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"%2300a3e0\"><path d=\"M8 5v14l11-7z\"/></svg>'); 
-                                    background-position: center; 
-                                    background-repeat: no-repeat; 
-                                    background-size: 32px;">
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
                         </div>
                     `;
                 } else {
