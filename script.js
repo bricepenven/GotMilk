@@ -1248,11 +1248,32 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    console.log("Using static colored placeholders for thumbnails");
+    console.log("Loading video thumbnails");
     
-    // We're now using completely static placeholders instead of trying to load video frames
-    // This function is kept for compatibility but doesn't need to do anything
-    // since we're using static HTML for the placeholders
+    // Find all video elements and set them to show the first frame
+    setTimeout(() => {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            try {
+                // Make sure video is paused
+                video.pause();
+                
+                // Set currentTime to 0.1 to get the first frame
+                video.currentTime = 0.1;
+                
+                // Add event listeners to ensure thumbnail loads
+                video.addEventListener('loadeddata', function() {
+                    this.currentTime = 0.1;
+                });
+                
+                video.addEventListener('loadedmetadata', function() {
+                    this.currentTime = 0.1;
+                });
+            } catch (e) {
+                console.error("Error setting video thumbnail:", e);
+            }
+        });
+    }, 300);
 }
 
 // Generate a consistent pastel color based on a string ID
@@ -1273,11 +1294,10 @@ function getRandomPastelColor(id) {
 
 // Function to create a video thumbnail element
 function createVideoThumbnail(videoUrl, videoId) {
-    // Create a container with colored background and play button
+    // Create a container with video thumbnail and play button
     return `
-        <div class="relative w-full h-full flex items-center justify-center" 
-             style="background-color: ${getRandomPastelColor(videoId)};">
-            <video class="w-0 h-0 absolute" preload="none">
+        <div class="relative w-full h-full">
+            <video class="w-full h-full object-cover" preload="metadata" poster="${videoUrl}#t=0.1" muted>
                 <source src="${videoUrl}" type="video/mp4">
             </video>
             <div class="absolute inset-0 flex items-center justify-center">
