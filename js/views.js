@@ -55,7 +55,7 @@ function renderHomeView() {
                 let mediaContent;
                 
                 if (thumbnailUrl) {
-                    mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
+                    mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">`;
                 } else if (video.videoUrl) {
                     mediaContent = createVideoThumbnail(video.videoUrl, videoId);
                 } else {
@@ -134,7 +134,7 @@ function renderNotificationsView() {
                     <div class="flex items-start space-x-3">
                         <div class="w-20 h-20 bg-gray-100 rounded overflow-hidden">
                             ${video.thumbnailUrl ? 
-                                `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
+                                `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">` :
                                 video.videoUrl ?
                                 createVideoThumbnail(video.videoUrl, video.id) :
                                 `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -230,7 +230,7 @@ function renderExploreView() {
                     let mediaContent;
                     
                     if (thumbnailUrl) {
-                        mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
+                        mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">`;
                     } else if (video.videoUrl) {
                         mediaContent = createVideoThumbnail(video.videoUrl, video.id);
                     } else {
@@ -316,7 +316,7 @@ function renderReviewView(pendingOnly = true) {
                 let mediaContent;
                 
                 if (thumbnailUrl) {
-                    mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
+                    mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">`;
                 } else if (video.videoUrl) {
                     mediaContent = createVideoThumbnail(video.videoUrl, videoId);
                 } else {
