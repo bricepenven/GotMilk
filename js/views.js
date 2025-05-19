@@ -368,10 +368,12 @@ function showVideoDetails(videoId, videoData) {
     let videoElement = '';
     if (videoData.videoUrl) {
         videoElement = `
-            <video controls class="max-h-[50vh] max-w-full rounded-lg" preload="auto">
-                <source src="${videoData.videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <div class="flex justify-center">
+                <video controls class="max-h-[70vh] max-w-full rounded-lg object-contain" preload="auto">
+                    <source src="${videoData.videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         `;
     } else {
         videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
@@ -387,7 +389,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
             <div class="p-4 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-medium">Video Details</h3>
@@ -521,10 +523,12 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     let videoElement = '';
     if (videoData.videoUrl) {
         videoElement = `
-            <video controls class="max-h-[50vh] max-w-full rounded-lg">
-                <source src="${videoData.videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <div class="flex justify-center">
+                <video controls class="max-h-[70vh] max-w-full rounded-lg object-contain" preload="auto">
+                    <source src="${videoData.videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         `;
     } else {
         videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
