@@ -1263,9 +1263,34 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    console.log("Using colored placeholders for thumbnails");
-    // This function is kept for compatibility but doesn't need to do anything
-    // since we're using static colored placeholders
+    console.log("Loading video thumbnails");
+    
+    // Find all video elements and set them to show the first frame
+    setTimeout(() => {
+        const videos = document.querySelectorAll('video');
+        console.log(`Found ${videos.length} videos to process for thumbnails`);
+        
+        videos.forEach((video, index) => {
+            try {
+                // Make sure video is paused
+                video.pause();
+                
+                // Set currentTime to 0.1 to get the first frame
+                video.currentTime = 0.1;
+                
+                // Add event listeners to ensure thumbnail loads
+                video.addEventListener('loadeddata', function() {
+                    this.currentTime = 0.1;
+                });
+                
+                video.addEventListener('loadedmetadata', function() {
+                    this.currentTime = 0.1;
+                });
+            } catch (e) {
+                console.error(`Error setting video ${index} thumbnail:`, e);
+            }
+        });
+    }, 300);
 }
 
 // Generate a consistent pastel color based on a string ID
@@ -1286,12 +1311,12 @@ function getRandomPastelColor(id) {
 
 // Function to create a video thumbnail element
 function createVideoThumbnail(videoUrl, videoId) {
-    // Create a container with colored background and play button
-    // This is more reliable across browsers than trying to load video frames
-    const color = getRandomPastelColor(videoId);
-    
+    // Create a container with video element and play button
     return `
-        <div class="relative w-full h-full" style="background-color: ${color};">
+        <div class="relative w-full h-full bg-gray-200">
+            <video class="w-full h-full object-cover" preload="metadata" poster="${videoUrl}#t=0.1" muted>
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
             <div class="absolute inset-0 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                     <path d="M8 5v14l11-7z"/>
