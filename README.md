@@ -103,6 +103,7 @@ The n8n workflow (`N8N workflow.json`) handles:
 To set up the workflow:
 1. Import the workflow JSON into your n8n instance
 2. Configure the nodes to connect to your Firebase project
+4. Configure the nodes to connect to your TwelveLabs account
 3. Activate the workflow
 
 ## Customization
