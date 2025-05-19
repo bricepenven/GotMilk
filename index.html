@@ -26,7 +26,7 @@
         /* Make views fill the screen minus the nav bar */
         .view {
             min-height: calc(100vh - 64px);
-            padding-bottom: 80px; /* Space for bottom nav */
+            padding-bottom: 60px; /* Reduced space for bottom nav */
         }
         /* Fairlife brand color utility classes */
         .fairlife-blue {
@@ -133,7 +133,7 @@
     <!-- Main content area - pushed down to account for fixed header -->
     <main class="max-w-screen-md mx-auto pt-20 pb-16">
         <!-- Home View - Instagram-style grid of videos -->
-        <div id="homeView" class="view px-4 py-6">
+        <div id="homeView" class="view px-4 py-2">
             <div id="homeGrid" class="grid grid-cols-3 gap-2">
                 <!-- Video cards will be dynamically inserted here by JavaScript -->
                 <div class="col-span-2 text-center p-8 text-gray-500">
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Upload View - form for uploading new videos -->
-        <div id="uploadView" class="view px-4 py-6 hidden">
+        <div id="uploadView" class="view px-4 py-2 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Upload Your Milk Video</h2>
             <form id="uploadForm" class="card-bg rounded-lg shadow-md p-6">
                 <!-- Video file input -->
@@ -190,7 +190,7 @@
         </div>
 
         <!-- Notifications View - activity feed of user's videos -->
-        <div id="notificationsView" class="view px-4 py-6 hidden">
+        <div id="notificationsView" class="view px-4 py-2 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Your Videos</h2>
             <div id="notificationsList" class="card-bg rounded-lg shadow-md overflow-hidden">
                 <!-- Notifications will be dynamically inserted here by JavaScript -->
@@ -201,7 +201,7 @@
         </div>
 
         <!-- Explore View - browse videos by milk mob -->
-        <div id="exploreView" class="view px-4 py-6 hidden">
+        <div id="exploreView" class="view px-4 py-2 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Explore Milk Mobs</h2>
             <div id="exploreContainer">
                 <!-- Mob sections will be dynamically inserted here by JavaScript -->
@@ -212,7 +212,7 @@
         </div>
 
         <!-- Moderation View - approve or reject videos -->
-        <div id="reviewView" class="view px-4 py-6 hidden">
+        <div id="reviewView" class="view px-4 py-2 hidden">
             <h2 class="text-xl font-bold mb-4 fairlife-blue">Moderation Panel</h2>
             <!-- Filter buttons -->
             <div class="flex space-x-4 mb-4">
