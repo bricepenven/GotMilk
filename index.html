@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fairlife Social App</title>
-    <!-- Load Tailwind CSS from CDN - this gives us all our styling without writing CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tailwind CSS from CDN - Note: For production, install Tailwind as a PostCSS plugin -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Firebase libraries - these connect to our database and storage -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
@@ -258,6 +258,11 @@
     </nav>
 
     <!-- Load our modular JavaScript files -->
+    <script type="module">
+        // Initialize Firebase
+        import { firebaseConfig } from './js/config.js';
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script type="module" src="js/app.js"></script>
 </body>
 </html>

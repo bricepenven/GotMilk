@@ -1,6 +1,6 @@
 import { webhookUrl, corsProxyUrl } from './config.js';
 
-// Initialize Firebase
+// Get Firebase instances
 const db = firebase.firestore();
 const storage = firebase.storage();
 
