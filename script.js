@@ -102,7 +102,24 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (targetView === 'exploreView') {
                 renderExploreView();  // Load milk mobs
             } else if (targetView === 'reviewView') {
-                renderReviewView(true);  // Load videos needing review
+                // Check which review subtab is active
+                const pendingBtn = document.getElementById('pendingReviewBtn');
+                const allVideosBtn = document.getElementById('allVideosBtn');
+                
+                if (allVideosBtn && allVideosBtn.classList.contains('bg-fairlife-blue')) {
+                    renderReviewView(false);  // Load all videos
+                } else {
+                    // Default to pending review
+                    renderReviewView(true);  // Load videos needing review
+                    
+                    // Make sure the pending button is visually selected
+                    if (pendingBtn && allVideosBtn) {
+                        pendingBtn.classList.add('bg-fairlife-blue');
+                        pendingBtn.classList.remove('bg-gray-200');
+                        allVideosBtn.classList.remove('bg-fairlife-blue');
+                        allVideosBtn.classList.add('bg-gray-200');
+                    }
+                }
             }
         });
     });
