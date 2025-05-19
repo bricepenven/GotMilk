@@ -51,12 +51,12 @@ function getRandomPastelColor(id) {
     return `hsl(${h}, 70%, 80%)`;
 }
 
-// Function to create a video thumbnail element
+// Function to create a video thumbnail element with lazy loading
 function createVideoThumbnail(videoUrl, videoId) {
     return `
         <div class="thumbnail-container relative bg-gray-200">
-            <video class="video-thumbnail" preload="metadata" poster="${videoUrl}#t=0.1" muted>
-                <source src="${videoUrl}#t=0.1" type="video/mp4">
+            <video class="video-thumbnail lazy-video" preload="none" data-src="${videoUrl}#t=0.1" muted>
+                <source data-src="${videoUrl}#t=0.1" type="video/mp4">
             </video>
             <div class="absolute inset-0 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
@@ -67,34 +67,78 @@ function createVideoThumbnail(videoUrl, videoId) {
     `;
 }
 
-// Helper function to preload thumbnails from video URLs
+// Helper function to preload thumbnails from video URLs with lazy loading
 function preloadThumbnails() {
-    console.log("Loading video thumbnails");
+    console.log("Loading video thumbnails with lazy loading");
     
-    const videos = document.querySelectorAll('video');
-    console.log(`Found ${videos.length} videos to process for thumbnails`);
+    const lazyVideos = document.querySelectorAll('video.lazy-video');
+    console.log(`Found ${lazyVideos.length} lazy videos to process for thumbnails`);
     
-    videos.forEach((video, index) => {
-        try {
-            video.pause();
-            video.currentTime = 0.1;
-            
-            video.addEventListener('loadeddata', function() {
-                this.currentTime = 0.1;
+    if ('IntersectionObserver' in window) {
+        const lazyVideoObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const video = entry.target;
+                    
+                    // Set the real src from data-src
+                    if (video.dataset.src) {
+                        video.src = video.dataset.src;
+                        video.removeAttribute('data-src');
+                    }
+                    
+                    // Do the same for source elements
+                    const sources = video.querySelectorAll('source[data-src]');
+                    sources.forEach(source => {
+                        source.src = source.dataset.src;
+                        source.removeAttribute('data-src');
+                    });
+                    
+                    video.load();
+                    
+                    // Set the poster and time
+                    video.addEventListener('loadeddata', function() {
+                        this.currentTime = 0.1;
+                    });
+                    
+                    video.addEventListener('loadedmetadata', function() {
+                        this.currentTime = 0.1;
+                    });
+                    
+                    // Stop observing once loaded
+                    observer.unobserve(video);
+                }
             });
-            
-            video.addEventListener('loadedmetadata', function() {
-                this.currentTime = 0.1;
-            });
-            
-            video.style.opacity = '0.99';
-            setTimeout(() => {
-                video.style.opacity = '1';
-            }, 50);
-        } catch (e) {
-            console.error(`Error setting video ${index} thumbnail:`, e);
-        }
-    });
+        }, {
+            rootMargin: '100px 0px', // Load when within 100px of viewport
+            threshold: 0.01
+        });
+        
+        lazyVideos.forEach(lazyVideo => {
+            lazyVideoObserver.observe(lazyVideo);
+        });
+    } else {
+        // Fallback for browsers without IntersectionObserver
+        lazyVideos.forEach((video, index) => {
+            try {
+                if (video.dataset.src) {
+                    video.src = video.dataset.src;
+                    video.removeAttribute('data-src');
+                }
+                
+                const sources = video.querySelectorAll('source[data-src]');
+                sources.forEach(source => {
+                    source.src = source.dataset.src;
+                    source.removeAttribute('data-src');
+                });
+                
+                video.load();
+                video.pause();
+                video.currentTime = 0.1;
+            } catch (e) {
+                console.error(`Error setting lazy video ${index} thumbnail:`, e);
+            }
+        });
+    }
 }
 
 export { formatDate, getStatusClass, getRandomPastelColor, createVideoThumbnail, preloadThumbnails };

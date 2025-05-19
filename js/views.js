@@ -13,11 +13,13 @@ function renderHomeView() {
     
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
+    // Limit initial query to improve performance on mobile
     db.collection('milk_videos')
         .orderBy('uploadDate', 'desc')
+        .limit(12) // Limit to 12 videos initially
         .get()
         .then((snapshot) => {
-            console.log(`Found ${snapshot.size} videos`);
+            console.log(`Found ${snapshot.size} videos (limited query)`);
             
             if (snapshot.empty) {
                 homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">No videos yet.</div>';
@@ -104,11 +106,13 @@ function renderNotificationsView() {
     
     notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">Loading your videos...</div>';
 
+    // Limit initial query to improve performance on mobile
     db.collection('milk_videos')
         .orderBy('uploadDate', 'desc')
+        .limit(10) // Limit to 10 videos initially
         .get()
         .then((snapshot) => {
-            console.log(`Found ${snapshot.size} videos for notifications`);
+            console.log(`Found ${snapshot.size} videos for notifications (limited query)`);
             
             if (snapshot.empty) {
                 notificationsList.innerHTML = '<div class="text-center p-8 text-gray-500">You haven\'t uploaded any videos yet.</div>';
@@ -174,11 +178,13 @@ function renderExploreView() {
     
     exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">Loading milk mobs...</div>';
 
+    // Limit initial query to improve performance on mobile
     db.collection('milk_videos')
         .where('status', '==', 'Approved')
+        .limit(15) // Limit to 15 approved videos initially
         .get()
         .then((snapshot) => {
-            console.log(`Found ${snapshot.size} approved videos for mobs`);
+            console.log(`Found ${snapshot.size} approved videos for mobs (limited query)`);
             
             if (snapshot.empty) {
                 exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
@@ -283,9 +289,10 @@ function renderReviewView(pendingOnly = true) {
     }
     
     query.orderBy('uploadDate', 'desc')
+        .limit(12) // Limit to 12 videos for review
         .get()
         .then((snapshot) => {
-            console.log(`Found ${snapshot.size} videos for review`);
+            console.log(`Found ${snapshot.size} videos for review (limited query)`);
             
             if (snapshot.empty) {
                 reviewList.innerHTML = '<div class="text-center p-8 text-gray-500">No videos to review at this time.</div>';

@@ -5,6 +5,10 @@ import { preloadThumbnails } from './utils.js';
 // Firebase should already be initialized in index.html
 console.log("Using Firebase app:", firebase.app().name);
 
+// Detect if we're on a mobile device
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+console.log("Device detected as:", isMobile ? "mobile" : "desktop");
+
 // Main initialization when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Setup tab navigation
@@ -94,31 +98,41 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply thumbnails after initial render
     setTimeout(preloadThumbnails, 300);
     
-    // Setup real-time updates
+    // Setup real-time updates - optimized for mobile
     try {
-        db.collection('milk_videos').onSnapshot(snapshot => {
-            snapshot.docChanges().forEach(change => {
-                const homeView = document.getElementById('homeView');
-                const notificationsView = document.getElementById('notificationsView');
-                const exploreView = document.getElementById('exploreView');
-                const reviewView = document.getElementById('reviewView');
-                
-                if (homeView && !homeView.classList.contains('hidden')) {
-                    renderHomeView();
-                    setTimeout(preloadThumbnails, 300);
-                } else if (notificationsView && !notificationsView.classList.contains('hidden')) {
-                    renderNotificationsView();
-                    setTimeout(preloadThumbnails, 300);
-                } else if (exploreView && !exploreView.classList.contains('hidden')) {
-                    renderExploreView();
-                    setTimeout(preloadThumbnails, 300);
-                } else if (reviewView && !reviewView.classList.contains('hidden')) {
-                    const pendingBtn = document.getElementById('pendingReviewBtn');
-                    renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
-                    setTimeout(preloadThumbnails, 300);
-                }
+        // On mobile, don't use real-time updates to save bandwidth and battery
+        if (isMobile) {
+            console.log("Mobile device detected - using manual refresh instead of real-time updates");
+            // We'll rely on manual refreshes when tabs are clicked
+        } else {
+            // On desktop, use real-time updates
+            db.collection('milk_videos')
+              .orderBy('uploadDate', 'desc')
+              .limit(20) // Limit the number of documents we listen to
+              .onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    const homeView = document.getElementById('homeView');
+                    const notificationsView = document.getElementById('notificationsView');
+                    const exploreView = document.getElementById('exploreView');
+                    const reviewView = document.getElementById('reviewView');
+                    
+                    if (homeView && !homeView.classList.contains('hidden')) {
+                        renderHomeView();
+                        setTimeout(preloadThumbnails, 300);
+                    } else if (notificationsView && !notificationsView.classList.contains('hidden')) {
+                        renderNotificationsView();
+                        setTimeout(preloadThumbnails, 300);
+                    } else if (exploreView && !exploreView.classList.contains('hidden')) {
+                        renderExploreView();
+                        setTimeout(preloadThumbnails, 300);
+                    } else if (reviewView && !reviewView.classList.contains('hidden')) {
+                        const pendingBtn = document.getElementById('pendingReviewBtn');
+                        renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
+                        setTimeout(preloadThumbnails, 300);
+                    }
+                });
             });
-        });
+        }
     } catch (error) {
         console.error("Failed to set up snapshot listener:", error);
     }
