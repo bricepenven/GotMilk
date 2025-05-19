@@ -20,7 +20,7 @@ The application uses:
 ## Directory Structure
 
 ```
-fairlife-social-app/
+Got Milk app/
 ├── index.html           # Main HTML file
 ├── logo.png             # Fairlife logo
 ├── js/                  # JavaScript modules
