@@ -53,10 +53,12 @@ function getRandomPastelColor(id) {
 
 // Function to create a video thumbnail element
 function createVideoThumbnail(videoUrl, videoId) {
-    // Create a colored background with play button
+    // Use actual video frame as thumbnail with fallback
     const bgColor = getRandomPastelColor(videoId);
     return `
         <div class="thumbnail-container relative" style="background-color: ${bgColor};">
+            <img src="${videoUrl}#t=0.1" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy" 
+                onerror="this.style.display='none'">
             <div class="absolute inset-0 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                     <path d="M8 5v14l11-7z"/>
