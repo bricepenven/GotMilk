@@ -10,23 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        // Custom Tailwind config - adds Fairlife brand colors
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'fairlife-blue': '#00a3e0', // Bright blue from bottle - our primary color
-                        'fairlife-dark-blue': '#18437c', // Dark blue from navigation
-                        'fairlife-navy': '#172b49', // Navy color from their logo background
-                        'fairlife-light': '#f5f7fa', // Light background
-                        'fairlife-brown': '#4e332c', // Brown color from top bar
-                        'fairlife-beige': '#e8d8c3', // Beige background from hero section
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Custom Fairlife brand colors are defined in the style section -->
     <style>
         /* Base styles for the app */
         body {
@@ -53,6 +37,38 @@
         }
         .border-fairlife-blue {
             border-color: #00a3e0; /* Bright blue from bottle */
+        }
+        
+        /* Additional Fairlife brand colors */
+        .fairlife-dark-blue {
+            color: #18437c; /* Dark blue from navigation */
+        }
+        .bg-fairlife-dark-blue {
+            background-color: #18437c;
+        }
+        .fairlife-navy {
+            color: #172b49; /* Navy color from logo background */
+        }
+        .bg-fairlife-navy {
+            background-color: #172b49;
+        }
+        .fairlife-light {
+            color: #f5f7fa; /* Light background */
+        }
+        .bg-fairlife-light {
+            background-color: #f5f7fa;
+        }
+        .fairlife-brown {
+            color: #4e332c; /* Brown color from top bar */
+        }
+        .bg-fairlife-brown {
+            background-color: #4e332c;
+        }
+        .fairlife-beige {
+            color: #e8d8c3; /* Beige background from hero section */
+        }
+        .bg-fairlife-beige {
+            background-color: #e8d8c3;
         }
         
         /* Enhanced header styles with prettier blue gradient - looks slick AF */
@@ -258,11 +274,6 @@
     </nav>
 
     <!-- Load our modular JavaScript files -->
-    <script type="module">
-        // Initialize Firebase
-        import { firebaseConfig } from './js/config.js';
-        firebase.initializeApp(firebaseConfig);
-    </script>
     <script type="module" src="js/app.js"></script>
 </body>
 </html>

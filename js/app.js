@@ -1,10 +1,18 @@
-import { firebaseConfig } from './config.js';
 import { db, handleUpload, showUploadStatus } from './api.js';
 import { renderHomeView, renderNotificationsView, renderExploreView, renderReviewView } from './views.js';
 import { preloadThumbnails } from './utils.js';
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Check if Firebase is already initialized
+try {
+    firebase.app();
+    console.log("Firebase already initialized");
+} catch (e) {
+    // If not initialized, import config and initialize
+    import('./config.js').then(({ firebaseConfig }) => {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialized");
+    });
+}
 
 // Main initialization when the page loads
 document.addEventListener('DOMContentLoaded', function() {
