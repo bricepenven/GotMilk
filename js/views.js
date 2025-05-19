@@ -59,8 +59,10 @@ function renderHomeView() {
                 } else if (video.videoUrl) {
                     mediaContent = createVideoThumbnail(video.videoUrl, videoId);
                 } else {
-                    mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-500">Processing</span>
+                    // Fallback for processing videos
+                    const bgColor = getRandomPastelColor(videoId);
+                    mediaContent = `<div class="w-full h-full flex items-center justify-center" style="background-color: ${bgColor};">
+                        <span class="text-white font-medium text-xs" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Processing</span>
                     </div>`;
                 }
                 
@@ -137,8 +139,8 @@ function renderNotificationsView() {
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">` :
                                 video.videoUrl ?
                                 createVideoThumbnail(video.videoUrl, video.id) :
-                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                    <span class="text-gray-500 text-xs">Processing</span>
+                                `<div class="w-full h-full flex items-center justify-center" style="background-color: ${getRandomPastelColor(video.id)};">
+                                    <span class="text-white font-medium text-xs" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Processing</span>
                                 </div>`
                             }
                         </div>
@@ -234,8 +236,10 @@ function renderExploreView() {
                     } else if (video.videoUrl) {
                         mediaContent = createVideoThumbnail(video.videoUrl, video.id);
                     } else {
-                        mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <span class="text-gray-500">Processing</span>
+                        // Fallback for processing videos
+                        const bgColor = getRandomPastelColor(video.id);
+                        mediaContent = `<div class="w-full h-full flex items-center justify-center" style="background-color: ${bgColor};">
+                            <span class="text-white font-medium text-xs" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Processing</span>
                         </div>`;
                     }
                     
@@ -320,8 +324,10 @@ function renderReviewView(pendingOnly = true) {
                 } else if (video.videoUrl) {
                     mediaContent = createVideoThumbnail(video.videoUrl, videoId);
                 } else {
-                    mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-500">Processing</span>
+                    // Fallback for processing videos
+                    const bgColor = getRandomPastelColor(videoId);
+                    mediaContent = `<div class="w-full h-full flex items-center justify-center" style="background-color: ${bgColor};">
+                        <span class="text-white font-medium text-xs" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Processing</span>
                     </div>`;
                 }
                 
