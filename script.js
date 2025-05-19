@@ -377,9 +377,10 @@ function renderHomeView() {
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
                     // If we have video but no thumbnail, use a video element with play button overlay
+                    // Add a data-video-url attribute to help with iOS handling
                     mediaContent = `
                         <div class="relative w-full h-full">
-                            <video class="w-full h-full object-cover" preload="metadata">
+                            <video class="w-full h-full object-cover" preload="metadata" data-video-url="${video.videoUrl}">
                                 <source src="${video.videoUrl}" type="video/mp4">
                             </video>
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -784,9 +785,10 @@ function renderExploreView() {
                         mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                     } else if (video.videoUrl) {
                         // If we have video but no thumbnail, show first frame of video with play button
+                        // Add a data-video-url attribute to help with iOS handling
                         mediaContent = `
                             <div class="relative w-full h-full">
-                                <video class="w-full h-full object-cover" muted preload="metadata">
+                                <video class="w-full h-full object-cover" muted preload="metadata" data-video-url="${video.videoUrl}">
                                     <source src="${video.videoUrl}" type="video/mp4">
                                 </video>
                                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -898,9 +900,10 @@ function renderReviewView(pendingOnly = true) {
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
                     // If we have video but no thumbnail, use a video element with play button overlay
+                    // Add a data-video-url attribute to help with iOS handling
                     mediaContent = `
                         <div class="relative w-full h-full">
-                            <video class="w-full h-full object-cover" preload="metadata">
+                            <video class="w-full h-full object-cover" preload="metadata" data-video-url="${video.videoUrl}">
                                 <source src="${video.videoUrl}" type="video/mp4">
                             </video>
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -1284,37 +1287,76 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    // This function would normally generate thumbnails from videos
-    // But since iOS/Safari has issues with this, we're using static placeholders instead
-    console.log("Using static placeholders for thumbnails on mobile devices");
-        
-    // Try to load the first frame of videos when possible
-    setTimeout(() => {
+    // Check if we're on iOS - this is a more reliable detection method
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    console.log("Device detection - iOS:", isIOS);
+    
+    if (isIOS) {
+        console.log("Using fallback thumbnails for iOS devices");
+        // For iOS, immediately replace all video elements with placeholder images
         document.querySelectorAll('video').forEach(video => {
+            // Get the parent container that holds the video
+            const container = video.closest('.relative') || video.parentElement;
+            if (!container) return;
+            
+            // Create a placeholder image with play button overlay
+            const placeholder = document.createElement('div');
+            placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center relative';
+            placeholder.innerHTML = `
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </div>
+            `;
+            
+            // Replace the video with the placeholder
             try {
-                // Set currentTime to 0.1 to try to capture the first frame
-                video.currentTime = 0.1;
+                // Keep the video element but make it invisible - this way we can still click to play
+                video.style.opacity = '0';
+                video.style.position = 'absolute';
+                video.style.width = '1px';
+                video.style.height = '1px';
+                video.style.overflow = 'hidden';
                 
-                // Force video to load first frame
-                video.load();
-                
-                // Listen for loadeddata event to know when video is ready
-                video.addEventListener('loadeddata', function() {
-                    // Ensure the video shows its first frame
-                    if (this.paused) {
-                        this.currentTime = 0.1;
-                    }
-                });
-                
-                // Also try to set the poster from the video itself
-                video.addEventListener('loadedmetadata', function() {
-                    this.currentTime = 0.1;
-                });
+                // Add the placeholder as a sibling
+                container.insertBefore(placeholder, video);
             } catch (e) {
-                console.log("Error setting video currentTime:", e);
+                console.error("Error replacing video with placeholder:", e);
             }
         });
-    }, 300);
+    } else {
+        // For non-iOS devices, try to load the first frame of videos
+        console.log("Attempting to load video thumbnails on non-iOS device");
+        setTimeout(() => {
+            document.querySelectorAll('video').forEach(video => {
+                try {
+                    // Set currentTime to 0.1 to try to capture the first frame
+                    video.currentTime = 0.1;
+                    
+                    // Force video to load first frame
+                    video.load();
+                    
+                    // Listen for loadeddata event to know when video is ready
+                    video.addEventListener('loadeddata', function() {
+                        // Ensure the video shows its first frame
+                        if (this.paused) {
+                            this.currentTime = 0.1;
+                        }
+                    });
+                    
+                    // Also try to set the poster from the video itself
+                    video.addEventListener('loadedmetadata', function() {
+                        this.currentTime = 0.1;
+                    });
+                } catch (e) {
+                    console.log("Error setting video currentTime:", e);
+                }
+            });
+        }, 300);
+    }
 }
 
 // Format date - converts timestamps to readable format
