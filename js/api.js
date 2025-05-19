@@ -1,8 +1,25 @@
 import { webhookUrl, corsProxyUrl } from './config.js';
 
-// Get Firebase instances
-const db = firebase.firestore();
-const storage = firebase.storage();
+// Get Firebase instances - wrapped in a function to ensure Firebase is initialized
+let db, storage;
+
+try {
+    db = firebase.firestore();
+    storage = firebase.storage();
+    console.log("Firebase services initialized successfully");
+} catch (e) {
+    console.error("Firebase initialization error:", e);
+    // Add a small delay and try again
+    setTimeout(() => {
+        try {
+            db = firebase.firestore();
+            storage = firebase.storage();
+            console.log("Firebase services initialized on retry");
+        } catch (retryError) {
+            console.error("Firebase retry failed:", retryError);
+        }
+    }, 500);
+}
 
 // Helper function for webhook API calls with CORS handling
 async function callWebhook(data) {

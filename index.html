@@ -273,6 +273,11 @@
         </div>
     </nav>
 
+    <!-- Initialize Firebase first -->
+    <script type="module">
+        import { firebaseConfig } from './js/config.js';
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <!-- Load our modular JavaScript files -->
     <script type="module" src="js/app.js"></script>
 </body>
