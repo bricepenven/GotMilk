@@ -356,7 +356,7 @@ function renderReviewView(pendingOnly = true) {
 // Function to show video details in a modal
 function showVideoDetails(videoId, videoData) {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-start justify-center z-50 py-4 overflow-y-auto';
     modal.id = 'videoModal';
     
     modal.addEventListener('touchstart', (e) => {
@@ -365,11 +365,14 @@ function showVideoDetails(videoId, videoData) {
         }
     });
     
+    // Ensure modal is scrollable on mobile
+    modal.style.overscrollBehavior = 'contain';
+    
     let videoElement = '';
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[50vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls class="max-h-[40vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -389,7 +392,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[80vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto" style="margin-top: 10px; margin-bottom: 10px;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
@@ -524,7 +527,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[50vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls class="max-h-[40vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -544,7 +547,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[80vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto" style="margin-top: 10px; margin-bottom: 10px;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
