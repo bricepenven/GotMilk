@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
+            
+            // Apply thumbnails after view is rendered
+            setTimeout(preloadThumbnails, 300);
         });
     });
 
@@ -157,8 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load initial content for home view - this runs when the page first loads
     renderHomeView();
     
-    // Try to preload thumbnails (will use placeholders on iOS)
-    preloadThumbnails();
+    // Apply thumbnails after initial render
+    setTimeout(preloadThumbnails, 300);
     
     // Setup real-time updates - this is the magic that refreshes the UI when data changes
     try {
@@ -380,10 +383,10 @@ function renderHomeView() {
                     // Add a data-video-url attribute to help with iOS handling
                     mediaContent = `
                         <div class="relative w-full h-full">
-                            <video class="w-full h-full object-cover" preload="metadata" data-video-url="${video.videoUrl}">
+                            <video class="w-full h-full object-cover" preload="none" data-video-url="${video.videoUrl}">
                                 <source src="${video.videoUrl}" type="video/mp4">
                             </video>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="absolute inset-0 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
@@ -788,10 +791,10 @@ function renderExploreView() {
                         // Add a data-video-url attribute to help with iOS handling
                         mediaContent = `
                             <div class="relative w-full h-full">
-                                <video class="w-full h-full object-cover" muted preload="metadata" data-video-url="${video.videoUrl}">
+                                <video class="w-full h-full object-cover" muted preload="none" data-video-url="${video.videoUrl}">
                                     <source src="${video.videoUrl}" type="video/mp4">
                                 </video>
-                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div class="absolute inset-0 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                         <path d="M8 5v14l11-7z"/>
                                     </svg>
@@ -903,10 +906,10 @@ function renderReviewView(pendingOnly = true) {
                     // Add a data-video-url attribute to help with iOS handling
                     mediaContent = `
                         <div class="relative w-full h-full">
-                            <video class="w-full h-full object-cover" preload="metadata" data-video-url="${video.videoUrl}">
+                            <video class="w-full h-full object-cover" preload="none" data-video-url="${video.videoUrl}">
                                 <source src="${video.videoUrl}" type="video/mp4">
                             </video>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="absolute inset-0 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
@@ -1287,76 +1290,80 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    // Check if we're on iOS - this is a more reliable detection method
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    console.log("Using static placeholders for thumbnails on mobile");
     
-    console.log("Device detection - iOS:", isIOS);
-    
-    if (isIOS) {
-        console.log("Using fallback thumbnails for iOS devices");
-        // For iOS, immediately replace all video elements with placeholder images
-        document.querySelectorAll('video').forEach(video => {
+    // Apply placeholders immediately when the function is called
+    setTimeout(() => {
+        // Get all video elements on the page
+        const videoElements = document.querySelectorAll('video');
+        console.log(`Found ${videoElements.length} video elements to process`);
+        
+        videoElements.forEach((video, index) => {
             // Get the parent container that holds the video
             const container = video.closest('.relative') || video.parentElement;
-            if (!container) return;
+            if (!container) {
+                console.log(`Video ${index}: No container found`);
+                return;
+            }
             
-            // Create a placeholder image with play button overlay
+            // Check if this video already has a placeholder
+            if (container.querySelector('.video-placeholder')) {
+                console.log(`Video ${index}: Placeholder already exists`);
+                return;
+            }
+            
+            // Create a placeholder with play button overlay
             const placeholder = document.createElement('div');
-            placeholder.className = 'w-full h-full bg-gray-200 flex items-center justify-center relative';
+            placeholder.className = 'video-placeholder w-full h-full bg-gray-200 flex items-center justify-center absolute inset-0 z-10';
             placeholder.innerHTML = `
-                <div class="absolute inset-0 flex items-center justify-center">
+                <div class="flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                         <path d="M8 5v14l11-7z"/>
                     </svg>
                 </div>
             `;
             
-            // Replace the video with the placeholder
+            // Add the placeholder to the container
             try {
-                // Keep the video element but make it invisible - this way we can still click to play
-                video.style.opacity = '0';
-                video.style.position = 'absolute';
-                video.style.width = '1px';
-                video.style.height = '1px';
-                video.style.overflow = 'hidden';
+                container.style.position = 'relative'; // Ensure container is positioned
+                container.appendChild(placeholder);
+                console.log(`Video ${index}: Added placeholder`);
                 
-                // Add the placeholder as a sibling
-                container.insertBefore(placeholder, video);
+                // Make sure video is behind the placeholder
+                video.style.position = 'absolute';
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.style.zIndex = '1';
+                
+                // Add click handler to the placeholder to play the video
+                placeholder.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent container click from triggering
+                    
+                    // Get the video URL from data attribute or source
+                    const videoUrl = video.getAttribute('data-video-url') || 
+                                    (video.querySelector('source') ? video.querySelector('source').src : null);
+                    
+                    if (videoUrl) {
+                        // Show video details modal with this video
+                        const videoId = container.closest('[data-video-id]')?.getAttribute('data-video-id');
+                        if (videoId) {
+                            // Find the video data and show details
+                            db.collection('milk_videos').doc(videoId).get()
+                                .then(doc => {
+                                    if (doc.exists) {
+                                        showVideoDetails(videoId, doc.data());
+                                    }
+                                })
+                                .catch(err => console.error("Error fetching video data:", err));
+                        }
+                    }
+                });
             } catch (e) {
-                console.error("Error replacing video with placeholder:", e);
+                console.error(`Error adding placeholder for video ${index}:`, e);
             }
         });
-    } else {
-        // For non-iOS devices, try to load the first frame of videos
-        console.log("Attempting to load video thumbnails on non-iOS device");
-        setTimeout(() => {
-            document.querySelectorAll('video').forEach(video => {
-                try {
-                    // Set currentTime to 0.1 to try to capture the first frame
-                    video.currentTime = 0.1;
-                    
-                    // Force video to load first frame
-                    video.load();
-                    
-                    // Listen for loadeddata event to know when video is ready
-                    video.addEventListener('loadeddata', function() {
-                        // Ensure the video shows its first frame
-                        if (this.paused) {
-                            this.currentTime = 0.1;
-                        }
-                    });
-                    
-                    // Also try to set the poster from the video itself
-                    video.addEventListener('loadedmetadata', function() {
-                        this.currentTime = 0.1;
-                    });
-                } catch (e) {
-                    console.log("Error setting video currentTime:", e);
-                }
-            });
-        }, 300);
-    }
+    }, 100); // Short delay to ensure DOM is ready
 }
 
 // Format date - converts timestamps to readable format
