@@ -369,7 +369,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[60vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls class="max-h-[50vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -389,10 +389,10 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[85vh] overflow-y-auto">
-            <div class="p-4 border-b sticky top-0 bg-white z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[80vh] overflow-y-auto">
+            <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-medium">Video Details</h3>
+                    <h3 class="text-base font-medium">Video Details</h3>
                     <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -401,7 +401,7 @@ function showVideoDetails(videoId, videoData) {
                 </div>
             </div>
             
-            <div class="p-4">
+            <div class="p-3">
                 ${videoElement}
                 
                 <div class="mt-4">
@@ -524,7 +524,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[60vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls class="max-h-[50vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -544,10 +544,10 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[85vh] overflow-y-auto">
-            <div class="p-4 border-b sticky top-0 bg-white z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[80vh] overflow-y-auto">
+            <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-medium">Moderate Video</h3>
+                    <h3 class="text-base font-medium">Moderate Video</h3>
                     <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -556,7 +556,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 </div>
             </div>
             
-            <div class="p-4">
+            <div class="p-3">
                 ${videoElement}
                 
                 <div class="mt-4">
