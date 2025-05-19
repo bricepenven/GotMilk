@@ -453,7 +453,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.videoUrl) {
         // If we have a video URL, show the video player (autoplay disabled)
         videoElement = `
-            <video controls class="max-h-[70vh] max-w-full rounded-lg">
+            <video controls class="max-h-[50vh] max-w-full rounded-lg">
                 <source src="${videoData.videoUrl}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
