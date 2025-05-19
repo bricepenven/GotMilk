@@ -463,7 +463,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.videoUrl) {
         // If we have a video URL, show the video player (autoplay disabled)
         videoElement = `
-            <video controls class="max-h-[50vh] max-w-full rounded-lg">
+            <video controls class="max-h-[50vh] max-w-full rounded-lg" preload="auto">
                 <source src="${videoData.videoUrl}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -927,6 +927,9 @@ function renderReviewView(pendingOnly = true) {
                 // Add the card to the grid
                 grid.appendChild(card);
             });
+            
+            // Apply thumbnails after rendering
+            setTimeout(preloadThumbnails, 300);
         })
         .catch(error => {
             console.error("Error fetching videos for review:", error);
