@@ -369,7 +369,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[70vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls class="max-h-[60vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -389,7 +389,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[85vh] overflow-y-auto">
             <div class="p-4 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-medium">Video Details</h3>
@@ -524,7 +524,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[70vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls class="max-h-[60vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -544,7 +544,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 overflow-hidden max-h-[85vh] overflow-y-auto">
             <div class="p-4 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-medium">Moderate Video</h3>
