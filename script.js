@@ -379,13 +379,10 @@ function renderHomeView() {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // If we have video but no thumbnail, use a simpler approach with background color and play button
+                    // Use a static placeholder with play button instead of trying to load video frames
                     mediaContent = `
-                        <div class="relative w-full h-full bg-gray-200">
-                            <video class="w-full h-full object-cover" preload="none" poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" data-video-url="${video.videoUrl}">
-                                <source src="${video.videoUrl}" type="video/mp4">
-                            </video>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+                            <div class="absolute inset-0 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
@@ -667,9 +664,6 @@ function renderNotificationsView() {
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
                                 video.videoUrl ?
                                 `<div class="w-full h-full bg-gray-200 flex items-center justify-center relative">
-                                    <video class="w-full h-full object-cover" preload="none" poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=">
-                                        <source src="${video.videoUrl}" type="video/mp4">
-                                    </video>
                                     <div class="absolute inset-0 flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                             <path d="M8 5v14l11-7z"/>
@@ -786,13 +780,10 @@ function renderExploreView() {
                         // If we have a thumbnail from TwelveLabs, use it
                         mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                     } else if (video.videoUrl) {
-                        // If we have video but no thumbnail, use a simpler approach with background color and play button
+                        // Use a static placeholder with play button instead of trying to load video frames
                         mediaContent = `
-                            <div class="relative w-full h-full bg-gray-200">
-                                <video class="w-full h-full object-cover" muted preload="none" poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" data-video-url="${video.videoUrl}">
-                                    <source src="${video.videoUrl}" type="video/mp4">
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+                                <div class="absolute inset-0 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                         <path d="M8 5v14l11-7z"/>
                                     </svg>
@@ -900,13 +891,10 @@ function renderReviewView(pendingOnly = true) {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // If we have video but no thumbnail, use a simpler approach with background color and play button
+                    // Use a static placeholder with play button instead of trying to load video frames
                     mediaContent = `
-                        <div class="relative w-full h-full bg-gray-200">
-                            <video class="w-full h-full object-cover" preload="none" poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" data-video-url="${video.videoUrl}">
-                                <source src="${video.videoUrl}" type="video/mp4">
-                            </video>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+                            <div class="absolute inset-0 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
@@ -1287,44 +1275,11 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    console.log("Preloading thumbnails");
+    console.log("Using static placeholders for thumbnails");
     
-    // We'll use a simpler approach that works across all browsers
-    // No dynamic placeholder creation - rely on the HTML structure already in place
-    
-    // Set a short timeout to ensure videos have been added to the DOM
-    setTimeout(() => {
-        // Get all video elements on the page
-        const videoElements = document.querySelectorAll('video');
-        console.log(`Found ${videoElements.length} videos to process`);
-        
-        // For non-iOS devices, try to load the first frame
-        videoElements.forEach((video, index) => {
-            try {
-                // Make sure video has proper styling
-                video.style.objectFit = 'cover';
-                video.style.width = '100%';
-                video.style.height = '100%';
-                
-                // Set poster attribute to help with initial display
-                if (!video.hasAttribute('poster')) {
-                    video.setAttribute('poster', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
-                }
-                
-                // Try to load the first frame for browsers that support it
-                if (!video.paused) {
-                    video.pause();
-                }
-                
-                // Set currentTime to 0 to try to show first frame
-                video.currentTime = 0;
-                
-                console.log(`Video ${index}: Applied basic styling`);
-            } catch (e) {
-                console.error(`Error processing video ${index}:`, e);
-            }
-        });
-    }, 300);
+    // We're now using completely static placeholders instead of trying to load video frames
+    // This function is kept for compatibility but doesn't need to do anything
+    // since we're using static HTML for the placeholders
 }
 
 // Format date - converts timestamps to readable format
