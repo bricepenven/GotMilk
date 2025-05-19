@@ -156,9 +156,9 @@
     </header>
 
     <!-- Main content area - pushed down to account for fixed header -->
-    <main class="max-w-screen-md mx-auto pt-8 pb-16">
+    <main class="max-w-screen-md mx-auto pt-4 pb-16">
         <!-- Home View - Instagram-style grid of videos -->
-        <div id="homeView" class="view px-2 py-1">
+        <div id="homeView" class="view px-2 py-0">
             <div id="homeGrid" class="grid grid-cols-3 gap-1">
                 <!-- Video cards will be dynamically inserted here by JavaScript -->
                 <div class="col-span-2 text-center p-8 text-gray-500">
@@ -168,7 +168,7 @@
         </div>
 
         <!-- Upload View - form for uploading new videos -->
-        <div id="uploadView" class="view px-2 py-1 hidden">
+        <div id="uploadView" class="view px-2 py-0 hidden">
             <h2 class="text-xl font-bold mb-2 fairlife-blue">Upload Your Milk Video</h2>
             <form id="uploadForm" class="card-bg rounded-lg shadow-md p-6">
                 <!-- Video file input -->
@@ -215,7 +215,7 @@
         </div>
 
         <!-- Notifications View - activity feed of user's videos -->
-        <div id="notificationsView" class="view px-2 py-1 hidden">
+        <div id="notificationsView" class="view px-2 py-0 hidden">
             <h2 class="text-xl font-bold mb-2 fairlife-blue">Your Videos</h2>
             <div id="notificationsList" class="card-bg rounded-lg shadow-md overflow-hidden">
                 <!-- Notifications will be dynamically inserted here by JavaScript -->
@@ -226,7 +226,7 @@
         </div>
 
         <!-- Explore View - browse videos by milk mob -->
-        <div id="exploreView" class="view px-2 py-1 hidden">
+        <div id="exploreView" class="view px-2 py-0 hidden">
             <h2 class="text-xl font-bold mb-2 fairlife-blue">Explore Milk Mobs</h2>
             <div id="exploreContainer">
                 <!-- Mob sections will be dynamically inserted here by JavaScript -->
@@ -237,7 +237,7 @@
         </div>
 
         <!-- Moderation View - approve or reject videos -->
-        <div id="reviewView" class="view px-2 py-1 hidden">
+        <div id="reviewView" class="view px-2 py-0 hidden">
             <h2 class="text-xl font-bold mb-2 fairlife-blue">Moderation Panel</h2>
             <!-- Filter buttons -->
             <div class="flex space-x-4 mb-4">
