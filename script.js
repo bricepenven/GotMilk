@@ -1286,7 +1286,7 @@ async function rejectVideo(videoId) {
 function preloadThumbnails() {
     // This function would normally generate thumbnails from videos
     // But since iOS/Safari has issues with this, we're using static placeholders instead
-    console.log("Using static placeholders for thumbnails on mobile");
+    console.log("Using static placeholders for thumbnails on mobile devices");
         
     // Try to load the first frame of videos when possible
     setTimeout(() => {
