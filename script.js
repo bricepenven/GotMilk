@@ -379,19 +379,8 @@ function renderHomeView() {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // Use a static colored background with play button
-                    const randomColor = getRandomPastelColor(videoId); // Generate a unique color based on videoId
-                    mediaContent = `
-                        <div class="relative w-full h-full flex items-center justify-center" 
-                             style="background-color: ${randomColor};" 
-                             data-video-url="${video.videoUrl}">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    `;
+                    // Use createVideoThumbnail helper function
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId);
                 } else {
                     // Fallback if no media is available - shouldn't happen but just in case
                     mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -666,14 +655,7 @@ function renderNotificationsView() {
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
                                 video.videoUrl ?
-                                `<div class="w-full h-full flex items-center justify-center relative" 
-                                    style="background-color: ${getRandomPastelColor(video.id || index)};">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
-                                            <path d="M8 5v14l11-7z"/>
-                                        </svg>
-                                    </div>
-                                </div>` :
+                                createVideoThumbnail(video.videoUrl, video.id || index) :
                                 `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <span class="text-gray-500 text-xs">Processing</span>
                                 </div>`
@@ -784,19 +766,8 @@ function renderExploreView() {
                         // If we have a thumbnail from TwelveLabs, use it
                         mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                     } else if (video.videoUrl) {
-                        // Use a static colored background with play button
-                        const randomColor = getRandomPastelColor(video.id); // Generate a unique color based on videoId
-                        mediaContent = `
-                            <div class="relative w-full h-full flex items-center justify-center" 
-                                 style="background-color: ${randomColor};" 
-                                 data-video-url="${video.videoUrl}">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
-                                        <path d="M8 5v14l11-7z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        `;
+                        // Use createVideoThumbnail helper function
+                        mediaContent = createVideoThumbnail(video.videoUrl, video.id);
                     } else {
                         // Fallback if no media is available - shouldn't happen but just in case
                         mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -898,19 +869,8 @@ function renderReviewView(pendingOnly = true) {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // Use a static colored background with play button
-                    const randomColor = getRandomPastelColor(videoId); // Generate a unique color based on videoId
-                    mediaContent = `
-                        <div class="relative w-full h-full flex items-center justify-center" 
-                             style="background-color: ${randomColor};" 
-                             data-video-url="${video.videoUrl}">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    `;
+                    // Use createVideoThumbnail helper function
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId);
                 } else {
                     // Fallback if no media is available - shouldn't happen but just in case
                     mediaContent = `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -1306,6 +1266,24 @@ function getRandomPastelColor(id) {
     // Generate pastel colors (lighter, softer colors)
     const h = hash % 360;
     return `hsl(${h}, 70%, 80%)`;
+}
+
+// Function to create a video thumbnail element
+function createVideoThumbnail(videoUrl, videoId) {
+    // Create a container with colored background and play button
+    return `
+        <div class="relative w-full h-full flex items-center justify-center" 
+             style="background-color: ${getRandomPastelColor(videoId)};">
+            <video class="w-0 h-0 absolute" preload="none">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </div>
+        </div>
+    `;
 }
 
 // Format date - converts timestamps to readable format
