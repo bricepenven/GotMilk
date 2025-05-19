@@ -105,33 +105,32 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Mobile device detected - using manual refresh instead of real-time updates");
             // We'll rely on manual refreshes when tabs are clicked
         } else {
-            // On desktop, use real-time updates
+            // On desktop, use real-time updates but limit frequency
+            let debounceTimer;
             db.collection('milk_videos')
               .orderBy('uploadDate', 'desc')
               .limit(20) // Limit the number of documents we listen to
               .onSnapshot(snapshot => {
-                snapshot.docChanges().forEach(change => {
+                // Debounce the updates to prevent multiple rapid renders
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
                     const homeView = document.getElementById('homeView');
                     const notificationsView = document.getElementById('notificationsView');
                     const exploreView = document.getElementById('exploreView');
                     const reviewView = document.getElementById('reviewView');
-                    
+                
                     if (homeView && !homeView.classList.contains('hidden')) {
                         renderHomeView();
-                        setTimeout(preloadThumbnails, 300);
                     } else if (notificationsView && !notificationsView.classList.contains('hidden')) {
                         renderNotificationsView();
-                        setTimeout(preloadThumbnails, 300);
                     } else if (exploreView && !exploreView.classList.contains('hidden')) {
                         renderExploreView();
-                        setTimeout(preloadThumbnails, 300);
                     } else if (reviewView && !reviewView.classList.contains('hidden')) {
                         const pendingBtn = document.getElementById('pendingReviewBtn');
                         renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
-                        setTimeout(preloadThumbnails, 300);
                     }
-                });
-            });
+                }, 500); // Wait 500ms before updating
+              });
         }
     } catch (error) {
         console.error("Failed to set up snapshot listener:", error);

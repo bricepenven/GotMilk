@@ -310,7 +310,8 @@
         // Enable offline persistence with smaller cache size for mobile
         firebase.firestore().settings({
             cacheSizeBytes: 5000000, // 5MB cache size
-            ignoreUndefinedProperties: true
+            ignoreUndefinedProperties: true,
+            merge: true // Add merge option to prevent host override warning
         });
         
         // Disable persistence on mobile to improve performance
