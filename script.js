@@ -379,11 +379,14 @@ function renderHomeView() {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // Use a static placeholder with play button instead of trying to load video frames
+                    // Use a static colored background with play button
+                    const randomColor = getRandomPastelColor(videoId); // Generate a unique color based on videoId
                     mediaContent = `
-                        <div class="relative w-full h-full bg-gray-200 flex items-center justify-center" data-video-url="${video.videoUrl}">
+                        <div class="relative w-full h-full flex items-center justify-center" 
+                             style="background-color: ${randomColor};" 
+                             data-video-url="${video.videoUrl}">
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
                             </div>
@@ -663,9 +666,10 @@ function renderNotificationsView() {
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">` :
                                 video.videoUrl ?
-                                `<div class="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                                `<div class="w-full h-full flex items-center justify-center relative" 
+                                    style="background-color: ${getRandomPastelColor(video.id || index)};">
                                     <div class="absolute inset-0 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                                             <path d="M8 5v14l11-7z"/>
                                         </svg>
                                     </div>
@@ -780,11 +784,14 @@ function renderExploreView() {
                         // If we have a thumbnail from TwelveLabs, use it
                         mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                     } else if (video.videoUrl) {
-                        // Use a static placeholder with play button instead of trying to load video frames
+                        // Use a static colored background with play button
+                        const randomColor = getRandomPastelColor(video.id); // Generate a unique color based on videoId
                         mediaContent = `
-                            <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+                            <div class="relative w-full h-full flex items-center justify-center" 
+                                 style="background-color: ${randomColor};" 
+                                 data-video-url="${video.videoUrl}">
                                 <div class="absolute inset-0 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                                         <path d="M8 5v14l11-7z"/>
                                     </svg>
                                 </div>
@@ -891,11 +898,14 @@ function renderReviewView(pendingOnly = true) {
                     // If we have a thumbnail from TwelveLabs, use it
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover">`;
                 } else if (video.videoUrl) {
-                    // Use a static placeholder with play button instead of trying to load video frames
+                    // Use a static colored background with play button
+                    const randomColor = getRandomPastelColor(videoId); // Generate a unique color based on videoId
                     mediaContent = `
-                        <div class="relative w-full h-full bg-gray-200 flex items-center justify-center">
+                        <div class="relative w-full h-full flex items-center justify-center" 
+                             style="background-color: ${randomColor};" 
+                             data-video-url="${video.videoUrl}">
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
                             </div>
@@ -1275,11 +1285,27 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    console.log("Using static placeholders for thumbnails");
+    console.log("Using static colored placeholders for thumbnails");
     
     // We're now using completely static placeholders instead of trying to load video frames
     // This function is kept for compatibility but doesn't need to do anything
     // since we're using static HTML for the placeholders
+}
+
+// Generate a consistent pastel color based on a string ID
+function getRandomPastelColor(id) {
+    // If no ID is provided, return a default color
+    if (!id) return '#e0f2fe';
+    
+    // Convert the ID to a number for consistent color generation
+    let hash = 0;
+    for (let i = 0; i < String(id).length; i++) {
+        hash = String(id).charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Generate pastel colors (lighter, softer colors)
+    const h = hash % 360;
+    return `hsl(${h}, 70%, 80%)`;
 }
 
 // Format date - converts timestamps to readable format
