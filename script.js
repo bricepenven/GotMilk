@@ -121,9 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-            
-            // Apply thumbnails after view is rendered
-            setTimeout(preloadThumbnails, 300);
         });
     });
 
@@ -176,14 +173,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Only refresh the view that's currently visible
                 if (homeView && !homeView.classList.contains('hidden')) {
                     renderHomeView();  // Refresh home grid
+                    // Apply thumbnails after view is refreshed
+                    setTimeout(preloadThumbnails, 300);
                 } else if (notificationsView && !notificationsView.classList.contains('hidden')) {
                     renderNotificationsView();  // Refresh activity feed
+                    // Apply thumbnails after view is refreshed
+                    setTimeout(preloadThumbnails, 300);
                 } else if (exploreView && !exploreView.classList.contains('hidden')) {
                     renderExploreView();  // Refresh milk mobs
+                    // Apply thumbnails after view is refreshed
+                    setTimeout(preloadThumbnails, 300);
                 } else if (reviewView && !reviewView.classList.contains('hidden')) {
                     // Check if we're showing pending or all videos
                     const pendingBtn = document.getElementById('pendingReviewBtn');
                     renderReviewView(pendingBtn && pendingBtn.classList.contains('bg-fairlife-blue'));
+                    // Apply thumbnails after view is refreshed
+                    setTimeout(preloadThumbnails, 300);
                 }
             });
         });
@@ -1269,31 +1274,35 @@ function preloadThumbnails() {
     console.log("Loading video thumbnails");
     
     // Find all video elements and set them to show the first frame
-    setTimeout(() => {
-        const videos = document.querySelectorAll('video');
-        console.log(`Found ${videos.length} videos to process for thumbnails`);
-        
-        videos.forEach((video, index) => {
-            try {
-                // Make sure video is paused
-                video.pause();
-                
-                // Set currentTime to 0.1 to get the first frame
-                video.currentTime = 0.1;
-                
-                // Add event listeners to ensure thumbnail loads
-                video.addEventListener('loadeddata', function() {
-                    this.currentTime = 0.1;
-                });
-                
-                video.addEventListener('loadedmetadata', function() {
-                    this.currentTime = 0.1;
-                });
-            } catch (e) {
-                console.error(`Error setting video ${index} thumbnail:`, e);
-            }
-        });
-    }, 300);
+    const videos = document.querySelectorAll('video');
+    console.log(`Found ${videos.length} videos to process for thumbnails`);
+    
+    videos.forEach((video, index) => {
+        try {
+            // Make sure video is paused
+            video.pause();
+            
+            // Set currentTime to 0.1 to get the first frame
+            video.currentTime = 0.1;
+            
+            // Add event listeners to ensure thumbnail loads
+            video.addEventListener('loadeddata', function() {
+                this.currentTime = 0.1;
+            });
+            
+            video.addEventListener('loadedmetadata', function() {
+                this.currentTime = 0.1;
+            });
+            
+            // Force a repaint to ensure the thumbnail is visible
+            video.style.opacity = '0.99';
+            setTimeout(() => {
+                video.style.opacity = '1';
+            }, 50);
+        } catch (e) {
+            console.error(`Error setting video ${index} thumbnail:`, e);
+        }
+    });
 }
 
 // Generate a consistent pastel color based on a string ID
@@ -1318,7 +1327,7 @@ function createVideoThumbnail(videoUrl, videoId) {
     return `
         <div class="relative w-full h-full bg-gray-200">
             <video class="w-full h-full object-cover" preload="metadata" poster="${videoUrl}#t=0.1" muted>
-                <source src="${videoUrl}" type="video/mp4">
+                <source src="${videoUrl}#t=0.1" type="video/mp4">
             </video>
             <div class="absolute inset-0 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
