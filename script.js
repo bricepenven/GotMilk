@@ -346,12 +346,10 @@ function renderHomeView() {
     // Show loading message while we fetch the videos
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
-    // Get all videos EXCEPT rejected ones, ordered by upload date (newest first)
-    // First orderBy must match the inequality filter field (status)
+    // Simplify the query to avoid composite index requirements
+    // Just get all videos and filter out rejected ones in the code
     db.collection('milk_videos')
-        .where('status', '!=', 'Rejected') // Filter out rejected videos
-        .orderBy('status') // Must first orderBy the field with inequality
-        .orderBy('uploadDate', 'desc') // Then order by date (newest first)
+        .orderBy('uploadDate', 'desc') // Newest videos first
         .get()
         .then((snapshot) => {
             console.log(`Found ${snapshot.size} videos`);
@@ -362,14 +360,31 @@ function renderHomeView() {
                 return;
             }
 
+            // Filter out rejected videos client-side
+            const filteredVideos = [];
+            snapshot.forEach(doc => {
+                const video = doc.data();
+                if (video.status !== 'Rejected') {
+                    filteredVideos.push({
+                        id: doc.id,
+                        ...video
+                    });
+                }
+            });
+            
+            // If no non-rejected videos, show empty state
+            if (filteredVideos.length === 0) {
+                homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">No videos yet.</div>';
+                return;
+            }
+
             // Update the HTML to use a 3-column grid - Instagram style
             homeGrid.className = 'grid grid-cols-3 gap-2';
             homeGrid.innerHTML = '';  // Clear loading message
             
             // Loop through each video and create a card for it
-            snapshot.forEach(doc => {
-                const video = doc.data();
-                const videoId = doc.id;
+            filteredVideos.forEach(video => {
+                const videoId = video.id;
                 const card = document.createElement('div');
                 card.className = 'aspect-square relative overflow-hidden';  // Square aspect ratio
                 card.setAttribute('data-video-id', videoId);
@@ -1248,32 +1263,9 @@ async function rejectVideo(videoId) {
 
 // Helper function to preload thumbnails from video URLs
 function preloadThumbnails() {
-    console.log("Loading video thumbnails");
-    
-    // Find all video elements and set them to show the first frame
-    setTimeout(() => {
-        const videos = document.querySelectorAll('video');
-        videos.forEach(video => {
-            try {
-                // Make sure video is paused
-                video.pause();
-                
-                // Set currentTime to 0.1 to get the first frame
-                video.currentTime = 0.1;
-                
-                // Add event listeners to ensure thumbnail loads
-                video.addEventListener('loadeddata', function() {
-                    this.currentTime = 0.1;
-                });
-                
-                video.addEventListener('loadedmetadata', function() {
-                    this.currentTime = 0.1;
-                });
-            } catch (e) {
-                console.error("Error setting video thumbnail:", e);
-            }
-        });
-    }, 300);
+    console.log("Using colored placeholders for thumbnails");
+    // This function is kept for compatibility but doesn't need to do anything
+    // since we're using static colored placeholders
 }
 
 // Generate a consistent pastel color based on a string ID
@@ -1294,12 +1286,12 @@ function getRandomPastelColor(id) {
 
 // Function to create a video thumbnail element
 function createVideoThumbnail(videoUrl, videoId) {
-    // Create a container with video thumbnail and play button
+    // Create a container with colored background and play button
+    // This is more reliable across browsers than trying to load video frames
+    const color = getRandomPastelColor(videoId);
+    
     return `
-        <div class="relative w-full h-full">
-            <video class="w-full h-full object-cover" preload="metadata" poster="${videoUrl}#t=0.1" muted>
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
+        <div class="relative w-full h-full" style="background-color: ${color};">
             <div class="absolute inset-0 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5));">
                     <path d="M8 5v14l11-7z"/>
