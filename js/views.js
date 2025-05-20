@@ -57,7 +57,7 @@ function renderHomeView() {
                 if (thumbnailUrl) {
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">`;
                 } else if (video.videoUrl) {
-                    mediaContent = createVideoThumbnail(video.videoUrl, videoId);
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId, video.thumbnailUrl);
                 } else {
                     // Fallback for processing videos
                     mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">
@@ -137,7 +137,7 @@ function renderNotificationsView() {
                             ${video.thumbnailUrl ? 
                                 `<img src="${video.thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">` :
                                 video.videoUrl ?
-                                createVideoThumbnail(video.videoUrl, video.id) :
+                                createVideoThumbnail(video.videoUrl, video.id, video.thumbnailUrl) :
                                 `<div class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <span class="text-gray-500 text-xs">Processing</span>
                                 </div>`
@@ -233,7 +233,7 @@ function renderExploreView() {
                     if (thumbnailUrl) {
                         mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">`;
                     } else if (video.videoUrl) {
-                        mediaContent = createVideoThumbnail(video.videoUrl, video.id);
+                        mediaContent = createVideoThumbnail(video.videoUrl, video.id, video.thumbnailUrl);
                     } else {
                         // Fallback for processing videos
                         mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">
@@ -320,7 +320,7 @@ function renderReviewView(pendingOnly = true) {
                 if (thumbnailUrl) {
                     mediaContent = `<img src="${thumbnailUrl}" alt="Video thumbnail" class="w-full h-full object-cover" loading="lazy">`;
                 } else if (video.videoUrl) {
-                    mediaContent = createVideoThumbnail(video.videoUrl, videoId);
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId, video.thumbnailUrl);
                 } else {
                     // Fallback for processing videos
                     mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">

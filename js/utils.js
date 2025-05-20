@@ -56,22 +56,38 @@ function getRandomPastelColor(id) {
 }
 
 // Function to create a video thumbnail element
-function createVideoThumbnail(videoUrl, videoId) {
-    // Use the video URL as the background image with a play button overlay
-    return `
-        <div class="thumbnail-container relative">
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('${videoUrl}#t=0.1');">
+function createVideoThumbnail(videoUrl, videoId, thumbnailUrl = null) {
+    // Use the thumbnail URL if available, otherwise use a colored background
+    const bgColor = getRandomPastelColor(videoId);
+    
+    if (thumbnailUrl) {
+        return `
+            <div class="thumbnail-container relative">
+                <img src="${thumbnailUrl}" alt="Video thumbnail" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black bg-opacity-10"></div>
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="rounded-full bg-black bg-opacity-50 p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="rounded-full bg-black bg-opacity-50 p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
+    } else {
+        // Fallback to colored background if no thumbnail
+        return `
+            <div class="thumbnail-container relative" style="background-color: ${bgColor};">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="rounded-full bg-black bg-opacity-50 p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Helper function to preload thumbnails from video URLs with lazy loading

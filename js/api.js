@@ -176,13 +176,18 @@ async function handleUpload(e) {
             },
             async () => {
                 try {
-                    showUploadStatus('Saving to database...', 'info');
+                    showUploadStatus('Generating thumbnail...', 'info');
                     
                     const videoUrl = await uploadTask.snapshot.ref.getDownloadURL();
                     console.log("Got download URL:", videoUrl);
                     
+                    // Generate thumbnail from the video
+                    const thumbnailUrl = await generateThumbnail(videoFile, videoId);
+                    console.log("Generated thumbnail URL:", thumbnailUrl);
+                    
                     const docRef = await db.collection('milk_videos').add({
                         videoUrl: videoUrl,
+                        thumbnailUrl: thumbnailUrl,
                         hashtags: hashtags,
                         status: 'Pending Review',
                         needsReview: true,
@@ -196,6 +201,7 @@ async function handleUpload(e) {
                         videoId: docRef.id,
                         action: 'new_video',
                         videoUrl: videoUrl,
+                        thumbnailUrl: thumbnailUrl,
                         hashtags: hashtags,
                         timestamp: new Date().toISOString()
                     };
@@ -256,4 +262,69 @@ function showUploadStatus(message, type) {
     statusElement.classList.remove('hidden');
 }
 
-export { db, storage, callWebhook, approveVideo, rejectVideo, handleUpload, showUploadStatus };
+// Function to generate a thumbnail from a video file
+async function generateThumbnail(videoFile, videoId) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Create a video element to load the video
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.muted = true;
+            video.playsInline = true;
+            
+            // Create a canvas to capture the frame
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set up video event handlers
+            video.onloadedmetadata = () => {
+                // Set dimensions
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // Seek to the first frame
+                video.currentTime = 0.1;
+            };
+            
+            video.oncanplay = () => {
+                // Draw the video frame to the canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Convert canvas to blob
+                canvas.toBlob(async (blob) => {
+                    try {
+                        // Upload the thumbnail to Firebase Storage
+                        const thumbnailRef = storage.ref(`thumbnails/${videoId}.jpg`);
+                        const uploadTask = thumbnailRef.put(blob, { contentType: 'image/jpeg' });
+                        
+                        // Get the download URL once upload completes
+                        const snapshot = await uploadTask;
+                        const thumbnailUrl = await snapshot.ref.getDownloadURL();
+                        
+                        // Clean up
+                        URL.revokeObjectURL(video.src);
+                        
+                        resolve(thumbnailUrl);
+                    } catch (error) {
+                        console.error("Error uploading thumbnail:", error);
+                        reject(error);
+                    }
+                }, 'image/jpeg', 0.8);
+            };
+            
+            // Handle errors
+            video.onerror = (error) => {
+                console.error("Error loading video for thumbnail:", error);
+                reject(error);
+            };
+            
+            // Load the video from the file
+            video.src = URL.createObjectURL(videoFile);
+        } catch (error) {
+            console.error("Error generating thumbnail:", error);
+            reject(error);
+        }
+    });
+}
+
+export { db, storage, callWebhook, approveVideo, rejectVideo, handleUpload, showUploadStatus, generateThumbnail };
