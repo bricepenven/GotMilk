@@ -1,11 +1,11 @@
-# Fairlife Social App
+# GoatMilke Social App
 
-A social media platform for Fairlife milk enthusiasts to share videos and join "Milk Mobs".
+A social media platform for milk enthusiasts to share videos and join "Milk Mobs".
 
 ## Project Overview
 
 This application allows users to:
-- Upload videos of themselves enjoying Fairlife milk
+- Upload videos of themselves enjoying milk
 - Browse videos from other users
 - Join themed "Milk Mobs" based on hashtags
 - Moderate content through an admin interface
