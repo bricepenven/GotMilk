@@ -567,7 +567,7 @@ function renderReviewView(pendingOnly = true) {
 // Function to show video details in a modal
 function showVideoDetails(videoId, videoData) {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto';
     modal.id = 'videoModal';
     
     // Add iOS-specific touch handling
@@ -600,8 +600,10 @@ function showVideoDetails(videoId, videoData) {
         ? `<span class="inline-block px-2 py-1 text-xs rounded-md bg-black text-white">Score: ${videoData.score}/100</span>` 
         : '';
     
+    // Use my-8 instead of my-4 to add more vertical margin on mobile
+    // Decrease max-height to ensure it fits on mobile screens
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-4 overflow-auto max-h-[85vh]">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-8 md:my-4 overflow-auto max-h-[80vh] md:max-h-[85vh]">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
@@ -657,20 +659,40 @@ function showVideoDetails(videoId, videoData) {
                     </div>
                 </div>
             </div>
-            <div class="p-3 mt-2 pb-6">
-                <!-- Empty space at bottom to ensure all content is visible -->
+            <div class="p-5 mt-2">
+                <!-- Increased padding at the bottom to ensure all content is visible -->
             </div>
         </div>
     `;
     
+    // Calculate and set proper modal height based on device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        document.body.style.overflow = 'hidden'; // Prevent body scrolling on mobile
+        
+        // After appending to DOM, adjust position if needed on mobile
+        setTimeout(() => {
+            const modalContent = modal.querySelector('.bg-white');
+            if (modalContent) {
+                // Check if content exceeds viewport height
+                if (modalContent.offsetHeight > window.innerHeight * 0.9) {
+                    modalContent.style.height = '80vh';
+                    modalContent.style.overflowY = 'auto';
+                }
+            }
+        }, 50);
+    }
+    
     document.body.appendChild(modal);
     
     document.getElementById('closeModal').addEventListener('click', () => {
+        document.body.style.overflow = ''; // Restore scrolling
         document.body.removeChild(modal);
     });
     
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
+            document.body.style.overflow = ''; // Restore scrolling
             document.body.removeChild(modal);
         }
     });
@@ -732,7 +754,7 @@ function showVideoDetails(videoId, videoData) {
 // Function to show video details with moderation options
 function showVideoDetailsWithModeration(videoId, videoData) {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto';
     modal.id = 'videoModal';
     
     // Add iOS-specific touch handling
@@ -766,8 +788,10 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         ? `<div class="px-3 py-1 bg-gray-800 text-white rounded text-sm">Score: ${videoData.score}/100</div>` 
         : '';
     
+    // Use my-8 instead of my-4 to add more vertical margin on mobile
+    // Decrease max-height to ensure it fits on mobile screens
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-4 overflow-auto max-h-[85vh]">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-8 md:my-4 overflow-auto max-h-[80vh] md:max-h-[85vh]">
             <div class="p-3 border-b bg-white sticky top-0 z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
@@ -836,20 +860,40 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                 </div>
             </div>
-            <div class="p-3 mt-2 pb-6">
-                <!-- Empty space at bottom to ensure all content is visible -->
+            <div class="p-5 mt-2">
+                <!-- Increased padding at the bottom to ensure all content is visible -->
             </div>
         </div>
     `;
     
+    // Calculate and set proper modal height based on device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        document.body.style.overflow = 'hidden'; // Prevent body scrolling on mobile
+        
+        // After appending to DOM, adjust position if needed on mobile
+        setTimeout(() => {
+            const modalContent = modal.querySelector('.bg-white');
+            if (modalContent) {
+                // Check if content exceeds viewport height
+                if (modalContent.offsetHeight > window.innerHeight * 0.9) {
+                    modalContent.style.height = '80vh';
+                    modalContent.style.overflowY = 'auto';
+                }
+            }
+        }, 50);
+    }
+    
     document.body.appendChild(modal);
     
     document.getElementById('closeModal').addEventListener('click', () => {
+        document.body.style.overflow = ''; // Restore scrolling
         document.body.removeChild(modal);
     });
     
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
+            document.body.style.overflow = ''; // Restore scrolling
             document.body.removeChild(modal);
         }
     });
