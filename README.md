@@ -1,4 +1,4 @@
-# GoatMilke Social App
+# GoatMilk Social App
 
 A social media platform for milk enthusiasts to share videos and join "Milk Mobs".
 
@@ -126,7 +126,3 @@ The Firestore database uses a collection called `milk_videos` with the following
 - `score`: Calculated score (0-100)
 - `recommendedMob`: Suggested Milk Mob
 - `mediaName`: Custom name (optional)
-
-## Contact
-
-For questions or support, please contact the development team.
