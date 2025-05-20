@@ -13,13 +13,19 @@ function renderHomeView() {
     
     homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Loading videos...</div>';
 
-    // Limit initial query to improve performance on mobile
+    // Get device type from app.js
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    console.log(`Rendering home view for ${isMobile ? 'mobile' : 'desktop'} device`);
+    
+    // Adjust limit based on device type
+    const queryLimit = isMobile ? 6 : 12;
+    
     db.collection('milk_videos')
         .orderBy('uploadDate', 'desc')
-        .limit(12) // Limit to 12 videos initially
+        .limit(queryLimit)
         .get()
         .then((snapshot) => {
-            console.log(`Found ${snapshot.size} videos (limited query)`);
+            console.log(`Found ${snapshot.size} videos (limited to ${queryLimit})`);
             
             if (snapshot.empty) {
                 homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">No videos yet.</div>';
@@ -179,13 +185,18 @@ function renderExploreView() {
     
     exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">Loading milk mobs...</div>';
 
-    // Limit initial query to improve performance on mobile
+    // Get device type
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Adjust limit based on device type
+    const queryLimit = isMobile ? 8 : 15;
+    
     db.collection('milk_videos')
         .where('status', '==', 'Approved')
-        .limit(15) // Limit to 15 approved videos initially
+        .limit(queryLimit)
         .get()
         .then((snapshot) => {
-            console.log(`Found ${snapshot.size} approved videos for mobs (limited query)`);
+            console.log(`Found ${snapshot.size} approved videos for mobs (limited to ${queryLimit})`);
             
             if (snapshot.empty) {
                 exploreContainer.innerHTML = '<div class="text-center p-8 text-gray-500">No mobs formed yet. Videos need approval first!</div>';
@@ -389,7 +400,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[30vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls playsinline class="max-h-[30vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -544,7 +555,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls class="max-h-[30vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls playsinline class="max-h-[30vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>

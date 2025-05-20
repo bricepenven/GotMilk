@@ -329,17 +329,15 @@
             merge: true // Add merge option to prevent host override warning
         });
         
-        // Disable persistence on mobile to improve performance
+        // For mobile, use a different approach to improve performance
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            firebase.firestore().disableNetwork()
-              .then(() => {
-                console.log("Firestore network disabled for initial load");
-                // Re-enable after initial load
-                setTimeout(() => {
-                  firebase.firestore().enableNetwork()
-                    .then(() => console.log("Firestore network re-enabled"));
-                }, 3000);
-              });
+            console.log("Mobile device detected - optimizing Firebase for mobile");
+            // Don't disable network as it prevents data loading
+            firebase.firestore().settings({
+                cacheSizeBytes: 10000000, // 10MB cache for mobile
+                ignoreUndefinedProperties: true,
+                merge: true
+            });
         }
     </script>
     <!-- Load our modular JavaScript files -->
