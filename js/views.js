@@ -562,7 +562,7 @@ function renderReviewView(pendingOnly = true) {
 // Function to show video details in a modal
 function showVideoDetails(videoId, videoData) {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
     modal.id = 'videoModal';
     
     modal.addEventListener('touchstart', (e) => {
@@ -570,8 +570,6 @@ function showVideoDetails(videoId, videoData) {
             document.body.removeChild(modal);
         }
     });
-    
-    // Disable scrolling on modal
     
     let videoElement = '';
     if (videoData.videoUrl) {
@@ -597,7 +595,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4" style="max-height: calc(100vh - 40px);">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-4 overflow-auto max-h-[85vh]">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
@@ -652,6 +650,9 @@ function showVideoDetails(videoId, videoData) {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="p-3 mt-2 pb-6">
+                <!-- Empty space at bottom to ensure all content is visible -->
             </div>
         </div>
     `;
@@ -725,7 +726,7 @@ function showVideoDetails(videoId, videoData) {
 // Function to show video details with moderation options
 function showVideoDetailsWithModeration(videoId, videoData) {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
     modal.id = 'videoModal';
     
     let videoElement = '';
@@ -753,8 +754,8 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4">
-            <div class="p-3 border-b bg-white z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-4 overflow-auto max-h-[85vh]">
+            <div class="p-3 border-b bg-white sticky top-0 z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
                     <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;" aria-label="Close modal">
@@ -821,6 +822,9 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="p-3 mt-2 pb-6">
+                <!-- Empty space at bottom to ensure all content is visible -->
             </div>
         </div>
     `;
