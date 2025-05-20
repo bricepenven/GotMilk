@@ -17,8 +17,8 @@ function renderHomeView() {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     console.log(`Rendering home view for ${isMobile ? 'mobile' : 'desktop'} device`);
     
-    // Adjust limit based on device type
-    const queryLimit = isMobile ? 6 : 12;
+    // Increase the limit for mobile to ensure more videos are loaded
+    const queryLimit = isMobile ? 15 : 20;
     
     db.collection('milk_videos')
         .orderBy('uploadDate', 'desc')
@@ -48,8 +48,19 @@ function renderHomeView() {
                 return;
             }
 
-            homeGrid.className = 'grid grid-cols-3 gap-2';
+            // Clear previous content
             homeGrid.innerHTML = '';
+            
+            // Create a container that allows proper scrolling
+            const scrollContainer = document.createElement('div');
+            scrollContainer.className = 'w-full overflow-y-auto';
+            scrollContainer.style.maxHeight = 'calc(100vh - 140px)'; // Adjust for tab height
+            
+            // Create the grid inside the scroll container
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 gap-2 w-full';
+            scrollContainer.appendChild(grid);
+            homeGrid.appendChild(scrollContainer);
             
             filteredVideos.forEach(video => {
                 const videoId = video.id;
@@ -93,12 +104,151 @@ function renderHomeView() {
                     showVideoDetails(videoId, video);
                 });
                 
-                homeGrid.appendChild(card);
+                grid.appendChild(card);
             });
+            
+            // Load thumbnails after rendering
+            setTimeout(preloadThumbnails, 300);
+            
+            // Add load more button if there might be more videos
+            if (filteredVideos.length === queryLimit) {
+                const loadMoreContainer = document.createElement('div');
+                loadMoreContainer.className = 'col-span-3 flex justify-center p-3';
+                
+                const loadMoreBtn = document.createElement('button');
+                loadMoreBtn.className = 'px-4 py-2 bg-fairlife-blue text-white rounded-md';
+                loadMoreBtn.textContent = 'Load More';
+                loadMoreBtn.addEventListener('click', () => {
+                    // Implement load more functionality if needed
+                    const lastVideo = filteredVideos[filteredVideos.length - 1];
+                    if (lastVideo && lastVideo.uploadDate) {
+                        // Load more videos starting after the last visible video
+                        loadMoreVideos(lastVideo.uploadDate, grid);
+                    }
+                });
+                
+                loadMoreContainer.appendChild(loadMoreBtn);
+                grid.appendChild(loadMoreContainer);
+            }
         })
         .catch(error => {
             console.error("Error fetching videos:", error);
             homeGrid.innerHTML = '<div class="col-span-3 text-center p-8 text-gray-500">Error loading videos.</div>';
+        });
+}
+
+// Helper function to load more videos (pagination)
+function loadMoreVideos(lastTimestamp, gridElement) {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const queryLimit = isMobile ? 9 : 15;
+    
+    // Replace Load More button with loading indicator
+    const loadMoreContainer = gridElement.querySelector('div.col-span-3.flex.justify-center');
+    if (loadMoreContainer) {
+        loadMoreContainer.innerHTML = '<div class="text-center px-4 py-2">Loading...</div>';
+    }
+    
+    db.collection('milk_videos')
+        .orderBy('uploadDate', 'desc')
+        .startAfter(lastTimestamp)
+        .limit(queryLimit)
+        .get()
+        .then((snapshot) => {
+            // Remove loading indicator
+            if (loadMoreContainer) {
+                loadMoreContainer.remove();
+            }
+            
+            if (snapshot.empty) {
+                const noMoreContainer = document.createElement('div');
+                noMoreContainer.className = 'col-span-3 text-center p-3 text-gray-500';
+                noMoreContainer.textContent = 'No more videos to load';
+                gridElement.appendChild(noMoreContainer);
+                return;
+            }
+
+            const additionalVideos = [];
+            snapshot.forEach(doc => {
+                const video = doc.data();
+                if (video.status !== 'Rejected') {
+                    additionalVideos.push({
+                        id: doc.id,
+                        ...video
+                    });
+                }
+            });
+            
+            additionalVideos.forEach(video => {
+                const videoId = video.id;
+                const card = document.createElement('div');
+                card.className = 'aspect-square relative overflow-hidden';
+                card.setAttribute('data-video-id', videoId);
+                
+                let thumbnailUrl = video.thumbnailUrl || '';
+                let mediaContent;
+                
+                if (thumbnailUrl) {
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId, thumbnailUrl);
+                } else if (video.videoUrl) {
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId, video.thumbnailUrl);
+                } else {
+                    mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">
+                        <span class="text-gray-500 text-xs">Processing</span>
+                    </div>`;
+                }
+                
+                let statusBadge = '';
+                if (video.status === 'Approved') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                } else if (video.status === 'Pending Review' || video.needsReview) {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
+                }
+                
+                let scoreBadge = '';
+                if (typeof video.score === 'number') {
+                    scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
+                }
+                
+                card.innerHTML = `
+                    ${mediaContent}
+                    ${statusBadge}
+                    ${scoreBadge}
+                `;
+                
+                card.addEventListener('click', () => {
+                    showVideoDetails(videoId, video);
+                });
+                
+                gridElement.appendChild(card);
+            });
+            
+            // Load thumbnails for new content
+            setTimeout(preloadThumbnails, 300);
+            
+            // Add load more button if there might be more videos
+            if (additionalVideos.length === queryLimit) {
+                const newLoadMoreContainer = document.createElement('div');
+                newLoadMoreContainer.className = 'col-span-3 flex justify-center p-3';
+                
+                const loadMoreBtn = document.createElement('button');
+                loadMoreBtn.className = 'px-4 py-2 bg-fairlife-blue text-white rounded-md';
+                loadMoreBtn.textContent = 'Load More';
+                loadMoreBtn.addEventListener('click', () => {
+                    const lastVideo = additionalVideos[additionalVideos.length - 1];
+                    if (lastVideo && lastVideo.uploadDate) {
+                        loadMoreVideos(lastVideo.uploadDate, gridElement);
+                    }
+                });
+                
+                newLoadMoreContainer.appendChild(loadMoreBtn);
+                gridElement.appendChild(newLoadMoreContainer);
+            }
+        })
+        .catch(error => {
+            console.error("Error loading more videos:", error);
+            if (loadMoreContainer) {
+                loadMoreContainer.innerHTML = '<div class="text-center px-4 py-2 text-red-500">Failed to load more videos</div>';
+            }
         });
 }
 
