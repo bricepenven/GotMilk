@@ -2,7 +2,7 @@ import { db } from './api.js';
 import { approveVideo, rejectVideo } from './api.js';
 import { formatDate, getStatusClass, createVideoThumbnail, preloadThumbnails } from './utils.js';
 
-// Render home view with Instagram-style grid layout
+// Display main video grid
 function renderHomeView() {
     console.log("Rendering home view");
     const homeGrid = document.getElementById('homeGrid');
@@ -150,7 +150,7 @@ function renderHomeView() {
         });
 }
 
-// Helper function to load more videos (pagination)
+// Load next batch of videos
 function loadMoreVideos(lastTimestamp, gridElement) {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const queryLimit = isMobile ? 9 : 15;
@@ -265,7 +265,7 @@ function loadMoreVideos(lastTimestamp, gridElement) {
         });
 }
 
-// Render notifications view (user's own videos)
+// Show user's uploaded videos
 function renderNotificationsView() {
     // Same structure as before but with the same direct rendering approach
     console.log("Rendering notifications view");
@@ -342,7 +342,7 @@ function renderNotificationsView() {
         });
 }
 
-// Render explore view (mobs)
+// Display videos grouped by milk mobs
 function renderExploreView() {
     console.log("Rendering explore view");
     const exploreContainer = document.getElementById('exploreContainer');
@@ -473,7 +473,7 @@ function renderExploreView() {
         });
 }
 
-// Render review view
+// Show videos needing moderation
 function renderReviewView(pendingOnly = true) {
     console.log(`Rendering review view (pendingOnly: ${pendingOnly})`);
     const reviewList = document.getElementById('reviewList');
@@ -564,7 +564,7 @@ function renderReviewView(pendingOnly = true) {
         });
 }
 
-// Function to show video details in a modal
+// Display video details popup
 function showVideoDetails(videoId, videoData) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto';
@@ -751,7 +751,7 @@ function showVideoDetails(videoId, videoData) {
     }
 }
 
-// Function to show video details with moderation options
+// Show video with approve/reject controls
 function showVideoDetailsWithModeration(videoId, videoData) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto';
@@ -1003,7 +1003,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     }
 }
 
-// Initialize application on load
+// Fix menu positioning on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Fix menu navigation - make sure menu tabs are always visible and clickable
     const menuContainer = document.querySelector('.tab-bar') || document.querySelector('nav');

@@ -1,4 +1,4 @@
-// Format date - converts timestamps to readable format
+// Convert timestamps to readable format
 function formatDate(timestamp, detailed = false) {
     if (!timestamp) return 'Just now';
     
@@ -24,7 +24,7 @@ function formatDate(timestamp, detailed = false) {
     }
 }
 
-// Get CSS class for status - returns Tailwind classes for status badges
+// Get Tailwind classes for status badges
 function getStatusClass(status) {
     switch(status) {
         case 'Approved':
@@ -40,7 +40,7 @@ function getStatusClass(status) {
     }
 }
 
-// Generate a consistent pastel color based on a string ID
+// Generate milk-themed pastel color from ID
 function getRandomPastelColor(id) {
     if (!id) return '#e0f2fe';
     
@@ -57,7 +57,7 @@ function getRandomPastelColor(id) {
     return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
-// Function to create a video thumbnail element
+// Create thumbnail with play button overlay
 function createVideoThumbnail(videoUrl, videoId, thumbnailUrl = null) {
     // Use the thumbnail URL if available, otherwise use a colored background
     const bgColor = getRandomPastelColor(videoId);
@@ -92,7 +92,7 @@ function createVideoThumbnail(videoUrl, videoId, thumbnailUrl = null) {
     }
 }
 
-// Helper function to preload thumbnails from video URLs with lazy loading
+// Lazy load thumbnails when they enter viewport
 function preloadThumbnails() {
     console.log("Loading video thumbnails with lazy loading");
     

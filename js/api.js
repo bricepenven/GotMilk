@@ -1,6 +1,6 @@
 import { webhookUrl, corsProxyUrl } from './config.js';
 
-// Get Firebase instances - wrapped in a function to ensure Firebase is initialized
+// Firebase setup with retry logic
 let db, storage;
 
 try {
@@ -21,7 +21,7 @@ try {
     }, 500);
 }
 
-// Helper function for webhook API calls with CORS handling
+// Call webhook with CORS fallback
 async function callWebhook(data) {
     // First try direct request
     try {
@@ -68,7 +68,7 @@ async function callWebhook(data) {
     }
 }
 
-// Approve video function
+// Mark video as approved
 async function approveVideo(videoId, mob) {
     try {
         console.log(`Approving video ${videoId} for mob ${mob}`);
@@ -103,7 +103,7 @@ async function approveVideo(videoId, mob) {
     }
 }
 
-// Reject video function
+// Mark video as rejected
 async function rejectVideo(videoId) {
     try {
         console.log(`Rejecting video ${videoId}`);
@@ -136,7 +136,7 @@ async function rejectVideo(videoId) {
     }
 }
 
-// Upload handler
+// Handle video upload process
 async function handleUpload(e) {
     e.preventDefault();
     console.log("Upload form submitted");
@@ -244,7 +244,7 @@ async function handleUpload(e) {
     }
 }
 
-// Helper function to show upload status
+// Display upload status message
 function showUploadStatus(message, type) {
     const statusElement = document.getElementById('uploadStatus');
     if (!statusElement) return;
@@ -268,7 +268,7 @@ function showUploadStatus(message, type) {
     statusElement.classList.remove('hidden');
 }
 
-// Function to generate a thumbnail from a video file
+// Extract thumbnail from video
 async function generateThumbnail(videoFile, videoId) {
     return new Promise((resolve, reject) => {
         try {
