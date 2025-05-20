@@ -52,129 +52,79 @@ function renderHomeView() {
             // Clear previous content
             homeGrid.innerHTML = '';
             
-            // For iOS, add special handling
-            if (isIOS) {
-                // Make the parent container take full height minus tabs
-                const parentContainer = homeGrid.parentElement;
-                if (parentContainer) {
-                    parentContainer.style.height = 'calc(100vh - 100px)';
-                    parentContainer.style.overflowY = 'auto';
-                    parentContainer.style.WebkitOverflowScrolling = 'touch'; // For smooth scrolling on iOS
+            // Common setup for both iOS and non-iOS
+            // Make parent container fill available space
+            const parentContainer = homeGrid.parentElement;
+            if (parentContainer) {
+                parentContainer.style.display = 'flex';
+                parentContainer.style.flexDirection = 'column';
+                parentContainer.style.height = 'calc(100vh - 120px)'; // Adjust for header and tabs
+                parentContainer.style.overflowY = 'hidden';
+            }
+            
+            // Create a scrollable container that fills available space
+            const scrollContainer = document.createElement('div');
+            scrollContainer.className = 'w-full overflow-y-auto flex-grow';
+            scrollContainer.style.WebkitOverflowScrolling = 'touch'; // For smooth scrolling on iOS
+            
+            // Create the grid inside the scroll container
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 gap-2 w-full pb-16'; // Add bottom padding for tab bar
+            scrollContainer.appendChild(grid);
+            homeGrid.appendChild(scrollContainer);
+            
+            console.log(`Rendering ${filteredVideos.length} videos for ${isMobile ? 'mobile' : 'desktop'} ${isIOS ? '(iOS)' : ''}`);
+            
+            filteredVideos.forEach(video => {
+                const videoId = video.id;
+                const card = document.createElement('div');
+                card.className = 'aspect-square relative overflow-hidden';
+                card.setAttribute('data-video-id', videoId);
+                
+                let thumbnailUrl = video.thumbnailUrl || '';
+                let mediaContent;
+                
+                if (thumbnailUrl) {
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId, thumbnailUrl);
+                } else if (video.videoUrl) {
+                    mediaContent = createVideoThumbnail(video.videoUrl, videoId, video.thumbnailUrl);
+                } else {
+                    // Fallback for processing videos
+                    mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">
+                        <span class="text-gray-500 text-xs">Processing</span>
+                    </div>`;
                 }
                 
-                // Create a simpler grid without nested scrollable containers for iOS
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-3 gap-2 w-full';
-                homeGrid.appendChild(grid);
+                let statusBadge = '';
+                if (video.status === 'Approved') {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
+                } else if (video.status === 'Pending Review' || video.needsReview) {
+                    statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
+                }
                 
-                console.log(`Rendering ${filteredVideos.length} videos on iOS device`);
+                let scoreBadge = '';
+                if (typeof video.score === 'number') {
+                    scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
+                }
                 
-                filteredVideos.forEach(video => {
-                    const videoId = video.id;
-                    const card = document.createElement('div');
-                    card.className = 'aspect-square relative overflow-hidden';
-                    card.setAttribute('data-video-id', videoId);
-                    
-                    let thumbnailUrl = video.thumbnailUrl || '';
-                    let mediaContent;
-                    
-                    if (thumbnailUrl) {
-                        mediaContent = createVideoThumbnail(video.videoUrl, videoId, thumbnailUrl);
-                    } else if (video.videoUrl) {
-                        mediaContent = createVideoThumbnail(video.videoUrl, videoId, video.thumbnailUrl);
-                    } else {
-                        // Fallback for processing videos
-                        mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">
-                            <span class="text-gray-500 text-xs">Processing</span>
-                        </div>`;
-                    }
-                    
-                    let statusBadge = '';
-                    if (video.status === 'Approved') {
-                        statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
-                    } else if (video.status === 'Pending Review' || video.needsReview) {
-                        statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
-                    }
-                    
-                    let scoreBadge = '';
-                    if (typeof video.score === 'number') {
-                        scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
-                    }
-                    
-                    card.innerHTML = `
-                        ${mediaContent}
-                        ${statusBadge}
-                        ${scoreBadge}
-                    `;
-                    
-                    card.addEventListener('click', () => {
-                        showVideoDetails(videoId, video);
-                    });
-                    
-                    grid.appendChild(card);
+                card.innerHTML = `
+                    ${mediaContent}
+                    ${statusBadge}
+                    ${scoreBadge}
+                `;
+                
+                card.addEventListener('click', () => {
+                    showVideoDetails(videoId, video);
                 });
                 
-                // Add a debug element to show total videos (for troubleshooting)
-                const debugElement = document.createElement('div');
-                debugElement.className = 'col-span-3 text-xs text-gray-500 text-center mt-2';
-                debugElement.textContent = `Displaying ${filteredVideos.length} videos`;
-                grid.appendChild(debugElement);
-            } else {
-                // Non-iOS devices use the scrollable container approach
-                const scrollContainer = document.createElement('div');
-                scrollContainer.className = 'w-full overflow-y-auto';
-                scrollContainer.style.maxHeight = 'calc(100vh - 140px)';
-                
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-3 gap-2 w-full';
-                scrollContainer.appendChild(grid);
-                homeGrid.appendChild(scrollContainer);
-                
-                filteredVideos.forEach(video => {
-                    const videoId = video.id;
-                    const card = document.createElement('div');
-                    card.className = 'aspect-square relative overflow-hidden';
-                    card.setAttribute('data-video-id', videoId);
-                    
-                    let thumbnailUrl = video.thumbnailUrl || '';
-                    let mediaContent;
-                    
-                    if (thumbnailUrl) {
-                        mediaContent = createVideoThumbnail(video.videoUrl, videoId, thumbnailUrl);
-                    } else if (video.videoUrl) {
-                        mediaContent = createVideoThumbnail(video.videoUrl, videoId, video.thumbnailUrl);
-                    } else {
-                        // Fallback for processing videos
-                        mediaContent = `<div class="w-full h-full flex items-center justify-center bg-gray-200">
-                            <span class="text-gray-500 text-xs">Processing</span>
-                        </div>`;
-                    }
-                    
-                    let statusBadge = '';
-                    if (video.status === 'Approved') {
-                        statusBadge = '<span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">✓</span>';
-                    } else if (video.status === 'Pending Review' || video.needsReview) {
-                        statusBadge = '<span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">⌛</span>';
-                    }
-                    
-                    let scoreBadge = '';
-                    if (typeof video.score === 'number') {
-                        scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
-                    }
-                    
-                    card.innerHTML = `
-                        ${mediaContent}
-                        ${statusBadge}
-                        ${scoreBadge}
-                    `;
-                    
-                    card.addEventListener('click', () => {
-                        showVideoDetails(videoId, video);
-                    });
-                    
-                    grid.appendChild(card);
-                });
-            }
+                grid.appendChild(card);
+            });
+            
+            // Add a small debug element to show total videos
+            const debugElement = document.createElement('div');
+            debugElement.className = 'col-span-3 text-xs text-gray-500 text-center my-2';
+            debugElement.textContent = `Displaying ${filteredVideos.length} videos`;
+            grid.appendChild(debugElement);
             
             // Load thumbnails after rendering
             setTimeout(preloadThumbnails, 300);
@@ -182,7 +132,7 @@ function renderHomeView() {
             // Add load more button if there might be more videos
             if (filteredVideos.length === queryLimit) {
                 const loadMoreContainer = document.createElement('div');
-                loadMoreContainer.className = 'col-span-3 flex justify-center p-3';
+                loadMoreContainer.className = 'col-span-3 flex justify-center p-3 mb-4';
                 
                 const loadMoreBtn = document.createElement('button');
                 loadMoreBtn.className = 'px-4 py-2 bg-fairlife-blue text-white rounded-md';
@@ -190,23 +140,12 @@ function renderHomeView() {
                 loadMoreBtn.addEventListener('click', () => {
                     const lastVideo = filteredVideos[filteredVideos.length - 1];
                     if (lastVideo && lastVideo.uploadDate) {
-                        const targetGrid = isIOS ? homeGrid.querySelector('.grid') : 
-                            homeGrid.querySelector('.overflow-y-auto .grid');
-                        loadMoreVideos(lastVideo.uploadDate, targetGrid);
+                        loadMoreVideos(lastVideo.uploadDate, grid);
                     }
                 });
                 
                 loadMoreContainer.appendChild(loadMoreBtn);
-                
-                // Append to the appropriate container based on device
-                const targetContainer = isIOS ? homeGrid.querySelector('.grid') : 
-                    homeGrid.querySelector('.overflow-y-auto .grid');
-                    
-                if (targetContainer) {
-                    targetContainer.appendChild(loadMoreContainer);
-                } else {
-                    console.error("Cannot find grid container to append load more button");
-                }
+                grid.appendChild(loadMoreContainer);
             }
         })
         .catch(error => {
