@@ -140,6 +140,24 @@
             height: 100%;
             object-fit: cover;
         }
+        
+        /* Play button overlay styling */
+        .play-button-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .thumbnail-container:hover .play-button-overlay {
+            transform: scale(1.1);
+            background-color: rgba(0, 163, 224, 0.7); /* Fairlife blue with opacity */
+        }
     </style>
     <!-- Favicon - milk emoji -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥛</text></svg>" />
