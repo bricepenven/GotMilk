@@ -400,7 +400,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls playsinline class="max-h-[30vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls playsinline class="max-h-[25vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -420,7 +420,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 95vh;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
@@ -441,7 +441,7 @@ function showVideoDetails(videoId, videoData) {
                         ${scoreDisplay}
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div class="grid grid-cols-2 gap-1 mb-2">
                         <div>
                             <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
                             <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
@@ -451,7 +451,7 @@ function showVideoDetails(videoId, videoData) {
                         </div>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
                             <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
@@ -555,7 +555,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.videoUrl) {
         videoElement = `
             <div class="flex justify-center">
-                <video controls playsinline class="max-h-[30vh] max-w-full rounded-lg object-contain" preload="auto">
+                <video controls playsinline class="max-h-[25vh] max-w-full rounded-lg object-contain" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -575,7 +575,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 95vh;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
@@ -607,7 +607,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div class="grid grid-cols-2 gap-1 mb-2">
                         <div>
                             <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
                             <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
@@ -617,7 +617,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
                             <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
