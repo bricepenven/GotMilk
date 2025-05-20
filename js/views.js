@@ -74,7 +74,7 @@ function renderHomeView() {
                 
                 let scoreBadge = '';
                 if (typeof video.score === 'number') {
-                    scoreBadge = `<span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded-md">${video.score}/100</span>`;
+                    scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
                 }
                 
                 card.innerHTML = `
@@ -128,7 +128,7 @@ function renderNotificationsView() {
                 item.setAttribute('data-video-id', doc.id);
                 
                 const scoreDisplay = typeof video.score === 'number' 
-                    ? `<div class="text-xs font-medium bg-black text-white px-2 py-0.5 rounded ml-2">Score: ${video.score}/100</div>` 
+                    ? `<div class="text-xs bg-black text-white px-1.5 py-0.5 rounded ml-2">Score: ${video.score}/100</div>` 
                     : '';
                 
                 item.innerHTML = `
@@ -248,7 +248,7 @@ function renderExploreView() {
                     
                     let scoreBadge = '';
                     if (typeof video.score === 'number') {
-                        scoreBadge = `<span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded-md">${video.score}/100</span>`;
+                        scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
                     }
                     
                     card.innerHTML = `
@@ -339,7 +339,7 @@ function renderReviewView(pendingOnly = true) {
                 
                 let scoreBadge = '';
                 if (typeof video.score === 'number') {
-                    scoreBadge = `<span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded-md">${video.score}/100</span>`;
+                    scoreBadge = `<span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 py-0.5 rounded">${video.score}/100</span>`;
                 }
                 
                 card.innerHTML = `
@@ -397,7 +397,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
     
     const scoreDisplay = typeof videoData.score === 'number' 
-        ? `<div class="bg-black text-white text-sm font-medium rounded px-2 py-1 ml-2">Score: ${videoData.score}/100</div>` 
+        ? `<div class="bg-black text-white text-xs rounded px-1.5 py-0.5 ml-2">Score: ${videoData.score}/100</div>` 
         : '';
     
     modal.innerHTML = `
@@ -552,7 +552,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
     
     const scoreDisplay = typeof videoData.score === 'number' 
-        ? `<div class="bg-black text-white text-sm font-medium rounded px-2 py-1 ml-2">Score: ${videoData.score}/100</div>` 
+        ? `<div class="bg-black text-white text-xs rounded px-1.5 py-0.5 ml-2">Score: ${videoData.score}/100</div>` 
         : '';
     
     modal.innerHTML = `
