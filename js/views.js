@@ -466,9 +466,9 @@ function showVideoDetails(videoId, videoData) {
                         </div>
                         
                         <div id="mediaNameEditForm" class="hidden">
-                            <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                            <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
                             <div class="flex space-x-2">
-                                <input type="text" id="mediaName" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
                                     value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
                                 <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
                             </div>
@@ -508,8 +508,8 @@ function showVideoDetails(videoId, videoData) {
     const saveButton = document.getElementById('saveMediaName');
     if (saveButton) {
         saveButton.addEventListener('click', async () => {
-            const mediaName = document.getElementById('mediaName').value.trim();
             const videoId = saveButton.getAttribute('data-id');
+            const mediaName = document.getElementById(`mediaName-${videoId}`).value.trim();
             
             try {
                 await db.collection('milk_videos').doc(videoId).update({
@@ -632,9 +632,9 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                         </div>
                         
                         <div id="mediaNameEditForm" class="hidden">
-                            <label for="mediaName" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                            <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
                             <div class="flex space-x-2">
-                                <input type="text" id="mediaName" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
                                     value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
                                 <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
                             </div>
@@ -674,7 +674,8 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     const saveButton = document.getElementById('saveMediaName');
     if (saveButton) {
         saveButton.addEventListener('click', async () => {
-            const mediaName = document.getElementById('mediaName').value.trim();
+            const videoId = saveButton.getAttribute('data-id');
+            const mediaName = document.getElementById(`mediaName-${videoId}`).value.trim();
             
             try {
                 await db.collection('milk_videos').doc(videoId).update({
