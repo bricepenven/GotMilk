@@ -57,18 +57,15 @@ function getRandomPastelColor(id) {
 
 // Function to create a video thumbnail element
 function createVideoThumbnail(videoUrl, videoId) {
-    // Create a visually appealing thumbnail with milk-themed gradient
-    const bgColor = getRandomPastelColor(videoId);
-    
-    // Generate a milk-themed gradient based on the video ID
-    const gradientAngle = (parseInt(videoId, 16) % 360) || 45;
-    const gradientStyle = `background: linear-gradient(${gradientAngle}deg, ${bgColor} 0%, white 100%);`;
-    
+    // Use the video URL as the background image with a play button overlay
     return `
-        <div class="thumbnail-container relative" style="${gradientStyle}">
+        <div class="thumbnail-container relative">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('${videoUrl}#t=0.1');">
+                <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+            </div>
             <div class="absolute inset-0 flex items-center justify-center">
-                <div class="rounded-full bg-white bg-opacity-50 p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#00a3e0" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));">
+                <div class="rounded-full bg-black bg-opacity-50 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));">
                         <path d="M8 5v14l11-7z"/>
                     </svg>
                 </div>
