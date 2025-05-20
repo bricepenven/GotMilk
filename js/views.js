@@ -222,9 +222,9 @@ function renderExploreView() {
 
             exploreContainer.innerHTML = '';
             
-            // Sort mobs to ensure "Milk Master" appears first (before Lactose Lookouts)
+            // Force "Milk Masters" to appear first before "Lactose Lookouts"
             const mobOrder = {
-                "Milk Master": -2,
+                "Milk Masters": -2,
                 "Lactose Lookouts": -1
             };
             
@@ -442,7 +442,7 @@ function showVideoDetails(videoId, videoData) {
                 </div>
             </div>
             
-            <div class="p-3" style="overflow-y: auto; max-height: calc(100vh - 100px);">
+            <div class="p-3">
                 ${videoElement}
                 
                 <div class="mt-4">
@@ -462,9 +462,9 @@ function showVideoDetails(videoId, videoData) {
                     </div>
                     
                     <div class="mb-2">
-                        <label id="media-name-label-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
                         <div class="flex items-center space-x-2 mb-2">
-                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis" aria-labelledby="media-name-label-${videoId}">
+                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
                                 ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
                                 ${videoData.mediaName ? 
                                     `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
@@ -586,8 +586,8 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4" style="max-height: calc(100vh - 40px);">
-            <div class="p-3 border-b sticky top-0 bg-white z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4">
+            <div class="p-3 border-b bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
                     <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;" aria-label="Close modal">
@@ -598,7 +598,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 </div>
             </div>
             
-            <div class="p-3" style="overflow-y: auto; max-height: calc(100vh - 100px);">
+            <div class="p-3">
                 ${videoElement}
                 
                 <div class="mt-4">
@@ -631,9 +631,9 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-2">
-                        <label id="media-display-label-${videoId}" for="mediaName-display-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
                         <div class="flex items-center space-x-2 mb-2">
-                            <div id="mediaName-display-${videoId}" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
                                 ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
                                 ${videoData.mediaName ? 
                                     `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
@@ -695,7 +695,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     mediaName: mediaName
                 });
                 
-                const nameDisplay = document.getElementById(`mediaName-display-${videoId}`);
+                const nameDisplay = modal.querySelector('.flex-1.px-3.py-2.bg-gray-100');
                 if (nameDisplay) {
                     nameDisplay.innerHTML = `
                         ${mediaName || videoData.originalFileName || 'Unknown'}
