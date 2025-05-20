@@ -33,6 +33,8 @@ function getStatusClass(status) {
             return 'bg-red-100 text-red-800';
         case 'Pending Review':
             return 'bg-yellow-100 text-yellow-800';
+        case 'Score':
+            return 'bg-gray-800 text-white';
         default:
             return 'bg-gray-100 text-gray-800';
     }

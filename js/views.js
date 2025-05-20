@@ -222,10 +222,12 @@ function renderExploreView() {
 
             exploreContainer.innerHTML = '';
             
-            // Sort mobs to ensure "Milk Master" appears first
+            // Sort mobs to ensure "Milk Master" appears first and "Lactose Lookouts" second
             const sortedMobs = Object.entries(mobs).sort(([mobNameA], [mobNameB]) => {
                 if (mobNameA === "Milk Master") return -1;
                 if (mobNameB === "Milk Master") return 1;
+                if (mobNameA === "Lactose Lookouts") return -1;
+                if (mobNameB === "Lactose Lookouts") return 1;
                 return mobNameA.localeCompare(mobNameB);
             });
             
@@ -420,7 +422,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 95vh;">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; margin-top: 5vh; margin-bottom: 5vh;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
@@ -571,11 +573,11 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
     
     const scoreDisplay = typeof videoData.score === 'number' 
-        ? `<span class="inline-block px-2 py-1 text-xs rounded bg-black text-white">Score: ${videoData.score}/100</span>` 
+        ? `<span class="inline-block px-2 py-1 text-xs rounded ${getStatusClass('Score')}">Score: ${videoData.score}/100</span>` 
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 95vh;">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; margin-top: 5vh; margin-bottom: 5vh;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
