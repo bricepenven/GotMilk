@@ -222,12 +222,20 @@ function renderExploreView() {
 
             exploreContainer.innerHTML = '';
             
-            // Sort mobs to ensure "Milk Master" appears first and "Lactose Lookouts" second
+            // Sort mobs to ensure "Milk Master" appears first (before Lactose Lookouts)
+            const mobOrder = {
+                "Milk Master": -2,
+                "Lactose Lookouts": -1
+            };
+            
             const sortedMobs = Object.entries(mobs).sort(([mobNameA], [mobNameB]) => {
-                if (mobNameA === "Milk Master") return -1;
-                if (mobNameB === "Milk Master") return 1;
-                if (mobNameA === "Lactose Lookouts") return -1;
-                if (mobNameB === "Lactose Lookouts") return 1;
+                const orderA = mobOrder[mobNameA] || 0;
+                const orderB = mobOrder[mobNameB] || 0;
+                
+                if (orderA !== orderB) {
+                    return orderA - orderB;
+                }
+                
                 return mobNameA.localeCompare(mobNameB);
             });
             
@@ -422,7 +430,7 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; overflow-y: auto;">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4" style="max-height: calc(100vh - 40px);">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
@@ -434,7 +442,7 @@ function showVideoDetails(videoId, videoData) {
                 </div>
             </div>
             
-            <div class="p-3">
+            <div class="p-3" style="overflow-y: auto; max-height: calc(100vh - 100px);">
                 ${videoElement}
                 
                 <div class="mt-4">
@@ -454,15 +462,15 @@ function showVideoDetails(videoId, videoData) {
                     </div>
                     
                     <div class="mb-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <label id="media-name-label-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
-                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis" aria-labelledby="media-name-label-${videoId}">
                                 ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
                                 ${videoData.mediaName ? 
                                     `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
                                     ''}
                             </div>
-                            <button id="editMediaNameBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                            <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
                                 Edit
                             </button>
                         </div>
@@ -472,7 +480,7 @@ function showVideoDetails(videoId, videoData) {
                             <div class="flex space-x-2">
                                 <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
                                     value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
-                                <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                                <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
                             </div>
                         </div>
                     </div>
@@ -578,7 +586,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; overflow-y: auto;">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4" style="max-height: calc(100vh - 40px);">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
@@ -590,7 +598,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 </div>
             </div>
             
-            <div class="p-3">
+            <div class="p-3" style="overflow-y: auto; max-height: calc(100vh - 100px);">
                 ${videoElement}
                 
                 <div class="mt-4">
@@ -623,7 +631,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-2">
-                        <label for="mediaName-display-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <label id="media-display-label-${videoId}" for="mediaName-display-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
                             <div id="mediaName-display-${videoId}" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
                                 ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
