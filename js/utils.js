@@ -67,8 +67,8 @@ function createVideoThumbnail(videoUrl, videoId, thumbnailUrl = null) {
                 <div class="absolute inset-0 bg-black bg-opacity-10"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="play-button-overlay">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="48" height="48">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="32" height="32">
+                            <path d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
                 </div>
@@ -80,8 +80,8 @@ function createVideoThumbnail(videoUrl, videoId, thumbnailUrl = null) {
             <div class="thumbnail-container relative" style="background-color: ${bgColor};">
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="play-button-overlay">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="48" height="48">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="32" height="32">
+                            <path d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
                 </div>
