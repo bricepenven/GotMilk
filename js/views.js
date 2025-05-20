@@ -422,11 +422,11 @@ function showVideoDetails(videoId, videoData) {
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; margin-top: 5vh; margin-bottom: 5vh;">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; overflow-y: auto;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Video Details</h3>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;">
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;" aria-label="Close modal">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -572,16 +572,17 @@ function showVideoDetailsWithModeration(videoId, videoData) {
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
     
+    // Fixed score display to match styling and size of the buttons
     const scoreDisplay = typeof videoData.score === 'number' 
-        ? `<span class="inline-block px-2 py-1 text-xs rounded ${getStatusClass('Score')}">Score: ${videoData.score}/100</span>` 
+        ? `<div class="px-3 py-1 bg-gray-800 text-white rounded text-sm">Score: ${videoData.score}/100</div>` 
         : '';
     
     modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; margin-top: 5vh; margin-bottom: 5vh;">
+        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-4 overflow-hidden" style="max-height: 85vh; overflow-y: auto;">
             <div class="p-3 border-b sticky top-0 bg-white z-10">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-medium">Moderate Video</h3>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;">
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;" aria-label="Close modal">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -593,19 +594,21 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 ${videoElement}
                 
                 <div class="mt-4">
-                    <div class="flex items-center justify-between mb-3">
+                    <div class="flex flex-col space-y-3 mb-3">
                         <div class="flex items-center">
                             <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
-                            ${scoreDisplay}
                         </div>
                         
-                        <div class="flex space-x-2">
-                            <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
-                                Approve
-                            </button>
-                            <button id="rejectBtn" class="px-3 py-1 bg-red-500 text-white rounded text-sm ${videoData.status === 'Rejected' ? 'opacity-50' : ''}">
-                                Reject
-                            </button>
+                        <div class="flex justify-between items-center space-x-2">
+                            ${scoreDisplay}
+                            <div class="flex space-x-2">
+                                <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
+                                    Approve
+                                </button>
+                                <button id="rejectBtn" class="px-3 py-1 bg-red-500 text-white rounded text-sm ${videoData.status === 'Rejected' ? 'opacity-50' : ''}">
+                                    Reject
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -620,15 +623,15 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     </div>
                     
                     <div class="mb-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
+                        <label for="mediaName-display-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Media Name</label>
                         <div class="flex items-center space-x-2 mb-2">
-                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                            <div id="mediaName-display-${videoId}" class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
                                 ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
                                 ${videoData.mediaName ? 
                                     `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
                                     ''}
                             </div>
-                            <button id="editMediaNameBtn" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                            <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
                                 Edit
                             </button>
                         </div>
@@ -638,7 +641,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                             <div class="flex space-x-2">
                                 <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
                                     value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
-                                <button id="saveMediaName" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                                <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
                             </div>
                         </div>
                     </div>
@@ -684,7 +687,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                     mediaName: mediaName
                 });
                 
-                const nameDisplay = modal.querySelector('.flex-1.px-3.py-2.bg-gray-100');
+                const nameDisplay = document.getElementById(`mediaName-display-${videoId}`);
                 if (nameDisplay) {
                     nameDisplay.innerHTML = `
                         ${mediaName || videoData.originalFileName || 'Unknown'}
