@@ -210,7 +210,15 @@ function renderExploreView() {
             }
 
             exploreContainer.innerHTML = '';
-            Object.entries(mobs).forEach(([mob, videos]) => {
+            
+            // Sort mobs to ensure "Milk Master" appears first
+            const sortedMobs = Object.entries(mobs).sort(([mobNameA], [mobNameB]) => {
+                if (mobNameA === "Milk Master") return -1;
+                if (mobNameB === "Milk Master") return 1;
+                return mobNameA.localeCompare(mobNameB);
+            });
+            
+            sortedMobs.forEach(([mob, videos]) => {
                 const section = document.createElement('div');
                 section.className = 'mb-6';
                 
