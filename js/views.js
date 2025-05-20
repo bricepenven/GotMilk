@@ -564,33 +564,40 @@ function renderReviewView(pendingOnly = true) {
         });
 }
 
-// Function to show video details in a modal
+// Function to show video details in a modal - completely revised for better mobile handling
 function showVideoDetails(videoId, videoData) {
+    // Create modal container
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50';
     modal.id = 'videoModal';
     
-    // Add iOS-specific touch handling
-    modal.addEventListener('touchstart', (e) => {
-        if (e.target === modal) {
-            document.body.removeChild(modal);
-        }
-    });
+    // Detect device type
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
     
+    // Check orientation - important for vertical videos
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    // Prepare video element with responsive sizing
     let videoElement = '';
     if (videoData.videoUrl) {
+        // Different video container sizes based on device orientation and type
+        const videoHeight = isPortrait ? (isMobile ? '38vh' : '45vh') : '25vh';
+        
         videoElement = `
-            <div class="flex justify-center">
-                <video controls playsinline class="max-h-[25vh] max-w-full rounded-lg object-contain" preload="auto">
+            <div class="flex justify-center items-center">
+                <video controls playsinline style="max-height: ${videoHeight}; width: auto;" 
+                       class="rounded-lg object-contain bg-black" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
         `;
     } else {
-        videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
+        videoElement = `<div class="h-40 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
     }
     
+    // Prepare status styling
     let statusClass = 'bg-gray-100 text-gray-800';
     if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
@@ -600,87 +607,142 @@ function showVideoDetails(videoId, videoData) {
         ? `<span class="inline-block px-2 py-1 text-xs rounded-md bg-black text-white">Score: ${videoData.score}/100</span>` 
         : '';
     
-    // Use my-8 instead of my-4 to add more vertical margin on mobile
-    // Decrease max-height to ensure it fits on mobile screens
-    modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-8 md:my-4 overflow-auto max-h-[80vh] md:max-h-[85vh]">
-            <div class="p-3 border-b sticky top-0 bg-white z-10">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-base font-medium">Video Details</h3>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;" aria-label="Close modal">
+    // Create modal markup - differently for mobile vs desktop
+    if (isMobile) {
+        modal.innerHTML = `
+            <div class="flex flex-col h-full">
+                <!-- Top close button area -->
+                <div class="flex justify-end p-2">
+                    <button id="closeModal" class="bg-black bg-opacity-50 text-white rounded-full p-2" aria-label="Close modal">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-            </div>
-            
-            <div class="p-3">
-                ${videoElement}
                 
-                <div class="mt-4">
-                    <div class="flex items-center mb-2">
-                        <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
-                        ${scoreDisplay}
+                <!-- Content area that slides up from bottom -->
+                <div class="mt-auto bg-white rounded-t-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                    <!-- Video container - fixed at the top -->
+                    <div class="p-3 bg-black">
+                        ${videoElement}
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-1 mb-2">
-                        <div>
-                            <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
-                            <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
-                        </div>
-                        <div>
-                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
-                        </div>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
-                        <div class="flex items-center space-x-2 mb-2">
-                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
-                                ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
-                                ${videoData.mediaName ? 
-                                    `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
-                                    ''}
-                            </div>
-                            <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
-                                Edit
-                            </button>
+                    <!-- Scrollable details -->
+                    <div class="overflow-y-auto p-3 flex-1">
+                        <div class="flex items-center mb-2">
+                            <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                            ${scoreDisplay}
                         </div>
                         
-                        <div id="mediaNameEditForm" class="hidden">
-                            <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
-                            <div class="flex space-x-2">
-                                <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
-                                    value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
-                                <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                        <div class="grid grid-cols-2 gap-1 mb-3">
+                            <div>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Upload:</strong> ${formatDate(videoData.uploadDate, true)}</p>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                            </div>
+                            <div>
+                                ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                                    ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
+                                    ${videoData.mediaName ? 
+                                        `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
+                                        ''}
+                                </div>
+                                <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                    Edit
+                                </button>
+                            </div>
+                            
+                            <div id="mediaNameEditForm" class="hidden">
+                                <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                        value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
+                                    <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom padding to ensure visibility -->
+                    <div class="pb-6"></div>
+                </div>
+            </div>
+        `;
+    } else {
+        // Desktop modal
+        modal.innerHTML = `
+            <div class="flex items-center justify-center h-full p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh]">
+                    <!-- Header with title and close button -->
+                    <div class="p-3 border-b bg-white sticky top-0 z-10 flex justify-between items-center">
+                        <h3 class="text-base font-medium">Video Details</h3>
+                        <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" aria-label="Close modal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Video container -->
+                    <div class="p-3 bg-black">
+                        ${videoElement}
+                    </div>
+                    
+                    <!-- Scrollable content -->
+                    <div class="p-4 overflow-y-auto">
+                        <div class="flex items-center mb-3">
+                            <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                            ${scoreDisplay}
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                            </div>
+                            <div>
+                                ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                                    ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
+                                    ${videoData.mediaName ? 
+                                        `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
+                                        ''}
+                                </div>
+                                <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                    Edit
+                                </button>
+                            </div>
+                            
+                            <div id="mediaNameEditForm" class="hidden">
+                                <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                        value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
+                                    <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="p-5 mt-2">
-                <!-- Increased padding at the bottom to ensure all content is visible -->
-            </div>
-        </div>
-    `;
+        `;
+    }
     
-    // Calculate and set proper modal height based on device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Handle mobile devices specifically
     if (isMobile) {
-        document.body.style.overflow = 'hidden'; // Prevent body scrolling on mobile
-        
-        // After appending to DOM, adjust position if needed on mobile
-        setTimeout(() => {
-            const modalContent = modal.querySelector('.bg-white');
-            if (modalContent) {
-                // Check if content exceeds viewport height
-                if (modalContent.offsetHeight > window.innerHeight * 0.9) {
-                    modalContent.style.height = '80vh';
-                    modalContent.style.overflowY = 'auto';
-                }
-            }
-        }, 50);
+        document.body.style.overflow = 'hidden'; // Prevent body scrolling
     }
     
     document.body.appendChild(modal);
@@ -690,13 +752,29 @@ function showVideoDetails(videoId, videoData) {
         document.body.removeChild(modal);
     });
     
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            document.body.style.overflow = ''; // Restore scrolling
-            document.body.removeChild(modal);
+    // Add touch and click handlers for closing modal
+    if (isMobile) {
+        // For mobile, only close when clicking in the top area
+        const topArea = modal.querySelector('.flex.justify-end.p-2');
+        if (topArea) {
+            topArea.addEventListener('click', (e) => {
+                if (e.target === topArea) {
+                    document.body.style.overflow = ''; 
+                    document.body.removeChild(modal);
+                }
+            });
         }
-    });
+    } else {
+        // For desktop, close when clicking outside the modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.style.overflow = ''; 
+                document.body.removeChild(modal);
+            }
+        });
+    }
     
+    // Media name editing functionality
     const editButton = document.getElementById('editMediaNameBtn');
     if (editButton) {
         editButton.addEventListener('click', () => {
@@ -749,139 +827,226 @@ function showVideoDetails(videoId, videoData) {
             }
         });
     }
+    
+    // Auto-play video if not on iOS (iOS restricts autoplay)
+    if (videoData.videoUrl && !isIOS) {
+        setTimeout(() => {
+            const videoPlayer = modal.querySelector('video');
+            if (videoPlayer) {
+                videoPlayer.play().catch(e => {
+                    console.log("Auto-play prevented:", e);
+                });
+            }
+        }, 300);
+    }
 }
 
-// Function to show video details with moderation options
+// Function to show video details with moderation options - completely revised for better mobile handling
 function showVideoDetailsWithModeration(videoId, videoData) {
+    // Create modal container
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 overflow-y-auto';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50';
     modal.id = 'videoModal';
     
-    // Add iOS-specific touch handling
-    modal.addEventListener('touchstart', (e) => {
-        if (e.target === modal) {
-            document.body.removeChild(modal);
-        }
-    });
+    // Detect device type
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
     
+    // Check orientation - important for vertical videos
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    // Prepare video element with responsive sizing
     let videoElement = '';
     if (videoData.videoUrl) {
+        // Different video container sizes based on device orientation and type
+        const videoHeight = isPortrait ? (isMobile ? '38vh' : '45vh') : '25vh';
+        
         videoElement = `
-            <div class="flex justify-center">
-                <video controls playsinline class="max-h-[25vh] max-w-full rounded-lg object-contain" preload="auto">
+            <div class="flex justify-center items-center">
+                <video controls playsinline style="max-height: ${videoHeight}; width: auto;" 
+                       class="rounded-lg object-contain bg-black" preload="auto">
                     <source src="${videoData.videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
         `;
     } else {
-        videoElement = `<div class="h-64 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
+        videoElement = `<div class="h-40 w-full bg-gray-200 flex items-center justify-center rounded-lg">Video processing</div>`;
     }
     
+    // Prepare status styling
     let statusClass = 'bg-gray-100 text-gray-800';
     if (videoData.status === 'Approved') statusClass = 'bg-green-100 text-green-800';
     if (videoData.status === 'Rejected') statusClass = 'bg-red-100 text-red-800';
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
     
-    // Fixed score display to match styling and size of the buttons
+    // Format score display to match styling
     const scoreDisplay = typeof videoData.score === 'number' 
         ? `<div class="px-3 py-1 bg-gray-800 text-white rounded text-sm">Score: ${videoData.score}/100</div>` 
         : '';
     
-    // Use my-8 instead of my-4 to add more vertical margin on mobile
-    // Decrease max-height to ensure it fits on mobile screens
-    modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-xs w-full mx-auto my-8 md:my-4 overflow-auto max-h-[80vh] md:max-h-[85vh]">
-            <div class="p-3 border-b bg-white sticky top-0 z-10">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-base font-medium">Moderate Video</h3>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" style="min-width: 44px; min-height: 44px;" aria-label="Close modal">
+    // Create modal markup - differently for mobile vs desktop
+    if (isMobile) {
+        modal.innerHTML = `
+            <div class="flex flex-col h-full">
+                <!-- Top close button area -->
+                <div class="flex justify-end p-2">
+                    <button id="closeModal" class="bg-black bg-opacity-50 text-white rounded-full p-2" aria-label="Close modal">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-            </div>
-            
-            <div class="p-3">
-                ${videoElement}
                 
-                <div class="mt-4">
-                    <div class="flex flex-col space-y-3 mb-3">
-                        <div class="flex items-center">
-                            <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                <!-- Content area that slides up from bottom -->
+                <div class="mt-auto bg-white rounded-t-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                    <!-- Video container - fixed at the top -->
+                    <div class="p-3 bg-black">
+                        ${videoElement}
+                    </div>
+                    
+                    <!-- Scrollable details -->
+                    <div class="overflow-y-auto p-3 flex-1">
+                        <div class="flex flex-col space-y-3 mb-3">
+                            <div class="flex items-center">
+                                <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center space-x-2">
+                                ${scoreDisplay}
+                                <div class="flex space-x-2">
+                                    <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
+                                        Approve
+                                    </button>
+                                    <button id="rejectBtn" class="px-3 py-1 bg-red-500 text-white rounded text-sm ${videoData.status === 'Rejected' ? 'opacity-50' : ''}">
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="flex justify-between items-center space-x-2">
-                            ${scoreDisplay}
-                            <div class="flex space-x-2">
-                                <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
-                                    Approve
+                        <div class="grid grid-cols-2 gap-1 mb-3">
+                            <div>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Upload:</strong> ${formatDate(videoData.uploadDate, true)}</p>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                            </div>
+                            <div>
+                                ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                                    ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
+                                    ${videoData.mediaName ? 
+                                        `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
+                                        ''}
+                                </div>
+                                <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                    Edit
                                 </button>
-                                <button id="rejectBtn" class="px-3 py-1 bg-red-500 text-white rounded text-sm ${videoData.status === 'Rejected' ? 'opacity-50' : ''}">
-                                    Reject
-                                </button>
+                            </div>
+                            
+                            <div id="mediaNameEditForm" class="hidden">
+                                <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                        value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
+                                    <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-1 mb-2">
-                        <div>
-                            <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
-                            <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
-                        </div>
-                        <div>
-                            ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
-                        </div>
+                    <!-- Bottom padding to ensure visibility -->
+                    <div class="pb-6"></div>
+                </div>
+            </div>
+        `;
+    } else {
+        // Desktop modal
+        modal.innerHTML = `
+            <div class="flex items-center justify-center h-full p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh]">
+                    <!-- Header with title and close button -->
+                    <div class="p-3 border-b bg-white sticky top-0 z-10 flex justify-between items-center">
+                        <h3 class="text-base font-medium">Moderate Video</h3>
+                        <button id="closeModal" class="text-gray-500 hover:text-gray-700 p-2" aria-label="Close modal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
                     
-                    <div class="mb-2">
-                        <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
-                        <div class="flex items-center space-x-2 mb-2">
-                            <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
-                                ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
-                                ${videoData.mediaName ? 
-                                    `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
-                                    ''}
+                    <!-- Video container -->
+                    <div class="p-3 bg-black">
+                        ${videoElement}
+                    </div>
+                    
+                    <!-- Scrollable content -->
+                    <div class="p-4 overflow-y-auto">
+                        <div class="flex flex-col space-y-3 mb-3">
+                            <div class="flex items-center">
+                                <span class="inline-block px-2 py-1 text-xs rounded ${statusClass}">${videoData.status || 'Processing'}</span>
                             </div>
-                            <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
-                                Edit
-                            </button>
+                            
+                            <div class="flex justify-between items-center space-x-2">
+                                ${scoreDisplay}
+                                <div class="flex space-x-2">
+                                    <button id="approveBtn" class="px-3 py-1 bg-fairlife-blue text-white rounded text-sm ${videoData.status === 'Approved' ? 'opacity-50' : ''}">
+                                        Approve
+                                    </button>
+                                    <button id="rejectBtn" class="px-3 py-1 bg-red-500 text-white rounded text-sm ${videoData.status === 'Rejected' ? 'opacity-50' : ''}">
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div id="mediaNameEditForm" class="hidden">
-                            <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
-                            <div class="flex space-x-2">
-                                <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
-                                    value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
-                                <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Upload Date:</strong> ${formatDate(videoData.uploadDate, true)}</p>
+                                <p class="text-sm text-gray-800 mb-1"><strong>Hashtags:</strong> ${videoData.hashtags || 'None'}</p>
+                            </div>
+                            <div>
+                                ${videoData.recommendedMob ? `<p class="text-sm text-fairlife-blue mb-1"><strong>Milk Mob:</strong> ${videoData.recommendedMob}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="block text-sm font-medium text-gray-700 mb-1">Media Name</div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="flex-1 px-3 py-2 bg-gray-100 rounded-md text-gray-700 text-sm overflow-hidden text-ellipsis">
+                                    ${videoData.mediaName || videoData.originalFileName || 'Unknown'}
+                                    ${videoData.mediaName ? 
+                                        `<div class="text-xs text-gray-500 mt-1">Original: ${videoData.originalFileName || 'Unknown'}</div>` : 
+                                        ''}
+                                </div>
+                                <button id="editMediaNameBtn" aria-label="Edit media name" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-300">
+                                    Edit
+                                </button>
+                            </div>
+                            
+                            <div id="mediaNameEditForm" class="hidden">
+                                <label for="mediaName-${videoId}" class="block text-sm font-medium text-gray-700 mb-1">Custom Media Name</label>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="mediaName-${videoId}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                        value="${videoData.mediaName || ''}" placeholder="Enter a custom name for this media">
+                                    <button id="saveMediaName" aria-label="Save media name" class="bg-fairlife-blue text-white px-3 py-2 rounded-md" data-id="${videoId}">Save</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="p-5 mt-2">
-                <!-- Increased padding at the bottom to ensure all content is visible -->
-            </div>
-        </div>
-    `;
+        `;
+    }
     
-    // Calculate and set proper modal height based on device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Handle mobile devices specifically
     if (isMobile) {
-        document.body.style.overflow = 'hidden'; // Prevent body scrolling on mobile
-        
-        // After appending to DOM, adjust position if needed on mobile
-        setTimeout(() => {
-            const modalContent = modal.querySelector('.bg-white');
-            if (modalContent) {
-                // Check if content exceeds viewport height
-                if (modalContent.offsetHeight > window.innerHeight * 0.9) {
-                    modalContent.style.height = '80vh';
-                    modalContent.style.overflowY = 'auto';
-                }
-            }
-        }, 50);
+        document.body.style.overflow = 'hidden'; // Prevent body scrolling
     }
     
     document.body.appendChild(modal);
@@ -891,13 +1056,29 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         document.body.removeChild(modal);
     });
     
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            document.body.style.overflow = ''; // Restore scrolling
-            document.body.removeChild(modal);
+    // Add touch and click handlers for closing modal
+    if (isMobile) {
+        // For mobile, only close when clicking in the top area
+        const topArea = modal.querySelector('.flex.justify-end.p-2');
+        if (topArea) {
+            topArea.addEventListener('click', (e) => {
+                if (e.target === topArea) {
+                    document.body.style.overflow = ''; 
+                    document.body.removeChild(modal);
+                }
+            });
         }
-    });
+    } else {
+        // For desktop, close when clicking outside the modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.style.overflow = ''; 
+                document.body.removeChild(modal);
+            }
+        });
+    }
     
+    // Media name editing functionality
     const editButton = document.getElementById('editMediaNameBtn');
     if (editButton) {
         editButton.addEventListener('click', () => {
@@ -951,6 +1132,7 @@ function showVideoDetailsWithModeration(videoId, videoData) {
         });
     }
     
+    // Approval/rejection buttons
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
@@ -1000,6 +1182,18 @@ function showVideoDetailsWithModeration(videoId, videoData) {
                 alert("Failed to reject video. Please try again.");
             }
         });
+    }
+    
+    // Auto-play video if not on iOS (iOS restricts autoplay)
+    if (videoData.videoUrl && !isIOS) {
+        setTimeout(() => {
+            const videoPlayer = modal.querySelector('video');
+            if (videoPlayer) {
+                videoPlayer.play().catch(e => {
+                    console.log("Auto-play prevented:", e);
+                });
+            }
+        }, 300);
     }
 }
 
