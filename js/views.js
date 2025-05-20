@@ -416,7 +416,7 @@ function showVideoDetails(videoId, videoData) {
     if (videoData.status === 'Pending Review') statusClass = 'bg-yellow-100 text-yellow-800';
     
     const scoreDisplay = typeof videoData.score === 'number' 
-        ? `<span class="inline-block px-2 py-1 text-xs rounded bg-black text-white">Score: ${videoData.score}/100</span>` 
+        ? `<span class="inline-block px-2 py-1 text-xs rounded-md bg-black text-white">Score: ${videoData.score}/100</span>` 
         : '';
     
     modal.innerHTML = `
