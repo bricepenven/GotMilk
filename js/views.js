@@ -36,12 +36,13 @@ function renderHomeView() {
             const filteredVideos = [];
             snapshot.forEach(doc => {
                 const video = doc.data();
-                if (video.status !== 'Rejected') {
-                    filteredVideos.push({
-                        id: doc.id,
-                        ...video
-                    });
-                }
+                if (video.status === 'Approved') {
+    filteredVideos.push({
+        id: doc.id,
+        ...video
+    });
+}
+
             });
             
             if (filteredVideos.length === 0) {
