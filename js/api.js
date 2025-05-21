@@ -195,7 +195,7 @@ async function handleUpload(e) {
                         videoUrl: videoUrl,
                         thumbnailUrl: thumbnailUrl, // Will be null if generation failed
                         hashtags: hashtags,
-                        status: 'Pending Review',
+                        status: 'Database Update',
                         needsReview: true,
                         uploadDate: firebase.firestore.FieldValue.serverTimestamp(),
                         originalFileName: videoFile.name,
