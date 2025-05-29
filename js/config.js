@@ -9,7 +9,7 @@ const firebaseConfig = {
 };
 
 // Webhook URL for n8n workflow
-const webhookUrl = "https://invigorating-happiness.up.railway.app/webhook/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
+const webhookUrl = "https://invigorating-happiness.up.railway.app//webhook/884e09b7-11b7-4728-b3f7-e909cc9c6b9a";
 
 // CORS proxy URL as a fallback
 const corsProxyUrl = "https://corsproxy.io/?";
